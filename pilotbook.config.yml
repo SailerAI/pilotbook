@@ -1,0 +1,23 @@
+# pilotbook.config.yml
+name: pilotbook
+root: docs
+types:
+  epic:  { dir: backlog/epics,   prefix: EPIC-, pad: 3 }
+  story: { dir: backlog/stories, prefix: US-,   pad: 3, parent: epic }
+  task:  { dir: backlog/tasks,   prefix: TASK-, pad: 3, parent: story }
+  adr:   { dir: adr,             prefix: ADR-,  pad: 4 }
+  business-rule: { dir: business-rules, prefix: BR-, pad: 3 }
+  idea:  { dir: ideas,           prefix: IDEA-, pad: 3 }
+edges:
+  depends_on:     { to: [epic, story, task], blocking: true, acyclic: true }
+  business_rules: { to: [business-rule] }
+  adrs:           { to: [adr] }
+code_map:
+  backend: [src]
+  frontend: [ui]
+  docs: [docs, README.md, CONTRIBUTING.md]
+  infra: [.github]
+checks:
+  commands: [pnpm test, pnpm typecheck, pnpm lint]
+hooks:
+  block_on_unverified: false

@@ -2,6 +2,17 @@
 
 Thanks for helping. Pilotbook is a small CLI with a hard architectural rule: **no behaviour lives in a transport**. If you are adding a command, add an operation in `src/ops/` first, then a thin CLI/MCP/UI adapter.
 
+This repository is itself a Pilotbook project. Use the local CLI (`pnpm pb`), not a published `npx pilotbook`.
+
+```bash
+pnpm build
+pnpm pb next
+pnpm pb brief TASK-NNN
+pnpm pb lint
+```
+
+`pnpm lint` is Biome (source style). `pnpm pb lint` is graph integrity over `docs/backlog`, `docs/adr`, and `docs/business-rules`. Both must stay green.
+
 ## Setup
 
 ```bash
@@ -9,6 +20,8 @@ pnpm install
 pnpm test
 pnpm typecheck
 pnpm lint
+pnpm build
+pnpm pb lint
 ```
 
 Node 20+. pnpm is required (`packageManager` is pinned).

@@ -52,7 +52,8 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "check:package": "publint && attw --pack . --profile esm-only",
-    "prepublishOnly": "pnpm build && pnpm check:package && npm pack --dry-run"
+    "prepublishOnly": "pnpm build && pnpm check:package && npm pack --dry-run",
+    "pb": "node dist/cli/index.js"
   },
   "dependencies": {
     "citty": "^0.1.6",
