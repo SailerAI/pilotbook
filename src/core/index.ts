@@ -17,6 +17,8 @@ export type { FileStat, FileSystem } from "./fs.ts";
 export { groupBy, inboundOf, loadGraph, refsOf, toPublic } from "./graph.ts";
 export { bodyHash, contentHash } from "./hash.ts";
 export { nextId, slugify, splitRemoteId } from "./ids.ts";
+export type { TestResult } from "./junit.ts";
+export { parseJUnit } from "./junit.ts";
 export { formatDiagnostic, formatGithub, lintGraph } from "./lint.ts";
 export { extractSection, upsertSection } from "./markdown.ts";
 export { MemoryFileSystem } from "./memory-fs.ts";

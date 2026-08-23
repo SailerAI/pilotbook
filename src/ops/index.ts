@@ -1,4 +1,4 @@
-export type { AnalyzeReport, CoverageRow } from "./analyze.ts";
+export type { AnalyzeReport, CoverageRow, CriterionProof } from "./analyze.ts";
 export { analyzeGraph } from "./analyze.ts";
 export type { BumpResult } from "./bump.ts";
 export { bumpItem } from "./bump.ts";

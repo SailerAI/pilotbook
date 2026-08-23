@@ -1,5 +1,7 @@
 import { isTemplateCriterion, parseChecklist } from "../core/checklist.ts";
+import { hostJoin } from "../core/config.ts";
 import { inboundOf } from "../core/graph.ts";
+import { parseJUnit, type TestResult } from "../core/junit.ts";
 import { extractSection } from "../core/markdown.ts";
 import type { GraphIndex, ParsedItem } from "../core/types.ts";
 import type { OpContext } from "./context.ts";
@@ -11,12 +13,24 @@ export interface CoverageRow {
   key: string;
   hasTask: boolean;
   taskIds: string[];
+  proved: boolean;
+  test?: string;
   notes: string;
+}
+
+export interface CriterionProof {
+  id: string;
+  index: number;
+  test?: string;
+  status?: string;
 }
 
 export interface AnalyzeReport {
   coverage: CoverageRow[];
   coveragePercent: number;
+  provedPercent: number;
+  proved: CriterionProof[];
+  unproven: CriterionProof[];
   ok: boolean;
 }
 
@@ -26,6 +40,10 @@ function asStringList(value: unknown): string[] {
 
 function isResolved(status: unknown): boolean {
   return status === "done" || status === "cancelled";
+}
+
+function joinNotes(...parts: Array<string | false | undefined>): string {
+  return parts.filter((p): p is string => Boolean(p)).join("; ");
 }
 
 function workInbound(index: GraphIndex, id: string, fields: string[]): ParsedItem[] {
@@ -55,12 +73,49 @@ function childTasks(index: GraphIndex, storyId: string): ParsedItem[] {
   return inboundOf(index, storyId, ["story"]).filter((item) => item.type === "task");
 }
 
+function loadResults(ctx: OpContext): TestResult[] {
+  const report = ctx.project.config.checks.report;
+  if (!report) return [];
+  const abs = hostJoin(ctx.project.projectRoot, report);
+  const stat = ctx.fs.stat(abs);
+  if (!stat?.isFile) return [];
+  return parseJUnit(ctx.fs.readFile(abs));
+}
+
+function indexProofs(results: TestResult[]): Map<string, TestResult> {
+  const byKey = new Map<string, TestResult>();
+  for (const result of results) {
+    const haystack = `${result.classname} ${result.name}`;
+    for (const match of haystack.matchAll(/([^#\s]+)#(\d+)/g)) {
+      const key = `${match[1]}#${Number(match[2])}`;
+      const prev = byKey.get(key);
+      if (!prev || (result.status === "pass" && prev.status !== "pass")) {
+        byKey.set(key, result);
+      }
+    }
+  }
+  return byKey;
+}
+
+function criterionProof(key: string, hit: TestResult | undefined): CriterionProof {
+  const match = COVERS_RE.exec(key);
+  const id = match?.[1] ?? key;
+  const index = Number(match?.[2] ?? 0);
+  if (!hit) return { id, index };
+  return { id, index, test: hit.name, status: hit.status };
+}
+
 export function analyzeGraph(ctx: OpContext): AnalyzeReport {
   const { index } = ctx.project;
   const covers = coveringTasks(index);
+  const proofs = indexProofs(loadResults(ctx));
   const coverage: CoverageRow[] = [];
+  const proved: CriterionProof[] = [];
+  const unproven: CriterionProof[] = [];
   let countable = 0;
   let covered = 0;
+  let criterionCount = 0;
+  let provedCount = 0;
   let uncoveredActiveRules = 0;
   let doneWithOpenChildren = 0;
 
@@ -76,7 +131,8 @@ export function analyzeGraph(ctx: OpContext): AnalyzeReport {
       key: item.data.id,
       hasTask,
       taskIds,
-      notes: hasTask ? "" : "no inbound story/task",
+      proved: false,
+      notes: joinNotes(!hasTask && "no inbound story/task", "not machine-ownable"),
     });
   }
 
@@ -91,7 +147,8 @@ export function analyzeGraph(ctx: OpContext): AnalyzeReport {
       key: item.data.id,
       hasTask,
       taskIds,
-      notes: hasTask ? "" : "no inbound edge",
+      proved: false,
+      notes: joinNotes(!hasTask && "no inbound edge", "not machine-ownable"),
     });
   }
 
@@ -103,14 +160,24 @@ export function analyzeGraph(ctx: OpContext): AnalyzeReport {
       const key = `${item.data.id}#${criterion.index}`;
       const taskIds = covers.get(key) ?? [];
       const hasTask = taskIds.length > 0;
+      const hit = proofs.get(key);
+      const isProved = hit?.status === "pass";
       countable += 1;
+      criterionCount += 1;
       if (hasTask) covered += 1;
-      coverage.push({
+      if (isProved) provedCount += 1;
+      const row: CoverageRow = {
         key,
         hasTask,
         taskIds,
+        proved: isProved,
         notes: hasTask ? "" : "no covering task",
-      });
+      };
+      if (hit) row.test = hit.name;
+      coverage.push(row);
+      const proof = criterionProof(key, hit);
+      if (isProved) proved.push(proof);
+      else unproven.push(proof);
     }
   }
 
@@ -123,6 +190,7 @@ export function analyzeGraph(ctx: OpContext): AnalyzeReport {
       key: item.data.id,
       hasTask: true,
       taskIds: open.map((child) => child.data.id).sort((a, b) => a.localeCompare(b)),
+      proved: false,
       notes: "done with open child tasks",
     });
   }
@@ -130,6 +198,9 @@ export function analyzeGraph(ctx: OpContext): AnalyzeReport {
   return {
     coverage,
     coveragePercent: countable === 0 ? 100 : Math.round((covered / countable) * 100),
+    provedPercent: criterionCount === 0 ? 100 : Math.round((provedCount / criterionCount) * 100),
+    proved,
+    unproven,
     ok: uncoveredActiveRules === 0 && doneWithOpenChildren === 0,
   };
 }

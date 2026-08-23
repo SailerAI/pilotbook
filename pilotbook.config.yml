@@ -19,6 +19,7 @@ code_map:
   infra: [.github]
 checks:
   commands: [pnpm test, pnpm typecheck, pnpm lint]
+  report: .pb/junit.xml
 hooks:
   block_on_unverified: false
   prime_budget: 6000

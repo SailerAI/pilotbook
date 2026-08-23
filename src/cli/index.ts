@@ -596,14 +596,16 @@ const main = defineCommand({
           Boolean(args.json),
           result,
           `${printTable(
-            ["Requirement Key", "Has Task?", "Task IDs", "Notes"],
+            ["Requirement Key", "Has Task?", "Task IDs", "Proved?", "Test", "Notes"],
             result.coverage.map((row) => [
               row.key,
               row.hasTask ? "yes" : "no",
               row.taskIds.join(", "),
+              row.key.includes("#") ? (row.proved ? "yes" : "no") : "",
+              row.test ?? "",
               row.notes,
             ]),
-          )}coverage ${result.coveragePercent}%\n${result.ok ? "analyze ok" : "analyze failed"}\n`,
+          )}coverage ${result.coveragePercent}%\nproved ${result.provedPercent}%\n${result.ok ? "analyze ok" : "analyze failed"}\n`,
         );
         process.exit(result.ok ? 0 : 1);
       },

@@ -45,6 +45,7 @@ const fileSchema = z
     checks: z
       .object({
         commands: z.array(z.string()).optional(),
+        report: z.string().optional(),
       })
       .optional(),
     hooks: z
@@ -180,7 +181,10 @@ export function parseConfigFile(text: string): PilotbookConfig {
     types,
     edges,
     codeMap: parsed.codeMap ?? parsed.code_map ?? base.codeMap,
-    checks: { commands: parsed.checks?.commands ?? base.checks.commands },
+    checks: {
+      commands: parsed.checks?.commands ?? base.checks.commands,
+      report: parsed.checks?.report ?? base.checks.report,
+    },
     hooks: {
       blockOnUnverified:
         parsed.hooks?.blockOnUnverified ?? parsed.hooks?.block_on_unverified ?? false,
@@ -222,6 +226,7 @@ edges:
 code_map: {}
 checks:
   commands: []
+  # report: .pb/junit.xml
 hooks:
   block_on_unverified: false
   prime_budget: 6000

@@ -3,7 +3,7 @@ id: US-024
 title: Report unproven criteria
 type: story
 epic: EPIC-006
-status: backlog
+status: done
 priority: P1
 estimate: 5
 phase: 3

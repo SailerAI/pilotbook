@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { dumpDefaultConfig } from "../src/core/config.ts";
 import { MemoryFileSystem } from "../src/core/memory-fs.ts";
 import { complete } from "../src/ops/complete.ts";
 import { initProject } from "../src/ops/init.ts";
@@ -198,6 +199,74 @@ describe("verify gate", () => {
     const r = verifyItem(ctx, "TASK-001");
     expect(r.hash).toHaveLength(12);
     expect(lint(ctx).errors.filter((e) => e.code === "unverified-done")).toHaveLength(0);
+  });
+});
+
+const REPORT = `<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="vitest">
+<testsuite name="test/a.test.ts" tests="2">
+<testcase classname="test/a.test.ts" name="passes" time="0.01"></testcase>
+<testcase classname="test/a.test.ts" name="fails" time="0.02"><failure message="nope"/></testcase>
+</testsuite>
+</testsuites>
+`;
+
+function reportProject(files: Record<string, string> = {}) {
+  return makeProject({
+    "pilotbook.config.yml": dumpDefaultConfig().replace(
+      "  # report: .pb/junit.xml",
+      "  report: .pb/junit.xml",
+    ),
+    "docs/backlog/epics/EPIC-001-a.md": epic("EPIC-001"),
+    "docs/backlog/stories/US-001-s.md": story("US-001", "EPIC-001"),
+    "docs/backlog/tasks/TASK-001-t.md": task("TASK-001", "US-001"),
+    ...files,
+  });
+}
+
+describe("verify report", () => {
+  it("US-023#2 parses the configured report into per-test results", () => {
+    const ctx = reportProject({ ".pb/junit.xml": REPORT });
+    const r = verifyItem(ctx, "TASK-001");
+    expect(r.results).toEqual([
+      { classname: "test/a.test.ts", name: "passes", status: "pass", time: 0.01 },
+      { classname: "test/a.test.ts", name: "fails", status: "fail", time: 0.02 },
+    ]);
+    expect(r.ok).toBe(true);
+    expect(r.checks).toEqual([]);
+  });
+
+  it("US-023#3 returns empty results without erroring when the report is absent", () => {
+    const ctx = reportProject();
+    const r = verifyItem(ctx, "TASK-001");
+    expect(r.results).toEqual([]);
+    expect(r.reportStale).toBe(false);
+    expect(r.ok).toBe(true);
+    expect(r.hash).toHaveLength(12);
+  });
+
+  it("US-023#4 leaves results empty when no report path is configured", () => {
+    const ctx = makeProject({
+      "docs/backlog/epics/EPIC-001-a.md": epic("EPIC-001"),
+      "docs/backlog/stories/US-001-s.md": story("US-001", "EPIC-001"),
+      "docs/backlog/tasks/TASK-001-t.md": task("TASK-001", "US-001"),
+      ".pb/junit.xml": REPORT,
+    });
+    const r = verifyItem(ctx, "TASK-001");
+    expect(r.results).toEqual([]);
+    expect(r.reportStale).toBe(false);
+  });
+
+  it("US-023#2 flags a report no command rewrote as stale", () => {
+    const ctx = reportProject({ ".pb/junit.xml": REPORT });
+    expect(verifyItem(ctx, "TASK-001").reportStale).toBe(true);
+  });
+
+  it("US-023#3 returns empty results for a corrupt report rather than throwing", () => {
+    const ctx = reportProject({ ".pb/junit.xml": `<testsuite><testcase name="cut off"` });
+    const r = verifyItem(ctx, "TASK-001");
+    expect(r.results).toEqual([]);
+    expect(r.ok).toBe(true);
   });
 });
 

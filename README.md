@@ -114,7 +114,7 @@ pb brief TA<TAB>    # TASK-001  Transaction API
 | Command | What it does |
 | --- | --- |
 | `pb new <type> --title "…"` | Allocate the next ID |
-| `pb verify <ID>` | Run `checks.commands`, stamp `verified` |
+| `pb verify <ID>` | Run `checks.commands`, stamp `verified`, parse `checks.report` into `results` |
 | `pb lint` | Graph integrity (`--format github`) |
 | `pb board` | Regenerate `BOARD.md` (`--dry-run` reports `in_sync`, added, orphans) |
 | `pb converge <ID>` | Append tasks for uncovered criteria (`--dry-run` reports `converged` or a plan) |
@@ -124,7 +124,7 @@ pb brief TA<TAB>    # TASK-001  Transaction API
 | Command | What it does |
 | --- | --- |
 | `pb init` | Config, directories, templates, agent skills |
-| `pb analyze` | Coverage table; exit 1 for uncovered active rules or done stories with open children |
+| `pb analyze` | Coverage table with Proved?/Test for `ID#N` criteria; JSON `proved`/`unproven`/`provedPercent`; exit 1 for uncovered active rules or done stories with open children |
 | `pb graph --dot` | Graphviz |
 | `pb ui` | Kanban + graph + brief preview (127.0.0.1). Reloads when markdown on disk changes. |
 | `pb mcp` | MCP server on stdio |
@@ -154,10 +154,22 @@ code_map:
   backend: [src]
 checks:
   commands: [pnpm test, pnpm lint]
+  report: .pb/junit.xml
 hooks:
   block_on_unverified: false
   prime_budget: 6000
 ```
+
+`checks.report` is an optional repo-relative JUnit XML path read after `checks.commands` run.
+`pb verify --json` then carries `results` (`{name, classname, status, time}` per test) plus
+`reportStale` when nothing rewrote the file. A missing or corrupt report is not an error — `results`
+is simply empty.
+
+`pb analyze --json` adds `proved` and `unproven` arrays of `{id, index, test?, status?}` plus
+`provedPercent` (share of acceptance-criteria rows with a passing bound `ID#N` test).
+`coveragePercent` still means "has a covering task" (US-015). Matching is the exact token `ID#N`
+in JUnit `classname + " " + name`. fail, error, and skipped count as unproven. Rule and ADR rows
+are not machine-ownable.
 
 `hooks.prime_budget` is the token ceiling `pb hook session-start` compiles the in-progress brief
 under. Truncation is reported as a `brief_truncated` warning, never dropped silently.

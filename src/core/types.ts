@@ -83,7 +83,8 @@ export interface PilotbookConfig {
   types: Record<string, TypeConfig>;
   edges: Record<string, EdgeKind>;
   codeMap: Record<string, string[]>;
-  checks: { commands: string[] };
+  /** `report` is a repo-relative JUnit XML path read after `commands` run. */
+  checks: { commands: string[]; report?: string };
   hooks: { blockOnUnverified: boolean; primeBudget: number };
   peers: PeerManifestRef[];
 }

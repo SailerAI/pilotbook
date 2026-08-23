@@ -1,7 +1,9 @@
 import { spawnSync } from "node:child_process";
+import { hostJoin } from "../core/config.ts";
 import { extraKeys } from "../core/defaults.ts";
 import { serializeItem, today } from "../core/frontmatter.ts";
 import { contentHash } from "../core/hash.ts";
+import { parseJUnit, type TestResult } from "../core/junit.ts";
 import type { ItemData } from "../core/types.ts";
 import { type OpContext, PilotbookError, reload } from "./context.ts";
 import { writeBoard } from "./items.ts";
@@ -37,6 +39,10 @@ export interface VerifyResult {
   ok: boolean;
   hash: string;
   checks: Array<{ command: string; exit: number; ms: number }>;
+  /** Per-test results from `checks.report`. Empty when no report is configured or written. */
+  results: TestResult[];
+  /** The report existed but no command rewrote it, so `results` describe an earlier run. */
+  reportStale: boolean;
   bypassed: boolean;
 }
 
@@ -50,7 +56,10 @@ export function verifyItem(
   const cfg = ctx.project.config.types[item.type];
   if (!cfg) throw new PilotbookError(`unknown type ${item.type}`);
   const commands = ctx.project.config.checks.commands;
-  const results: VerifyResult["checks"] = [];
+  const report = ctx.project.config.checks.report;
+  const reportAbs = report ? hostJoin(ctx.project.projectRoot, report) : "";
+  const mtimeBefore = reportAbs ? (ctx.fs.stat(reportAbs)?.mtimeMs ?? null) : null;
+  const checks: VerifyResult["checks"] = [];
   let ok = true;
 
   for (const command of commands) {
@@ -65,14 +74,19 @@ export function verifyItem(
       stdio: ["ignore", "pipe", "pipe"],
     });
     const exit = spawned.status ?? 1;
-    results.push({ command, exit, ms: Date.now() - start });
+    checks.push({ command, exit, ms: Date.now() - start });
     if (exit !== 0) ok = false;
   }
+
+  const stat = reportAbs ? ctx.fs.stat(reportAbs) : null;
+  const results = stat?.isFile ? parseJUnit(ctx.fs.readFile(reportAbs)) : [];
+  const reportStale =
+    Boolean(stat?.isFile) && mtimeBefore !== null && stat?.mtimeMs === mtimeBefore;
 
   const bypassed = Boolean(opts.force) && !ok;
   if (!ok && !opts.force) {
     throw new PilotbookError(
-      `verify failed for ${id}: ${results
+      `verify failed for ${id}: ${checks
         .filter((r) => r.exit !== 0)
         .map((r) => r.command)
         .join(", ")}`,
@@ -94,5 +108,5 @@ export function verifyItem(
   ctx.fs.writeFile(item.abs, serializeItem(next, item.body, cfg.required, extraKeys(cfg)));
   reload(ctx);
   writeBoard(ctx);
-  return { id, ok: ok || bypassed, hash, checks: results, bypassed };
+  return { id, ok: ok || bypassed, hash, checks, results, reportStale, bypassed };
 }

@@ -3,7 +3,7 @@ id: US-023
 title: Capture per-test results, not just exit codes
 type: story
 epic: EPIC-006
-status: backlog
+status: done
 priority: P1
 estimate: 5
 phase: 3
@@ -24,10 +24,10 @@ updated: 2026-08-23
 
 ## Acceptance criteria
 
-- [ ] Given `checks.commands` and a configured report path, when `pb verify` runs, then each command still records `{command, exit, ms}` and, if the report file exists after the commands, ops parse JUnit XML into `{name, classname, status, time}` (`status` is `pass` | `fail` | `error` | `skipped`)
-- [ ] Given `--json`, when I read the payload, then it includes `results` (the parsed tests) even when the suite exit is 0
-- [ ] Given no report file after the commands, when I verify, then existing exit-code behaviour is unchanged and `results` is an empty array — not an error
-- [ ] Given CLI and MCP `verify`, when they run, then they share ops; neither parses XML in the transport
+- [x] Given `checks.commands` and a configured report path, when `pb verify` runs, then each command still records `{command, exit, ms}` and, if the report file exists after the commands, ops parse JUnit XML into `{name, classname, status, time}` (`status` is `pass` | `fail` | `error` | `skipped`)
+- [x] Given `--json`, when I read the payload, then it includes `results` (the parsed tests) even when the suite exit is 0
+- [x] Given no report file after the commands, when I verify, then existing exit-code behaviour is unchanged and `results` is an empty array — not an error
+- [x] Given CLI and MCP `verify`, when they run, then they share ops; neither parses XML in the transport
 
 ## Notes
 

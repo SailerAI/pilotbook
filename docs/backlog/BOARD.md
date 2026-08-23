@@ -6,7 +6,7 @@ _Last generated: 2026-08-23_
 
 ## By status
 
-### backlog (13)
+### backlog (11)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -16,15 +16,13 @@ _Last generated: 2026-08-23_
 | [US-018](backlog/stories/US-018-publish-the-agent-contract.md) | Publish the agent contract | story | P2 |
 | [US-019](backlog/stories/US-019-refuse-to-tick-reviewer-owned-criteria.md) | Refuse to tick reviewer-owned criteria | story | P2 |
 | [US-021](backlog/stories/US-021-run-an-evidence-backed-epic-retrospective.md) | Run an evidence-backed epic retrospective | story | P3 |
-| [US-023](backlog/stories/US-023-capture-per-test-results-not-just-exit-codes.md) | Capture per-test results, not just exit codes | story | P1 |
-| [US-024](backlog/stories/US-024-report-unproven-criteria.md) | Report unproven criteria | story | P1 |
 | [US-025](backlog/stories/US-025-gate-done-on-proof.md) | Gate done on proof | story | P1 |
 | [US-026](backlog/stories/US-026-detect-code-that-no-in-flight-item-claims.md) | Detect code that no in-flight item claims | story | P1 |
 | [US-027](backlog/stories/US-027-surface-drift-in-ci-and-the-pre-commit-hook.md) | Surface drift in CI and the pre-commit hook | story | P2 |
 | [US-028](backlog/stories/US-028-measure-brief-vs-no-brief-on-a-fixed-task-set.md) | Measure brief vs no brief on a fixed task set | story | P1 |
 | [US-029](backlog/stories/US-029-publish-the-number-and-correct-br-003-if-contradicted.md) | Publish the number and correct BR-003 if contradicted | story | P2 |
 
-### done (69)
+### done (78)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -70,6 +68,13 @@ _Last generated: 2026-08-23_
 | [TASK-043](backlog/tasks/TASK-043-wire-pb-analyze-through-cli-and-mcp-with-ci-exit.md) | Wire pb analyze through CLI and MCP with CI exit | task | P2 |
 | [TASK-044](backlog/tasks/TASK-044-implement-convergeitem-appending-covers-carrying-tasks.md) | Implement convergeItem appending covers-carrying tasks | task | P1 |
 | [TASK-045](backlog/tasks/TASK-045-wire-pb-converge-through-cli-and-mcp.md) | Wire pb converge through CLI and MCP | task | P1 |
+| [TASK-046](backlog/tasks/TASK-046-add-srccorejunitts-junit-report-scanner.md) | Add src/core/junit.ts JUnit report scanner | task | P2 |
+| [TASK-047](backlog/tasks/TASK-047-plumb-checksreport-through-config-and-defaults.md) | Plumb checks.report through config and defaults | task | P2 |
+| [TASK-048](backlog/tasks/TASK-048-return-parsed-per-test-results-from-verifyitem.md) | Return parsed per-test results from verifyItem | task | P2 |
+| [TASK-049](backlog/tasks/TASK-049-dogfood-the-vitest-junit-reporter-into-pbjunitxml.md) | Dogfood the vitest junit reporter into .pb/junit.xml | task | P2 |
+| [TASK-050](backlog/tasks/TASK-050-extend-analyzegraph-with-proved-criteria-matching.md) | Extend analyzeGraph with proved criteria matching | task | P2 |
+| [TASK-051](backlog/tasks/TASK-051-title-tests-with-us-023-and-us-024-criterion-tokens.md) | Title tests with US-023 and US-024 criterion tokens | task | P2 |
+| [TASK-052](backlog/tasks/TASK-052-add-proved-and-test-columns-to-pb-analyze-table-and-readme.md) | Add Proved and Test columns to pb analyze table and README | task | P2 |
 | [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
 | [US-002](backlog/stories/US-002-clarify-an-item-into-a-bounded-question-set.md) | Clarify an item into a bounded question set | story | P1 |
 | [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
@@ -89,6 +94,8 @@ _Last generated: 2026-08-23_
 | [US-017](backlog/stories/US-017-report-brief-truncation-as-a-diagnostic.md) | Report brief truncation as a diagnostic | story | P1 |
 | [US-020](backlog/stories/US-020-merge-the-board-without-downgrading-status.md) | Merge the board without downgrading status | story | P1 |
 | [US-022](backlog/stories/US-022-prime-a-session-with-the-in-progress-brief.md) | Prime a session with the in-progress brief | story | P1 |
+| [US-023](backlog/stories/US-023-capture-per-test-results-not-just-exit-codes.md) | Capture per-test results, not just exit codes | story | P1 |
+| [US-024](backlog/stories/US-024-report-unproven-criteria.md) | Report unproven criteria | story | P1 |
 | [US-030](backlog/stories/US-030-navigate-children-and-internal-links-from-the-peek.md) | Navigate children and internal links from the peek | story | P2 |
 | [US-031](backlog/stories/US-031-install-cursor-agent-skills-from-pb-init.md) | Install Cursor agent skills from pb init | story | P1 |
 | [US-032](backlog/stories/US-032-trigger-discover-from-a-vague-demand.md) | Trigger discover from a vague demand | story | P1 |
@@ -112,7 +119,7 @@ _Last generated: 2026-08-23_
 
 ## By phase
 
-### 1 (8)
+### 1 (15)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -123,6 +130,13 @@ _Last generated: 2026-08-23_
 | [TASK-039](backlog/tasks/TASK-039-prime-session-start-with-the-budgeted-in-progress-brief.md) | Prime session start with the budgeted in-progress brief | task | P2 |
 | [TASK-042](backlog/tasks/TASK-042-implement-analyzegraph-coverage-queries.md) | Implement analyzeGraph coverage queries | task | P2 |
 | [TASK-043](backlog/tasks/TASK-043-wire-pb-analyze-through-cli-and-mcp-with-ci-exit.md) | Wire pb analyze through CLI and MCP with CI exit | task | P2 |
+| [TASK-046](backlog/tasks/TASK-046-add-srccorejunitts-junit-report-scanner.md) | Add src/core/junit.ts JUnit report scanner | task | P2 |
+| [TASK-047](backlog/tasks/TASK-047-plumb-checksreport-through-config-and-defaults.md) | Plumb checks.report through config and defaults | task | P2 |
+| [TASK-048](backlog/tasks/TASK-048-return-parsed-per-test-results-from-verifyitem.md) | Return parsed per-test results from verifyItem | task | P2 |
+| [TASK-049](backlog/tasks/TASK-049-dogfood-the-vitest-junit-reporter-into-pbjunitxml.md) | Dogfood the vitest junit reporter into .pb/junit.xml | task | P2 |
+| [TASK-050](backlog/tasks/TASK-050-extend-analyzegraph-with-proved-criteria-matching.md) | Extend analyzeGraph with proved criteria matching | task | P2 |
+| [TASK-051](backlog/tasks/TASK-051-title-tests-with-us-023-and-us-024-criterion-tokens.md) | Title tests with US-023 and US-024 criterion tokens | task | P2 |
+| [TASK-052](backlog/tasks/TASK-052-add-proved-and-test-columns-to-pb-analyze-table-and-readme.md) | Add Proved and Test columns to pb analyze table and README | task | P2 |
 | [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
 
 ### 2 (73)
@@ -355,6 +369,23 @@ _Empty._
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
 | [TASK-039](backlog/tasks/TASK-039-prime-session-start-with-the-budgeted-in-progress-brief.md) | Prime session start with the budgeted in-progress brief | task | P2 |
+
+### US-023 Capture per-test results, not just exit codes (4)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-046](backlog/tasks/TASK-046-add-srccorejunitts-junit-report-scanner.md) | Add src/core/junit.ts JUnit report scanner | task | P2 |
+| [TASK-047](backlog/tasks/TASK-047-plumb-checksreport-through-config-and-defaults.md) | Plumb checks.report through config and defaults | task | P2 |
+| [TASK-048](backlog/tasks/TASK-048-return-parsed-per-test-results-from-verifyitem.md) | Return parsed per-test results from verifyItem | task | P2 |
+| [TASK-049](backlog/tasks/TASK-049-dogfood-the-vitest-junit-reporter-into-pbjunitxml.md) | Dogfood the vitest junit reporter into .pb/junit.xml | task | P2 |
+
+### US-024 Report unproven criteria (3)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-050](backlog/tasks/TASK-050-extend-analyzegraph-with-proved-criteria-matching.md) | Extend analyzeGraph with proved criteria matching | task | P2 |
+| [TASK-051](backlog/tasks/TASK-051-title-tests-with-us-023-and-us-024-criterion-tokens.md) | Title tests with US-023 and US-024 criterion tokens | task | P2 |
+| [TASK-052](backlog/tasks/TASK-052-add-proved-and-test-columns-to-pb-analyze-table-and-readme.md) | Add Proved and Test columns to pb analyze table and README | task | P2 |
 
 ### US-030 Navigate children and internal links from the peek (1)
 
