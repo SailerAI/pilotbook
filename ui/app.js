@@ -14,6 +14,87 @@ const BODY_KEY = "pilotbook.bodyMode";
 
 marked.setOptions({ gfm: true, breaks: false });
 
+function escapeRe(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function itemIdRe(itemList) {
+  const ids = [...new Set(itemList.map((i) => i.id).filter(Boolean))].sort(
+    (a, b) => b.length - a.length,
+  );
+  if (!ids.length) return null;
+  return new RegExp(`\\b(${ids.map(escapeRe).join("|")})\\b`, "g");
+}
+
+function autolinkHtml(html, itemList) {
+  const re = itemIdRe(itemList);
+  if (!re) return html;
+  const skipRe = /^(<a\b[^>]*>[\s\S]*?<\/a>|<code\b[^>]*>[\s\S]*?<\/code>|<pre\b[^>]*>[\s\S]*?<\/pre>)/i;
+  let out = "";
+  let rest = String(html || "");
+  while (rest) {
+    const skip = skipRe.exec(rest);
+    if (skip) {
+      out += skip[0];
+      rest = rest.slice(skip[0].length);
+      continue;
+    }
+    const next = rest.search(/<(?:a|code|pre)\b/i);
+    if (next === 0) {
+      out += rest[0];
+      rest = rest.slice(1);
+      continue;
+    }
+    const chunk = next === -1 ? rest : rest.slice(0, next);
+    re.lastIndex = 0;
+    out += chunk.replace(re, (id) => `<a href="${id}">${id}</a>`);
+    rest = next === -1 ? "" : rest.slice(next);
+  }
+  return out;
+}
+
+function dirnamePosix(rel) {
+  const n = String(rel || "").replaceAll("\\", "/");
+  const i = n.lastIndexOf("/");
+  return i <= 0 ? "" : n.slice(0, i);
+}
+
+function normalizePosix(p) {
+  const parts = [];
+  for (const seg of String(p).replaceAll("\\", "/").split("/")) {
+    if (!seg || seg === ".") continue;
+    if (seg === "..") parts.pop();
+    else parts.push(seg);
+  }
+  return parts.join("/");
+}
+
+function resolveHref(href, currentRel, itemList) {
+  const raw = String(href || "").trim();
+  if (!raw || /^(https?:|mailto:|javascript:)/i.test(raw)) return null;
+  const pathOnly = raw.split("#")[0].split("?")[0];
+  if (!pathOnly) return null;
+  const re = itemIdRe(itemList);
+  if (re) {
+    re.lastIndex = 0;
+    const m = pathOnly.match(re);
+    if (m) {
+      const hit = itemList.find((i) => i.id === m[0]);
+      if (hit) return hit;
+    }
+  }
+  const joined = pathOnly.startsWith("/")
+    ? normalizePosix(pathOnly)
+    : normalizePosix(`${dirnamePosix(currentRel)}/${pathOnly}`);
+  if (!joined) return null;
+  return (
+    itemList.find((i) => i.rel === joined) ||
+    itemList.find((i) => i.rel.endsWith(`/${joined}`)) ||
+    itemList.find((i) => joined.endsWith(`/${i.rel}`)) ||
+    null
+  );
+}
+
 createApp({
   setup() {
     const items = ref([]);
@@ -27,6 +108,7 @@ createApp({
     const priorityFilter = ref("all");
     const hideDone = ref(false);
     const editing = ref(null);
+    const peekStack = ref([]);
     const form = ref({});
     const peekLayout = ref(localStorage.getItem(LAYOUT_KEY) || "side");
     const peekTab = ref("edit");
@@ -193,10 +275,35 @@ createApp({
     const renderedBody = computed(() => {
       const src = form.value.body || "";
       try {
-        return String(marked.parse(src, { async: false })).replaceAll(' disabled=""', "").replaceAll(" disabled", "");
+        const html = String(marked.parse(src, { async: false }))
+          .replaceAll(' disabled=""', "")
+          .replaceAll(" disabled", "");
+        return autolinkHtml(html, items.value);
       } catch {
         return "<p>Could not render markdown.</p>";
       }
+    });
+
+    const renderedBrief = computed(() => autolinkHtml(briefHtml.value, items.value));
+
+    const parentItem = computed(() => {
+      if (!editing.value) return null;
+      const field = schema.value.types[editing.value.type]?.parent;
+      if (!field) return null;
+      const pid = editing.value.data[field];
+      if (!pid) return null;
+      return items.value.find((i) => i.id === pid) ?? null;
+    });
+
+    const childItems = computed(() => {
+      if (!editing.value) return [];
+      const id = editing.value.id;
+      return items.value
+        .filter((item) => {
+          const field = schema.value.types[item.type]?.parent;
+          return field && item.data[field] === id;
+        })
+        .sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
     });
 
     function setLayout(layout) {
@@ -215,16 +322,27 @@ createApp({
       );
     }
 
+    function fieldRefs(field) {
+      const raw = form.value[field.key];
+      const ids = field.array
+        ? String(raw || "")
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : raw
+          ? [String(raw)]
+          : [];
+      return ids.map((id) => items.value.find((i) => i.id === id)).filter(Boolean);
+    }
+
     function onMdClick(event) {
       const link = event.target.closest?.("a");
       if (link) {
         const href = link.getAttribute("href") || "";
-        const match = href.match(/\b(EPIC|US|TASK|ADR|BR|IDEA)-\d+\b/);
-        if (match) {
-          event.preventDefault();
-          const item = items.value.find((i) => i.id === match[0]);
-          if (item) openItem(item);
-        } else if (!/^https?:/i.test(href)) event.preventDefault();
+        if (/^https?:/i.test(href) || href.startsWith("mailto:")) return;
+        event.preventDefault();
+        const item = resolveHref(href, editing.value?.rel, items.value);
+        if (item) openItem(item);
         return;
       }
       const box =
@@ -237,7 +355,10 @@ createApp({
       if (idx >= 0) toggleTaskAt(idx);
     }
 
-    function openItem(item) {
+    function openItem(item, opts = {}) {
+      if (opts.push !== false && editing.value && editing.value.id !== item.id) {
+        peekStack.value.push(editing.value.id);
+      }
       editing.value = item;
       peekTab.value = "edit";
       const cfg = schema.value.types[item.type];
@@ -248,6 +369,17 @@ createApp({
         next[key] = cfg.arrays?.includes(key) && Array.isArray(val) ? val.join(", ") : val;
       }
       form.value = next;
+    }
+
+    function peekBack() {
+      while (peekStack.value.length) {
+        const id = peekStack.value.pop();
+        const item = items.value.find((i) => i.id === id);
+        if (item) {
+          openItem(item, { push: false });
+          return;
+        }
+      }
     }
 
     async function loadBrief() {
@@ -263,6 +395,7 @@ createApp({
 
     function closeEditor() {
       editing.value = null;
+      peekStack.value = [];
     }
 
     async function save() {
@@ -395,6 +528,7 @@ createApp({
       priorityFilter,
       hideDone,
       editing,
+      peekStack,
       form,
       peekLayout,
       peekTab,
@@ -402,6 +536,9 @@ createApp({
       selectedEdge,
       bodyMode,
       renderedBody,
+      renderedBrief,
+      parentItem,
+      childItems,
       creating,
       create,
       saving,
@@ -425,10 +562,12 @@ createApp({
       sortBy,
       refresh,
       openItem,
+      peekBack,
       closeEditor,
       setLayout,
       loadBrief,
       onMdClick,
+      fieldRefs,
       save,
       removeCurrent,
       onDragStart,

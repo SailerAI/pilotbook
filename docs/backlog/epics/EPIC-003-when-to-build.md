@@ -24,6 +24,7 @@ updated: 2026-08-23
 - US-007 — Order next by a fixed action ladder
 - US-008 — Render a roadmap from phase
 - US-009 — Search the graph from CLI and UI
+- US-030 — Navigate children and internal links from the peek
 
 ## Success metrics
 

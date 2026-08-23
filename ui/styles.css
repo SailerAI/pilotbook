@@ -537,6 +537,94 @@ table.list {
   padding: 0 0 16px;
 }
 
+.related {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 20px;
+  max-width: 560px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-sunken);
+}
+.related-h {
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 8px 8px 4px;
+}
+.related-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 7px 8px;
+  cursor: pointer;
+  font: inherit;
+}
+.related-row.parent {
+  grid-template-columns: auto auto 1fr auto;
+  margin-bottom: 2px;
+}
+.related-row:hover {
+  background: var(--bg-hover);
+}
+.related-k {
+  font-size: 11px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.related-id {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: #a0a8ea;
+}
+.related-title {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.related-status {
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+
+.prop-ctl {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.ref-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.ref-chip {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: #a0a8ea;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  border-radius: 999px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+.ref-chip:hover {
+  background: var(--bg-hover);
+  text-decoration: underline;
+}
+
 .props {
   display: flex;
   flex-direction: column;
@@ -547,7 +635,7 @@ table.list {
 .prop {
   display: grid;
   grid-template-columns: 140px 1fr;
-  align-items: center;
+  align-items: start;
   gap: 8px;
   min-height: 32px;
 }
@@ -555,6 +643,7 @@ table.list {
   font-size: 12px;
   color: var(--ink-faint);
   text-transform: capitalize;
+  padding-top: 8px;
 }
 .prop input,
 .prop select {
@@ -682,6 +771,7 @@ table.list {
 .md-body a {
   color: #a0a8ea;
   text-decoration: none;
+  cursor: pointer;
 }
 .md-body a:hover {
   text-decoration: underline;

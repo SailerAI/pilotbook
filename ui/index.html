@@ -161,6 +161,7 @@
             <span class="peek-id">{{ editing.id }}</span>
             <span class="peek-type">{{ editing.type }}</span>
             <div class="grow"></div>
+            <button class="btn" v-if="peekStack.length" @click="peekBack">Back</button>
             <div class="seg">
               <button :class="{ active: peekTab === 'edit' }" @click="peekTab = 'edit'">Edit</button>
               <button :class="{ active: peekTab === 'brief' }" @click="loadBrief">Brief</button>
@@ -175,14 +176,52 @@
           <div class="peek-scroll" v-if="peekTab === 'edit'">
             <input class="peek-title" v-model="form.title" placeholder="Untitled" />
             <div class="path">{{ editing.rel }}</div>
+            <nav class="related" v-if="parentItem || childItems.length">
+              <button
+                v-if="parentItem"
+                type="button"
+                class="related-row parent"
+                @click="openItem(parentItem)"
+              >
+                <span class="related-k">Parent</span>
+                <span class="related-id">{{ parentItem.id }}</span>
+                <span class="related-title">{{ parentItem.data.title }}</span>
+                <span class="related-status">{{ parentItem.data.status }}</span>
+              </button>
+              <div class="related-h" v-if="childItems.length">Children</div>
+              <button
+                v-for="child in childItems"
+                :key="child.id"
+                type="button"
+                class="related-row"
+                @click="openItem(child)"
+              >
+                <span class="related-id">{{ child.id }}</span>
+                <span class="related-title">{{ child.data.title }}</span>
+                <span class="related-status">{{ child.data.status }}</span>
+              </button>
+            </nav>
             <div class="props">
               <div class="prop" v-for="field in editableFields" :key="field.key">
                 <label>{{ field.key.replaceAll('_', ' ') }}</label>
-                <select v-if="field.enum" v-model="form[field.key]">
-                  <option v-for="opt in field.enum" :key="opt" :value="opt">{{ opt }}</option>
-                </select>
-                <input v-else-if="field.number" type="number" v-model.number="form[field.key]" />
-                <input v-else v-model="form[field.key]" />
+                <div class="prop-ctl">
+                  <select v-if="field.enum" v-model="form[field.key]">
+                    <option v-for="opt in field.enum" :key="opt" :value="opt">{{ opt }}</option>
+                  </select>
+                  <input v-else-if="field.number" type="number" v-model.number="form[field.key]" />
+                  <input v-else v-model="form[field.key]" />
+                  <div class="ref-chips" v-if="fieldRefs(field).length">
+                    <button
+                      v-for="linked in fieldRefs(field)"
+                      :key="linked.id"
+                      type="button"
+                      class="ref-chip"
+                      @click="openItem(linked)"
+                    >
+                      {{ linked.id }}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="md-pane" :class="'mode-' + bodyMode">
@@ -191,7 +230,7 @@
             </div>
           </div>
           <div class="peek-scroll" v-else>
-            <div class="md-body" v-html="briefHtml"></div>
+            <div class="md-body" v-html="renderedBrief" @click="onMdClick"></div>
           </div>
           <footer class="peek-foot">
             <button class="btn danger" @click="removeCurrent">Delete file</button>

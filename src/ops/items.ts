@@ -292,6 +292,7 @@ export function schemaOf(ctx: OpContext): {
       dates: string[];
       statuses: string[] | undefined;
       group: string;
+      parent?: string;
     }
   >;
   workTypes: readonly string[];
@@ -306,6 +307,7 @@ export function schemaOf(ctx: OpContext): {
       dates: string[];
       statuses: string[] | undefined;
       group: string;
+      parent?: string;
     }
   > = {};
   for (const [name, cfg] of Object.entries(ctx.project.config.types)) {
@@ -317,6 +319,7 @@ export function schemaOf(ctx: OpContext): {
       dates: cfg.dates,
       statuses: cfg.enums.status,
       group: cfg.group,
+      parent: cfg.parent,
     };
   }
   return { types, workTypes: WORK_TYPES };

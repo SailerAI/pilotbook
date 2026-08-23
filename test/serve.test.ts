@@ -51,5 +51,11 @@ describe("startUi", () => {
     expect(items.status).toBe(200);
     const body = (await items.json()) as { items: unknown[] };
     expect(body.items.length).toBeGreaterThan(0);
+
+    const schema = await fetch(`${base}/api/schema`);
+    expect(schema.status).toBe(200);
+    const sch = (await schema.json()) as { types: Record<string, { parent?: string }> };
+    expect(sch.types.story?.parent).toBe("epic");
+    expect(sch.types.task?.parent).toBe("story");
   });
 });
