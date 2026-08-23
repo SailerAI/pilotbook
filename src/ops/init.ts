@@ -26,10 +26,25 @@ function detectAgents(
   root: string,
 ): { cursor: boolean; claude: boolean; agentsMd: boolean } {
   return {
-    cursor: fs.exists(hostJoin(root, ".cursor")) || fs.exists(hostJoin(root, ".cursor/rules")),
+    cursor:
+      fs.exists(hostJoin(root, ".cursor")) ||
+      fs.exists(hostJoin(root, ".cursor/rules")) ||
+      fs.exists(hostJoin(root, ".cursor/skills")),
     claude: fs.exists(hostJoin(root, ".claude")) || fs.exists(hostJoin(root, "CLAUDE.md")),
     agentsMd: fs.exists(hostJoin(root, "AGENTS.md")),
   };
+}
+
+function copyShippedSkills(
+  write: (rel: string, content: string) => void,
+  dest: (name: string) => string,
+): void {
+  const skillsDir = bundledSkills();
+  for (const name of SHIPPED_SKILLS) {
+    const src = path.join(skillsDir, `${name}.md`);
+    if (!nodeFs.existsSync(src)) continue;
+    write(dest(name), nodeFs.readFileSync(src, "utf8"));
+  }
 }
 
 const CURSOR_RULE = `---
@@ -114,14 +129,10 @@ export function initProject(
     const detected = detectAgents(fs, root);
     if (detected.cursor || opts.ai) {
       write(".cursor/rules/pilotbook.mdc", CURSOR_RULE);
+      copyShippedSkills(write, (name) => `.cursor/skills/${name}/SKILL.md`);
     }
     if (detected.claude || opts.ai) {
-      const skillsDir = bundledSkills();
-      for (const name of SHIPPED_SKILLS) {
-        const src = path.join(skillsDir, `${name}.md`);
-        if (!nodeFs.existsSync(src)) continue;
-        write(`.claude/skills/pilotbook-${name}.md`, nodeFs.readFileSync(src, "utf8"));
-      }
+      copyShippedSkills(write, (name) => `.claude/skills/pilotbook-${name}.md`);
     }
     if (detected.agentsMd) {
       const abs = hostJoin(root, "AGENTS.md");

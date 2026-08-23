@@ -114,7 +114,7 @@ Discovery walks up from `cwd` for `pilotbook.config.yml`, then the git root.
 
 ## Skills
 
-`pb init` installs skills into `.cursor/rules/`, `.claude/skills/`, and `AGENTS.md` when those conventions exist: **implement**, **groom**, **prioritize**, **architect**, **discover**.
+`pb init` installs skills into `.cursor/rules/`, `.cursor/skills/`, `.claude/skills/`, and `AGENTS.md` when those conventions exist: **implement**, **groom**, **prioritize**, **architect**, **discover**. Cursor gets an always-apply rule plus each skill at `.cursor/skills/<name>/SKILL.md`.
 
 ## License
 

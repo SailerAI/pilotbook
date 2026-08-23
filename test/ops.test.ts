@@ -67,28 +67,41 @@ describe("init", () => {
     expect(rule).toContain("alwaysApply: true");
     expect(rule).not.toContain("globs: docs/**/*.md");
     for (const name of shippedSkills) {
-      const rel = `.claude/skills/pilotbook-${name}.md`;
-      expect(result.wrote, `missing skill ${name}`).toContain(rel);
-      expect(fs.readFile(`/app/${rel}`)).toContain(`name: ${name}`);
+      const claude = `.claude/skills/pilotbook-${name}.md`;
+      const cursor = `.cursor/skills/${name}/SKILL.md`;
+      expect(result.wrote, `missing Claude skill ${name}`).toContain(claude);
+      expect(result.wrote, `missing Cursor skill ${name}`).toContain(cursor);
+      expect(fs.readFile(`/app/${claude}`)).toContain(`name: ${name}`);
+      expect(fs.readFile(`/app/${cursor}`)).toContain(`name: ${name}`);
     }
   });
 
-  it("still writes the Cursor rule when .cursor is already present", () => {
+  it("still writes the Cursor rule and skills when .cursor is already present", () => {
     const fs = seedInitFs();
     fs.seed({ ".cursor/rules/keep.mdc": "existing" });
     const result = initProject("/app", {}, fs);
     expect(result.wrote).toContain(".cursor/rules/pilotbook.mdc");
     expect(fs.readFile("/app/.cursor/rules/pilotbook.mdc")).toContain("alwaysApply: true");
+    for (const name of shippedSkills) {
+      const rel = `.cursor/skills/${name}/SKILL.md`;
+      expect(result.wrote, `missing Cursor skill ${name}`).toContain(rel);
+      expect(fs.readFile(`/app/${rel}`)).toContain(`name: ${name}`);
+    }
+    expect(result.wrote.some((p) => p.startsWith(".claude/skills/"))).toBe(false);
   });
 
   it("skips existing skill files on re-run", () => {
     const fs = seedInitFs();
     initProject("/app", { ai: true }, fs);
     fs.writeFile("/app/.claude/skills/pilotbook-implement.md", "stale implement\n");
+    fs.writeFile("/app/.cursor/skills/implement/SKILL.md", "stale cursor implement\n");
     const second = initProject("/app", { ai: true }, fs);
     expect(second.skipped).toContain(".claude/skills/pilotbook-implement.md");
+    expect(second.skipped).toContain(".cursor/skills/implement/SKILL.md");
     expect(second.wrote).not.toContain(".claude/skills/pilotbook-implement.md");
+    expect(second.wrote).not.toContain(".cursor/skills/implement/SKILL.md");
     expect(fs.readFile("/app/.claude/skills/pilotbook-implement.md")).toBe("stale implement\n");
+    expect(fs.readFile("/app/.cursor/skills/implement/SKILL.md")).toBe("stale cursor implement\n");
   });
 });
 
