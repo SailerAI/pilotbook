@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { once } from "node:events";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -263,7 +264,6 @@ const main = defineCommand({
       async run({ args }) {
         const port = Number(args.port || 4173);
         const { spawn } = await import("node:child_process");
-        const { once } = await import("node:events");
         const server = startUi({
           port,
           cwd: typeof args.cwd === "string" ? args.cwd : undefined,

@@ -23,8 +23,7 @@ function detectAgents(
 
 const CURSOR_RULE = `---
 description: How to use Pilotbook for epics, stories, tasks, ADRs, and business rules
-globs: docs/**/*.md
-alwaysApply: false
+alwaysApply: true
 ---
 
 # Pilotbook
