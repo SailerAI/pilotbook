@@ -537,23 +537,26 @@ table.list {
   padding: 0 0 16px;
 }
 
+.related-row.parent.crumb {
+  max-width: 560px;
+  margin: 0 0 16px;
+  padding: 4px 0;
+}
 .related {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  margin: 0 0 20px;
+  margin: 0 0 24px;
   max-width: 560px;
-  padding: 8px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--bg-sunken);
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
 }
 .related-h {
   font-size: 11px;
   color: var(--ink-faint);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  padding: 8px 8px 4px;
+  padding: 0 8px 6px;
 }
 .related-row {
   display: grid;
@@ -572,7 +575,6 @@ table.list {
 }
 .related-row.parent {
   grid-template-columns: auto auto 1fr auto;
-  margin-bottom: 2px;
 }
 .related-row:hover {
   background: var(--bg-hover);
@@ -629,7 +631,7 @@ table.list {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   max-width: 560px;
 }
 .prop {

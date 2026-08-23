@@ -176,31 +176,17 @@
           <div class="peek-scroll" v-if="peekTab === 'edit'">
             <input class="peek-title" v-model="form.title" placeholder="Untitled" />
             <div class="path">{{ editing.rel }}</div>
-            <nav class="related" v-if="parentItem || childItems.length">
-              <button
-                v-if="parentItem"
-                type="button"
-                class="related-row parent"
-                @click="openItem(parentItem)"
-              >
-                <span class="related-k">Parent</span>
-                <span class="related-id">{{ parentItem.id }}</span>
-                <span class="related-title">{{ parentItem.data.title }}</span>
-                <span class="related-status">{{ parentItem.data.status }}</span>
-              </button>
-              <div class="related-h" v-if="childItems.length">Children</div>
-              <button
-                v-for="child in childItems"
-                :key="child.id"
-                type="button"
-                class="related-row"
-                @click="openItem(child)"
-              >
-                <span class="related-id">{{ child.id }}</span>
-                <span class="related-title">{{ child.data.title }}</span>
-                <span class="related-status">{{ child.data.status }}</span>
-              </button>
-            </nav>
+            <button
+              v-if="parentItem"
+              type="button"
+              class="related-row parent crumb"
+              @click="openItem(parentItem)"
+            >
+              <span class="related-k">Parent</span>
+              <span class="related-id">{{ parentItem.id }}</span>
+              <span class="related-title">{{ parentItem.data.title }}</span>
+              <span class="related-status">{{ parentItem.data.status }}</span>
+            </button>
             <div class="props">
               <div class="prop" v-for="field in editableFields" :key="field.key">
                 <label>{{ field.key.replaceAll('_', ' ') }}</label>
@@ -224,6 +210,20 @@
                 </div>
               </div>
             </div>
+            <nav class="related" v-if="childItems.length">
+              <div class="related-h">Children</div>
+              <button
+                v-for="child in childItems"
+                :key="child.id"
+                type="button"
+                class="related-row"
+                @click="openItem(child)"
+              >
+                <span class="related-id">{{ child.id }}</span>
+                <span class="related-title">{{ child.data.title }}</span>
+                <span class="related-status">{{ child.data.status }}</span>
+              </button>
+            </nav>
             <div class="md-pane" :class="'mode-' + bodyMode">
               <div v-if="bodyMode !== 'edit'" class="md-body" v-html="renderedBody" @click="onMdClick"></div>
               <textarea v-if="bodyMode !== 'preview'" class="md-source" v-model="form.body" spellcheck="false"></textarea>
