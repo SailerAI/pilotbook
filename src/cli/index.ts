@@ -258,13 +258,38 @@ const main = defineCommand({
       args: {
         ...cwdArg,
         port: { type: "string", description: "Port", default: "4173" },
+        open: { type: "boolean", description: "Open the browser", default: true },
       },
-      run({ args }) {
+      async run({ args }) {
         const port = Number(args.port || 4173);
-        startUi({ port, cwd: typeof args.cwd === "string" ? args.cwd : undefined });
+        const { spawn } = await import("node:child_process");
+        const { once } = await import("node:events");
+        const server = startUi({
+          port,
+          cwd: typeof args.cwd === "string" ? args.cwd : undefined,
+        });
+        try {
+          await once(server, "listening");
+        } catch (err) {
+          fail(err);
+        }
+        const url = `http://127.0.0.1:${port}`;
         process.stdout.write(
-          `Pilotbook UI http://127.0.0.1:${port}\nReads and writes markdown under the project. Ctrl+C to stop.\n`,
+          `Pilotbook UI ${url}\nReads and writes markdown under the project. Ctrl+C to stop.\n`,
         );
+        if (args.open !== false) {
+          const opener =
+            process.platform === "darwin"
+              ? "open"
+              : process.platform === "win32"
+                ? "cmd"
+                : "xdg-open";
+          const openerArgs = process.platform === "win32" ? ["/c", "start", "", url] : [url];
+          spawn(opener, openerArgs, { stdio: "ignore", detached: true }).unref();
+        }
+        await new Promise<void>(() => {
+          /* keep the process alive until SIGINT */
+        });
       },
     }),
     mcp: defineCommand({

@@ -22,13 +22,35 @@ const MIME: Record<string, string> = {
   ".json": "application/json; charset=utf-8",
 };
 
-function uiDir(): string {
-  const here = fileURLToPath(new URL(".", import.meta.url));
-  const candidates = [path.resolve(here, "../../ui"), path.resolve(here, "../../../ui")];
-  for (const c of candidates) {
-    if (fs.existsSync(path.join(c, "index.html"))) return c;
+/** Walk up from this module until we find the installed/source package root. */
+export function findPackageRoot(
+  startDir: string = path.dirname(fileURLToPath(import.meta.url)),
+): string {
+  let dir = startDir;
+  while (true) {
+    const pkgPath = path.join(dir, "package.json");
+    if (fs.existsSync(pkgPath)) {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf8")) as { name?: string };
+        if (pkg.name === "pilotbook") return dir;
+      } catch {
+        // keep walking
+      }
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
   }
-  return candidates[0]!;
+  throw new Error("could not locate the pilotbook package root (package.json)");
+}
+
+export function uiDir(): string {
+  const root = findPackageRoot();
+  const dir = path.join(root, "ui");
+  if (!fs.existsSync(path.join(dir, "index.html"))) {
+    throw new Error(`Pilotbook UI files missing at ${dir}`);
+  }
+  return dir;
 }
 
 function send(res: http.ServerResponse, status: number, body: unknown, type?: string): void {
@@ -61,7 +83,8 @@ function serveStatic(urlPath: string, res: http.ServerResponse, dir: string): vo
   let rel = decodeURIComponent(urlPath.split("?")[0] ?? "/");
   if (rel === "/") rel = "/index.html";
   const abs = path.normalize(path.join(dir, rel));
-  if (!abs.startsWith(dir)) {
+  const root = dir.endsWith(path.sep) ? dir : `${dir}${path.sep}`;
+  if (!abs.startsWith(root) && abs !== dir) {
     send(res, 403, { error: "forbidden" });
     return;
   }
@@ -149,7 +172,7 @@ async function handleApi(
 export function startUi(opts: { port?: number; cwd?: string } = {}): http.Server {
   const port = opts.port ?? Number(process.env.PILOTBOOK_UI_PORT || 4173);
   const ctx = withProject(opts.cwd);
-  const dir = uiDir();
+  const dir = path.resolve(uiDir());
   const server = http.createServer((req, res) => {
     const url = new URL(req.url ?? "/", `http://${req.headers.host}`);
     if (url.pathname.startsWith("/api/")) {
@@ -159,6 +182,11 @@ export function startUi(opts: { port?: number; cwd?: string } = {}): http.Server
       return;
     }
     serveStatic(url.pathname, res, dir);
+  });
+  server.on("error", (err: NodeJS.ErrnoException) => {
+    if (err.code === "EADDRINUSE") {
+      err.message = `port ${port} is already in use. Try \`pb ui --port 4174\` or stop the other process.`;
+    }
   });
   server.listen(port, "127.0.0.1");
   return server;

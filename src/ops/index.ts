@@ -15,5 +15,5 @@ export {
 } from "./items.ts";
 export { board, briefOf, explain, graphDot, lint, lintText, nextReady } from "./query.ts";
 export { planFromBrief, seedFromBrief } from "./seed.ts";
-export { startUi } from "./serve.ts";
+export { findPackageRoot, startUi, uiDir } from "./serve.ts";
 export { verifyItem } from "./verify.ts";
