@@ -9,6 +9,7 @@ phase: 3
 owner: unassigned
 tags: [evidence, criteria, drift, eval]
 depends_on: []
+related: []
 goal: Every claim Pilotbook makes — this criterion holds, this code is accounted for, this brief helps — is backed by something a machine can recompute.
 created: 2026-08-23
 updated: 2026-08-23

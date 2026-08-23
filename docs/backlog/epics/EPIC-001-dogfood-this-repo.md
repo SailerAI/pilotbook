@@ -9,6 +9,7 @@ phase: 1
 owner: unassigned
 tags: [dogfood]
 depends_on: []
+related: []
 goal: This repository is a Pilotbook-managed project driven by the local CLI.
 created: 2026-08-23
 updated: 2026-08-23

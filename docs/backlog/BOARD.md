@@ -6,19 +6,14 @@ _Last generated: 2026-08-23_
 
 ## By status
 
-### backlog (33)
+### backlog (28)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
-| [EPIC-002](backlog/epics/EPIC-002-what-to-build.md) | What to build | epic | P1 |
 | [EPIC-003](backlog/epics/EPIC-003-when-to-build.md) | When to build | epic | P1 |
 | [EPIC-004](backlog/epics/EPIC-004-how-to-build.md) | How to build | epic | P1 |
 | [EPIC-005](backlog/epics/EPIC-005-actually-build-it.md) | Actually build it | epic | P1 |
 | [EPIC-006](backlog/epics/EPIC-006-evidence-not-assertion.md) | Evidence, not assertion | epic | P1 |
-| [US-002](backlog/stories/US-002-clarify-an-item-into-a-bounded-question-set.md) | Clarify an item into a bounded question set | story | P1 |
-| [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
-| [US-004](backlog/stories/US-004-record-a-kill-verdict-on-an-idea.md) | Record a kill verdict on an idea | story | P2 |
-| [US-005](backlog/stories/US-005-answer-clarifications-in-the-browser.md) | Answer clarifications in the browser | story | P2 |
 | [US-006](backlog/stories/US-006-expose-status-json-with-requires-missingdeps-and-unlocks.md) | Expose status JSON with requires, missingDeps, and unlocks | story | P1 |
 | [US-007](backlog/stories/US-007-order-next-by-a-fixed-action-ladder.md) | Order next by a fixed action ladder | story | P1 |
 | [US-008](backlog/stories/US-008-render-a-roadmap-from-phase.md) | Render a roadmap from phase | story | P2 |
@@ -44,14 +39,38 @@ _Last generated: 2026-08-23_
 | [US-028](backlog/stories/US-028-measure-brief-vs-no-brief-on-a-fixed-task-set.md) | Measure brief vs no brief on a fixed task set | story | P1 |
 | [US-029](backlog/stories/US-029-publish-the-number-and-correct-br-003-if-contradicted.md) | Publish the number and correct BR-003 if contradicted | story | P2 |
 
-### done (6)
+### done (18)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
 | [EPIC-001](backlog/epics/EPIC-001-dogfood-this-repo.md) | Dogfood this repo | epic | P1 |
+| [EPIC-002](backlog/epics/EPIC-002-what-to-build.md) | What to build | epic | P1 |
 | [TASK-001](backlog/tasks/TASK-001-document-the-dogfood-loop-in-contributing.md) | Document the dogfood loop in CONTRIBUTING | task | P1 |
 | [TASK-002](backlog/tasks/TASK-002-widen-default-cursor-rule-beyond-docs-glob.md) | Widen default Cursor rule beyond docs glob | task | P1 |
 | [TASK-003](backlog/tasks/TASK-003-show-peek-children-and-follow-internal-links.md) | Show peek children and follow internal links | task | P2 |
+| [TASK-004](backlog/tasks/TASK-004-promote-an-idea-via-ops-cli-and-mcp.md) | Promote an idea via ops CLI and MCP | task | P1 |
+| [TASK-005](backlog/tasks/TASK-005-point-discover-skill-at-pb-promote.md) | Point discover skill at pb promote | task | P1 |
+| [TASK-006](backlog/tasks/TASK-006-reject-an-idea-with-a-recorded-verdict.md) | Reject an idea with a recorded verdict | task | P2 |
+| [TASK-007](backlog/tasks/TASK-007-lift-markdown-section-and-checklist-helpers.md) | Lift markdown section and checklist helpers | task | P1 |
+| [TASK-008](backlog/tasks/TASK-008-clarify-detect-and-apply-ops-cli-and-mcp.md) | Clarify detect and apply ops CLI and MCP | task | P1 |
+| [TASK-009](backlog/tasks/TASK-009-expose-intake-and-clarify-rest-endpoints.md) | Expose intake and clarify REST endpoints | task | P2 |
+| [TASK-011](backlog/tasks/TASK-011-add-ideas-tab-demand-form-for-clarifications.md) | Add Ideas-tab demand form for clarifications | task | P2 |
 | [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
+| [US-002](backlog/stories/US-002-clarify-an-item-into-a-bounded-question-set.md) | Clarify an item into a bounded question set | story | P1 |
+| [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
+| [US-004](backlog/stories/US-004-record-a-kill-verdict-on-an-idea.md) | Record a kill verdict on an idea | story | P2 |
+| [US-005](backlog/stories/US-005-answer-clarifications-in-the-browser.md) | Answer clarifications in the browser | story | P2 |
 | [US-030](backlog/stories/US-030-navigate-children-and-internal-links-from-the-peek.md) | Navigate children and internal links from the peek | story | P2 |
+
+### cancelled (7)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-010](backlog/tasks/TASK-010-implement-promoteidea-ops-cli-and-mcp.md) | Implement promoteIdea ops CLI and MCP | task | P2 |
+| [TASK-012](backlog/tasks/TASK-012-point-discover-skill-at-pb-promote.md) | Point discover skill at pb promote | task | P2 |
+| [TASK-013](backlog/tasks/TASK-013-record-reject-verdict-and-keep-nextready-clean.md) | Record reject verdict and keep nextReady clean | task | P2 |
+| [TASK-014](backlog/tasks/TASK-014-lift-markdown-section-and-checklist-helpers.md) | Lift markdown section and checklist helpers | task | P2 |
+| [TASK-015](backlog/tasks/TASK-015-detect-and-apply-clarifications-via-ops-cli-mcp.md) | Detect and apply clarifications via ops CLI MCP | task | P2 |
+| [TASK-016](backlog/tasks/TASK-016-add-intake-and-clarify-rest-endpoints.md) | Add intake and clarify REST endpoints | task | P2 |
+| [TASK-017](backlog/tasks/TASK-017-ideas-tab-demand-form-for-clarifications.md) | Ideas-tab demand form for clarifications | task | P2 |
 

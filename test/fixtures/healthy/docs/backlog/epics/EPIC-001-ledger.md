@@ -9,6 +9,7 @@ phase: 1
 owner: unassigned
 tags: [ledger]
 depends_on: []
+related: []
 goal: Record money without lying.
 created: 2026-08-23
 updated: 2026-08-23

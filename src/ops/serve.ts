@@ -2,6 +2,7 @@ import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { applyClarifications, clarifyItem } from "./clarify.ts";
 import { type OpContext, PilotbookError, withProject } from "./context.ts";
 import {
   createItem,
@@ -134,6 +135,26 @@ async function handleApi(
       send(res, 201, createItem(ctx, body as { type: string; title: string }));
       return;
     }
+    if (req.method === "POST" && route === "/api/intake") {
+      const body = await readBody(req);
+      const title = String(body.title ?? "").trim();
+      if (!title) throw new PilotbookError("title is required");
+      const item = createItem(ctx, { type: "idea", title });
+      const clarify = clarifyItem(ctx, item.id);
+      send(res, 201, { item, clarify });
+      return;
+    }
+    const clarifyMatch = route.match(/^\/api\/items\/([^/]+)\/clarify$/);
+    if (clarifyMatch && req.method === "POST") {
+      const id = decodeURIComponent(clarifyMatch[1]!);
+      const body = await readBody(req);
+      if (body.answers != null) {
+        send(res, 200, applyClarifications(ctx, id, body.answers));
+      } else {
+        send(res, 200, clarifyItem(ctx, id));
+      }
+      return;
+    }
     const briefMatch = route.match(/^\/api\/brief\/([^/]+)$/);
     if (briefMatch && req.method === "GET") {
       const id = decodeURIComponent(briefMatch[1]!);
@@ -165,7 +186,14 @@ async function handleApi(
     send(res, 404, { error: "not found" });
   } catch (err) {
     const status = err instanceof PilotbookError ? err.status : 400;
-    send(res, status, { error: err instanceof Error ? err.message : String(err) });
+    const payload: Record<string, unknown> = {
+      error: err instanceof Error ? err.message : String(err),
+    };
+    if (err instanceof PilotbookError) {
+      payload.code = err.code;
+      if (err.fix) payload.fix = err.fix;
+    }
+    send(res, status, payload);
   }
 }
 

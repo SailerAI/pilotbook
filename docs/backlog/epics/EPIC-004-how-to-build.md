@@ -9,6 +9,7 @@ phase: 2
 owner: unassigned
 tags: [funnel, architecture]
 depends_on: []
+related: []
 goal: A builder can split oversized work, record how it will be built, and see which shipped items a rule or ADR change just invalidated.
 created: 2026-08-23
 updated: 2026-08-23

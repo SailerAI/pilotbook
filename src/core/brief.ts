@@ -1,4 +1,5 @@
 import { splitRemoteId } from "./ids.ts";
+import { extractSection } from "./markdown.ts";
 import type { FrontmatterValue, ParsedItem, PeerItem, PilotbookConfig } from "./types.ts";
 import { WORK_TYPES } from "./types.ts";
 
@@ -28,16 +29,6 @@ function asList(value: unknown): string[] {
   if (Array.isArray(value)) return value.map(String).filter(Boolean);
   if (typeof value === "string" && value) return [value];
   return [];
-}
-
-function extractSection(body: string, heading: string): string {
-  const re = new RegExp(`^##\\s+${heading}\\s*$`, "im");
-  const match = re.exec(body);
-  if (!match || match.index === undefined) return "";
-  const start = match.index + match[0].length;
-  const rest = body.slice(start);
-  const next = rest.search(/^##\s+/m);
-  return (next === -1 ? rest : rest.slice(0, next)).trim();
 }
 
 function firstParagraph(body: string): string {

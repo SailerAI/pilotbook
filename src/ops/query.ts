@@ -76,6 +76,7 @@ export function nextReady(ctx: OpContext): ReadyItem[] {
   const { items, byId } = ctx.project.index;
   return items
     .filter((i) => WORK_TYPES.includes(i.type))
+    .filter((i) => String(i.data.status) !== "rejected")
     .filter((i) => isUnblocked(i, byId))
     .sort(sortReady)
     .map((i) => ({

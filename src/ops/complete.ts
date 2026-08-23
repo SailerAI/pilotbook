@@ -22,6 +22,9 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
     "ui",
     "mcp",
     "export",
+    "promote",
+    "reject",
+    "clarify",
     "seed",
     "manifest",
     "hook",
@@ -67,12 +70,22 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
       last,
     );
   }
-  if (prev === "--to")
+  if (prev === "--to") {
+    const values = cmd === "promote" ? ["epic", "story"] : ["jira", "notion"];
     return filter(
-      ["jira", "notion"].map((v) => ({ value: v })),
+      values.map((v) => ({ value: v })),
       last,
     );
-  if (["brief", "explain", "verify"].includes(cmd) || prev === "<ID>") {
+  }
+  if (cmd === "promote" || cmd === "reject") {
+    return filter(
+      ctx.project.index.items
+        .filter((i) => i.type === "idea")
+        .map((i) => ({ value: i.data.id, description: String(i.data.title) })),
+      last,
+    );
+  }
+  if (["brief", "explain", "verify", "clarify"].includes(cmd) || prev === "<ID>") {
     return filter(
       ctx.project.index.items.map((i) => ({ value: i.data.id, description: String(i.data.title) })),
       last,
