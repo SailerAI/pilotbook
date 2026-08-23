@@ -215,7 +215,11 @@ export function builtinEdges(): Record<string, EdgeKind> {
     business_rules: { to: ["business-rule"], blocking: false, acyclic: false },
     adrs: { to: ["adr"], blocking: false, acyclic: false },
     related: { to: ["*"], blocking: false, acyclic: false },
-    promoted_to: { to: ["epic", "story", "task", "business-rule", "adr"], blocking: false, acyclic: false },
+    promoted_to: {
+      to: ["epic", "story", "task", "business-rule", "adr"],
+      blocking: false,
+      acyclic: false,
+    },
     supersedes: { to: ["adr"], blocking: false, acyclic: true },
     superseded_by: { to: ["adr"], blocking: false, acyclic: false },
     epic: { to: ["epic"], blocking: false, acyclic: false, scalar: true },
