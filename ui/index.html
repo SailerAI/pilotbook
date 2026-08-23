@@ -64,6 +64,44 @@
         <span class="lint">{{ filtered.length }} items</span>
       </div>
 
+      <section v-if="group === 'ideas'" class="demand">
+        <form class="demand-row" @submit.prevent="submitDemand">
+          <input
+            v-model="demandTitle"
+            placeholder="I want a better dashboard"
+            aria-label="One-line demand"
+          />
+          <button class="btn primary" type="submit" :disabled="intakeBusy">Clarify</button>
+        </form>
+        <div v-if="intake" class="demand-qs">
+          <div class="demand-id">{{ intake.item.id }} — {{ intake.item.data.title }}</div>
+          <p v-if="intake.clarify.ready" class="muted">Ready — nothing to clarify.</p>
+          <div v-for="q in intake.clarify.questions" :key="q.id" class="demand-q">
+            <div class="demand-prompt">{{ q.prompt }}</div>
+            <label v-for="opt in q.options" :key="opt.id" class="check">
+              <input
+                type="radio"
+                :name="'q-' + q.id"
+                :value="opt.id"
+                v-model="clarifyAnswers[q.id].option"
+              />
+              {{ opt.label }}
+            </label>
+            <input
+              v-if="clarifyAnswers[q.id]"
+              v-model="clarifyAnswers[q.id].text"
+              :placeholder="'Write the ' + (clarifyAnswers[q.id].option || 'answer')"
+            />
+          </div>
+          <div class="demand-actions" v-if="intake.clarify.questions.length">
+            <button class="btn" type="button" @click="clearIntake">Cancel</button>
+            <button class="btn primary" type="button" :disabled="intakeBusy" @click="saveClarify">
+              Save answers
+            </button>
+          </div>
+        </div>
+      </section>
+
       <section v-if="view === 'kanban'" class="board">
         <div
           class="col"

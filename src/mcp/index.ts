@@ -1,6 +1,8 @@
 import { stdin as input, stdout as output } from "node:process";
 import {
+  applyClarifications,
   briefOf,
+  clarifyItem,
   createItem,
   deleteItem,
   explain,
@@ -9,6 +11,9 @@ import {
   listItems,
   nextReady,
   type OpContext,
+  PilotbookError,
+  promoteIdea,
+  rejectIdea,
   schemaOf,
   updateItem,
   verifyItem,
@@ -103,6 +108,42 @@ const TOOLS = [
     },
   },
   { name: "schema", description: "Type schema", inputSchema: { type: "object", properties: {} } },
+  {
+    name: "promote",
+    description: "Promote an idea to an epic or story",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        to: { type: "string", description: "epic | story" },
+        title: { type: "string" },
+        epic: { type: "string" },
+        dryRun: { type: "boolean" },
+      },
+      required: ["id", "to", "title"],
+    },
+  },
+  {
+    name: "reject",
+    description: "Record a kill verdict on an idea",
+    inputSchema: {
+      type: "object",
+      properties: { id: { type: "string" }, reason: { type: "string" } },
+      required: ["id", "reason"],
+    },
+  },
+  {
+    name: "clarify",
+    description: "Detect or apply a bounded clarification set",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        answers: { type: "array", items: { type: "object" } },
+      },
+      required: ["id"],
+    },
+  },
 ];
 
 function textResult(obj: unknown): { content: Array<{ type: "text"; text: string }> } {
@@ -144,6 +185,29 @@ function callTool(ctx: OpContext, name: string, params: Record<string, unknown>)
       return textResult(verifyItem(ctx, String(params.id), { force: Boolean(params.force) }));
     case "schema":
       return textResult(schemaOf(ctx));
+    case "promote": {
+      const to = String(params.to);
+      if (to !== "epic" && to !== "story") {
+        throw new PilotbookError("to must be epic or story", "invalid-to");
+      }
+      return textResult(
+        promoteIdea(ctx, String(params.id), {
+          to,
+          title: String(params.title ?? ""),
+          epic: typeof params.epic === "string" ? params.epic : undefined,
+          dryRun: Boolean(params.dryRun),
+        }),
+      );
+    }
+    case "reject":
+      return textResult(
+        rejectIdea(ctx, String(params.id), { reason: String(params.reason ?? "") }),
+      );
+    case "clarify":
+      if (params.answers != null) {
+        return textResult(applyClarifications(ctx, String(params.id), params.answers));
+      }
+      return textResult(clarifyItem(ctx, String(params.id)));
     default:
       throw new Error(`unknown tool: ${name}`);
   }
@@ -187,7 +251,9 @@ export async function runMcp(cwd?: string): Promise<void> {
           replyErr(id, `unknown method ${req.method}`, -32601);
         }
       } catch (err) {
-        replyErr(id, err instanceof Error ? err.message : String(err));
+        const msg = err instanceof Error ? err.message : String(err);
+        const fix = err instanceof PilotbookError && err.fix ? `; fix: ${err.fix}` : "";
+        replyErr(id, `${msg}${fix}`);
       }
     }
   });

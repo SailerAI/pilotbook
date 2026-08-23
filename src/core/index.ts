@@ -1,5 +1,6 @@
 export type { BriefResult, BriefSection } from "./brief.ts";
 export { compileBrief, renderBriefMarkdown } from "./brief.ts";
+export { parseChecklist, serializeChecklist } from "./checklist.ts";
 export {
   CONFIG_FILENAMES,
   dumpDefaultConfig,
@@ -17,6 +18,7 @@ export { groupBy, loadGraph, refsOf, toPublic } from "./graph.ts";
 export { contentHash } from "./hash.ts";
 export { nextId, slugify, splitRemoteId } from "./ids.ts";
 export { formatDiagnostic, formatGithub, lintGraph } from "./lint.ts";
+export { extractSection, upsertSection } from "./markdown.ts";
 export { MemoryFileSystem } from "./memory-fs.ts";
 export { NodeFileSystem } from "./node-fs.ts";
 export type {

@@ -9,6 +9,7 @@ phase: 2
 owner: unassigned
 tags: [execution, agents]
 depends_on: []
+related: []
 goal: An agent can pick unblocked work, load a budgeted brief, ship against it, and the graph reports coverage, drift, and remaining gaps without improvising.
 created: 2026-08-23
 updated: 2026-08-23

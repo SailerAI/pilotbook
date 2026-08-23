@@ -2,13 +2,14 @@
 id: EPIC-002
 title: What to build
 type: epic
-status: backlog
+status: done
 priority: P1
 estimate: 13
 phase: 2
 owner: unassigned
 tags: [funnel, discovery]
 depends_on: []
+related: []
 goal: A builder can start from a vague demand and leave with a structured, linked idea or epic they chose to pursue — or an honest kill.
 created: 2026-08-23
 updated: 2026-08-23

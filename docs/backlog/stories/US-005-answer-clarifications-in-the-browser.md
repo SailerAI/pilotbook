@@ -3,7 +3,7 @@ id: US-005
 title: Answer clarifications in the browser
 type: story
 epic: EPIC-002
-status: backlog
+status: done
 priority: P2
 estimate: 5
 phase: 2
@@ -15,7 +15,6 @@ adrs: [ADR-0002]
 created: 2026-08-23
 updated: 2026-08-23
 ---
-
 ## Story
 
 **As a** builder who is not in a terminal,
@@ -24,10 +23,10 @@ updated: 2026-08-23
 
 ## Acceptance criteria
 
-- [ ] Given the UI, when I submit a one-line demand, then ops create an idea (via `createItem`) and return the `pb clarify` question set as JSON
-- [ ] Given the question form, when I pick options and save, then answers write back through a clarify endpoint that calls the same ops as the CLI
-- [ ] Given ADR-0002, when the UI renders questions, then it does not detect ambiguity itself
-- [ ] Given a completed clarify, when I look at the item, then the kanban and peek show the written-back criteria or open questions
+- [x] Given the UI, when I submit a one-line demand, then ops create an idea (via `createItem`) and return the `pb clarify` question set as JSON
+- [x] Given the question form, when I pick options and save, then answers write back through a clarify endpoint that calls the same ops as the CLI
+- [x] Given ADR-0002, when the UI renders questions, then it does not detect ambiguity itself
+- [x] Given a completed clarify, when I look at the item, then the kanban and peek show the written-back criteria or open questions
 
 ## Notes
 

@@ -9,6 +9,7 @@ phase: 2
 owner: unassigned
 tags: [funnel, sequencing]
 depends_on: []
+related: []
 goal: A builder can see what is unblocked, what it unlocks, where it sits on the roadmap, and search the graph without leaving the repo.
 created: 2026-08-23
 updated: 2026-08-23

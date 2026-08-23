@@ -5,8 +5,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineCommand, runMain } from "citty";
 import {
+  applyClarifications,
   board,
   briefOf,
+  clarifyItem,
   complete,
   completionScript,
   createItem,
@@ -19,6 +21,8 @@ import {
   lintText,
   nextReady,
   PilotbookError,
+  promoteIdea,
+  rejectIdea,
   seedFromBrief,
   sessionStart,
   startUi,
@@ -42,8 +46,19 @@ function pkgVersion(): string {
 }
 
 function fail(err: unknown): never {
-  const msg = err instanceof Error ? err.message : String(err);
-  process.stderr.write(`${msg}\n`);
+  const json = process.argv.includes("--json");
+  if (json) {
+    const payload =
+      err instanceof PilotbookError
+        ? { error: err.message, code: err.code, ...(err.fix ? { fix: err.fix } : {}) }
+        : { error: err instanceof Error ? err.message : String(err), code: "error" };
+    process.stdout.write(`${JSON.stringify(payload, null, 2)}\n`);
+  } else {
+    const msg = err instanceof Error ? err.message : String(err);
+    process.stderr.write(
+      err instanceof PilotbookError && err.fix ? `${msg}\nfix: ${err.fix}\n` : `${msg}\n`,
+    );
+  }
   process.exit(err instanceof PilotbookError && err.status === 404 ? 2 : 1);
 }
 
@@ -318,6 +333,103 @@ const main = defineCommand({
             result,
             `${result.dryRun ? "dry-run " : ""}export ${result.target}: ${result.items.length} items\n`,
           );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    promote: defineCommand({
+      meta: { description: "Promote an idea to an epic or story" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        id: { type: "positional", required: true, description: "Idea ID" },
+        to: { type: "string", required: true, description: "epic | story" },
+        title: { type: "string", required: true, description: "Title of the new item" },
+        epic: { type: "string", description: "Parent epic (when --to story)" },
+        "dry-run": { type: "boolean", default: false },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          const to = String(args.to);
+          if (to !== "epic" && to !== "story") {
+            fail(new PilotbookError("to must be epic or story", "invalid-to"));
+          }
+          const result = promoteIdea(ctx, String(args.id), {
+            to,
+            title: String(args.title),
+            epic: typeof args.epic === "string" ? args.epic : undefined,
+            dryRun: Boolean(args["dry-run"]),
+          });
+          const text = result.dryRun
+            ? `would create ${result.type} "${result.title}"${result.epic ? ` under ${result.epic}` : ""}\n`
+            : `promoted ${args.id} → ${result.created?.id}\n`;
+          emit(Boolean(args.json), result, text);
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    reject: defineCommand({
+      meta: { description: "Record a kill verdict on an idea" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        id: { type: "positional", required: true, description: "Idea ID" },
+        reason: { type: "string", required: true, description: "Why this is not worth building" },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          const result = rejectIdea(ctx, String(args.id), { reason: String(args.reason) });
+          emit(Boolean(args.json), result, `rejected ${result.id}\n`);
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    clarify: defineCommand({
+      meta: { description: "Detect or apply a bounded clarification set" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        id: { type: "positional", required: true, description: "Item ID" },
+        answers: { type: "string", description: "JSON array of { question, option, text }" },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          const id = String(args.id);
+          if (args.answers) {
+            let parsed: unknown;
+            try {
+              parsed = JSON.parse(String(args.answers));
+            } catch {
+              fail(new PilotbookError("answers must be valid JSON"));
+            }
+            const result = applyClarifications(ctx, id, parsed);
+            emit(
+              Boolean(args.json),
+              result,
+              result.applied.length
+                ? `clarified ${id}: ${result.applied.map((a) => a.kind).join(", ")}\n`
+                : `${id} unchanged\n`,
+            );
+            return;
+          }
+          const result = clarifyItem(ctx, id);
+          const text = result.ready
+            ? `${id} is ready. Nothing to clarify.\n`
+            : `${id} needs clarification:\n${result.questions
+                .map(
+                  (q, i) =>
+                    `${i + 1}. [${q.id}] ${q.prompt}\n${q.options
+                      .map((o) => `   - ${o.id}: ${o.label}`)
+                      .join("\n")}`,
+                )
+                .join("\n")}\n`;
+          emit(Boolean(args.json), result, text);
         } catch (err) {
           fail(err);
         }

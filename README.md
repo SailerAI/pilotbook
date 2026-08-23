@@ -71,6 +71,9 @@ pb brief TA<TAB>    # TASK-001  Transaction API
 | `pb next` | Unblocked work, phase then priority |
 | `pb brief <ID>` | Context pack (`--budget`, `--format json`) |
 | `pb lint` | Graph integrity (`--format github`) |
+| `pb clarify <ID>` | Bounded questions; `--answers` writes back |
+| `pb promote <ID> --to epic\|story` | Turn an idea into a work item |
+| `pb reject <ID> --reason "…"` | Record a kill verdict |
 | `pb explain <ID>` | Why blocked / what it blocks |
 | `pb graph --dot` | Graphviz |
 | `pb verify <ID>` | Run `checks.commands`, stamp `verified` |

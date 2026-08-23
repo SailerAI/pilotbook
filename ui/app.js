@@ -117,6 +117,10 @@ createApp({
     const bodyMode = ref(localStorage.getItem(BODY_KEY) || "preview");
     const creating = ref(false);
     const create = ref({ type: "story", title: "", epic: "", story: "", goal: "" });
+    const demandTitle = ref("");
+    const intake = ref(null);
+    const clarifyAnswers = ref({});
+    const intakeBusy = ref(false);
     const saving = ref(false);
     const toast = ref("");
     const toastError = ref(false);
@@ -496,6 +500,69 @@ createApp({
       }
     }
 
+    async function submitDemand() {
+      const title = demandTitle.value.trim();
+      if (!title) {
+        flash("Enter a one-line demand", true);
+        return;
+      }
+      intakeBusy.value = true;
+      try {
+        const data = await api("/api/intake", {
+          method: "POST",
+          body: JSON.stringify({ title }),
+        });
+        intake.value = data;
+        const answers = {};
+        for (const q of data.clarify?.questions ?? []) {
+          answers[q.id] = { option: q.options?.[0]?.id ?? "open-question", text: "" };
+        }
+        clarifyAnswers.value = answers;
+        demandTitle.value = "";
+        if (data.clarify?.ready) {
+          flash(`Created ${data.item.id} (ready)`);
+          await refresh();
+          const fresh = items.value.find((i) => i.id === data.item.id);
+          if (fresh) openItem(fresh);
+        }
+      } catch (err) {
+        flash(err.message, true);
+      } finally {
+        intakeBusy.value = false;
+      }
+    }
+
+    function clearIntake() {
+      intake.value = null;
+      clarifyAnswers.value = {};
+    }
+
+    async function saveClarify() {
+      if (!intake.value) return;
+      const answers = (intake.value.clarify?.questions ?? []).map((q) => ({
+        question: q.id,
+        option: clarifyAnswers.value[q.id]?.option,
+        text: clarifyAnswers.value[q.id]?.text,
+      }));
+      intakeBusy.value = true;
+      try {
+        await api(`/api/items/${intake.value.item.id}/clarify`, {
+          method: "POST",
+          body: JSON.stringify({ answers }),
+        });
+        flash(`Clarified ${intake.value.item.id}`);
+        const id = intake.value.item.id;
+        clearIntake();
+        await refresh();
+        const fresh = items.value.find((i) => i.id === id);
+        if (fresh) openItem(fresh);
+      } catch (err) {
+        flash(err.message, true);
+      } finally {
+        intakeBusy.value = false;
+      }
+    }
+
     watch(group, () => {
       typeFilter.value = "all";
     });
@@ -541,6 +608,10 @@ createApp({
       childItems,
       creating,
       create,
+      demandTitle,
+      intake,
+      clarifyAnswers,
+      intakeBusy,
       saving,
       toast,
       toastError,
@@ -575,6 +646,9 @@ createApp({
       onDrop,
       openCreate,
       submitCreate,
+      submitDemand,
+      clearIntake,
+      saveClarify,
     };
   },
 }).mount("#app");

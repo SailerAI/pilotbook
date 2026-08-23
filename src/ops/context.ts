@@ -7,11 +7,13 @@ import type { LoadedProject, PeerItem, PilotbookConfig } from "../core/types.ts"
 export class PilotbookError extends Error {
   readonly code: string;
   readonly status: number;
-  constructor(message: string, code = "error", status = 400) {
+  readonly fix?: string;
+  constructor(message: string, code = "error", status = 400, fix?: string) {
     super(message);
     this.name = "PilotbookError";
     this.code = code;
     this.status = status;
+    this.fix = fix;
   }
 }
 

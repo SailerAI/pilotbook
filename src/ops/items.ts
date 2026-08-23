@@ -1,3 +1,6 @@
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { hostJoin, toPosix } from "../core/config.ts";
 import { cycleIfAdded } from "../core/cycles.ts";
 import { parseFrontmatter, serializeItem, today } from "../core/frontmatter.ts";
@@ -106,18 +109,15 @@ function templateDir(ctx: OpContext): string {
 }
 
 export function bundledTemplates(): string {
-  const here = new URL(".", import.meta.url);
-  // dist/ops/index.mjs -> ../../templates  OR src/ops -> ../../templates
-  const fromDist = new URL("../../templates/", here);
-  const fromSrc = new URL("../../templates/", here);
-  return fromSrc.pathname.endsWith("templates/")
-    ? fileURLToPathSafe(fromDist)
-    : fileURLToPathSafe(fromSrc);
-}
-
-function fileURLToPathSafe(url: URL): string {
-  const p = url.pathname;
-  return decodeURIComponent(process.platform === "win32" && p.startsWith("/") ? p.slice(1) : p);
+  let dir = path.dirname(fileURLToPath(import.meta.url));
+  while (true) {
+    const candidate = path.join(dir, "templates");
+    if (fs.existsSync(path.join(candidate, "idea.md"))) return candidate;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  throw new PilotbookError("could not locate bundled templates");
 }
 
 function fillTemplate(text: string, vars: Record<string, string>): string {

@@ -1,9 +1,11 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { MemoryFileSystem } from "../src/core/memory-fs.ts";
 import { complete } from "../src/ops/complete.ts";
 import { initProject } from "../src/ops/init.ts";
 import { exportItems, writeManifest } from "../src/ops/interop.ts";
-import { listItems, schemaOf } from "../src/ops/items.ts";
+import { bundledTemplates, listItems, schemaOf } from "../src/ops/items.ts";
 import { lint } from "../src/ops/query.ts";
 import { seedFromBrief } from "../src/ops/seed.ts";
 import { verifyItem } from "../src/ops/verify.ts";
@@ -77,6 +79,12 @@ describe("manifest / export", () => {
     const payload = await exportItems(ctx, "jira", { dryRun: true });
     expect(payload.dryRun).toBe(true);
     expect(payload.items.length).toBeGreaterThan(0);
+  });
+});
+
+describe("bundledTemplates", () => {
+  it("resolves the package templates directory", () => {
+    expect(existsSync(path.join(bundledTemplates(), "idea.md"))).toBe(true);
   });
 });
 

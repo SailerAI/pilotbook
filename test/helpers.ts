@@ -62,6 +62,7 @@ export function epic(
       owner: "unassigned",
       tags: extra.tags ?? [],
       depends_on: extra.depends_on ?? [],
+      related: extra.related ?? [],
       goal: extra.goal ?? "Ship it",
       ...DATES,
     },
@@ -120,6 +121,25 @@ export function task(
       ...(extra.verified ? { verified: extra.verified } : {}),
     },
     body ?? "## Scope\n\nDo the thing.\n",
+  );
+}
+
+export function idea(id: string, extra: Record<string, unknown> = {}, body?: string): string {
+  return fm(
+    {
+      id,
+      title: extra.title ?? id,
+      type: "idea",
+      status: extra.status ?? "raw",
+      impact: extra.impact ?? "medium",
+      effort: extra.effort ?? "medium",
+      promoted_to: extra.promoted_to ?? [],
+      related: extra.related ?? [],
+      tags: extra.tags ?? [],
+      ...DATES,
+    },
+    body ??
+      "## Why\n\nWho benefits and why this is worth capturing.\n\n## Sketch\n\nA rough shape of the solution. Not a spec.\n\n## Open questions\n\n- Question 1\n\n## Why not now\n\nWhat would have to be true before this is promoted to an epic or story.\n",
   );
 }
 

@@ -6,6 +6,7 @@ status: raw
 impact: medium
 effort: medium
 promoted_to: []
+related: []
 tags: []
 created: {{date}}
 updated: {{date}}
