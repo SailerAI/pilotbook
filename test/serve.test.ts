@@ -143,4 +143,78 @@ describe("startUi", () => {
     server = undefined;
     fs.rmSync(dir, { recursive: true, force: true });
   });
+
+  it("GET /api/items reflects markdown edited on disk", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pb-serve-"));
+    fs.cpSync(fixture, dir, { recursive: true });
+    server = startUi({ port: 0, cwd: dir });
+    await once(server, "listening");
+    const addr = server.address();
+    if (!addr || typeof addr === "string") throw new Error("expected a TCP address");
+    const base = `http://127.0.0.1:${addr.port}`;
+
+    const storyPath = path.join(dir, "docs/backlog/stories/US-001-post-a-transaction.md");
+    const before = (await (await fetch(`${base}/api/items`)).json()) as {
+      items: Array<{ id: string; data: { status?: string } }>;
+    };
+    expect(before.items.find((i) => i.id === "US-001")?.data.status).toBe("todo");
+
+    fs.writeFileSync(
+      storyPath,
+      fs.readFileSync(storyPath, "utf8").replace("status: todo", "status: done"),
+    );
+
+    const after = (await (await fetch(`${base}/api/items`)).json()) as {
+      items: Array<{ id: string; data: { status?: string } }>;
+    };
+    expect(after.items.find((i) => i.id === "US-001")?.data.status).toBe("done");
+
+    server.close();
+    await once(server, "close").catch(() => undefined);
+    server = undefined;
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("GET /api/events notifies after a disk write", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pb-serve-"));
+    fs.cpSync(fixture, dir, { recursive: true });
+    server = startUi({ port: 0, cwd: dir });
+    await once(server, "listening");
+    const addr = server.address();
+    if (!addr || typeof addr === "string") throw new Error("expected a TCP address");
+    const base = `http://127.0.0.1:${addr.port}`;
+
+    const ac = new AbortController();
+    const stream = await fetch(`${base}/api/events`, { signal: ac.signal });
+    expect(stream.status).toBe(200);
+    expect(stream.headers.get("content-type")).toMatch(/text\/event-stream/);
+    const reader = stream.body?.getReader();
+    expect(reader).toBeTruthy();
+
+    const storyPath = path.join(dir, "docs/backlog/stories/US-001-post-a-transaction.md");
+    fs.writeFileSync(
+      storyPath,
+      fs.readFileSync(storyPath, "utf8").replace("status: todo", "status: done"),
+    );
+
+    const decoder = new TextDecoder();
+    let buf = "";
+    const deadline = Date.now() + 5000;
+    while (!buf.includes("reload") && Date.now() < deadline) {
+      const chunk = await Promise.race([
+        reader!.read(),
+        new Promise<{ done: true; value: undefined }>((resolve) =>
+          setTimeout(() => resolve({ done: true, value: undefined }), 200),
+        ),
+      ]);
+      if (chunk.value) buf += decoder.decode(chunk.value, { stream: true });
+    }
+    ac.abort();
+    expect(buf).toContain("reload");
+
+    server.close();
+    await once(server, "close").catch(() => undefined);
+    server = undefined;
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
 });

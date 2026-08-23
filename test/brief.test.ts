@@ -56,6 +56,61 @@ describe("brief", () => {
     expect(brief.sections[0]?.id).toBeTruthy();
   });
 
+  it("reports truncation as one diagnostic carrying a runnable fix", () => {
+    const ctx = graph();
+    const { brief, text } = briefOf(ctx, "TASK-001", { budget: 1 });
+    expect(brief.diagnostics).toHaveLength(1);
+    const diag = brief.diagnostics[0]!;
+    expect(diag).toMatchObject({
+      code: "brief_truncated",
+      severity: "warning",
+      target: "TASK-001",
+    });
+    expect(diag.file).toContain("TASK-001");
+    expect(diag.message).toBe(
+      `dropped ${brief.dropped.length + brief.fetch.length} section(s) at budget 1`,
+    );
+    expect(text).toContain("brief_truncated");
+    expect(text).toContain(`Fix: \`${diag.fix}\``);
+
+    const larger = Number(/^pb brief TASK-001 --budget (\d+)$/.exec(diag.fix ?? "")?.[1]);
+    expect(larger).toBeGreaterThan(brief.tokens);
+    const rerun = briefOf(ctx, "TASK-001", { budget: larger });
+    expect(rerun.brief.truncated).toBe(false);
+    expect(rerun.brief.diagnostics).toEqual([]);
+  });
+
+  it("stays unlimited and silent without a budget", () => {
+    const ctx = graph();
+    const { brief } = briefOf(ctx, "TASK-001");
+    expect(brief.budget).toBeNull();
+    expect(brief.truncated).toBe(false);
+    expect(brief.diagnostics).toEqual([]);
+    expect(brief.dropped).toEqual([]);
+    expect(brief.fetch).toEqual([]);
+    expect(brief.tokens).toBe(brief.fullTokens);
+  });
+
+  it("degrades hops past the first to fetch stubs and drops nothing silently", () => {
+    const ctx = graph();
+    const { brief, text } = briefOf(ctx, "TASK-001", { budget: 1 });
+    const stubs = brief.fetch.map((f) => f.id);
+    expect(stubs).toEqual(expect.arrayContaining(["EPIC-001", "TASK-002"]));
+    for (const f of brief.fetch) {
+      expect(f.fetch).toBe(`pb brief ${f.id}`);
+      expect(f.title).toBeTruthy();
+    }
+    // The target and what it references directly are hop 1: authority, never a stub.
+    expect(stubs).not.toContain("US-001");
+    expect(brief.dropped.map((d) => d.id)).toContain("US-001");
+    const full = briefOf(ctx, "TASK-001").brief;
+    expect(brief.sections.length + brief.dropped.length + brief.fetch.length).toBe(
+      full.sections.length,
+    );
+    expect(text).toContain("## Fetch on demand");
+    expect(text).toContain("`pb brief EPIC-001`");
+  });
+
   it("snapshot markdown", () => {
     const ctx = graph();
     const { text } = briefOf(ctx, "TASK-001");

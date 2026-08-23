@@ -18,6 +18,18 @@ function healthy(): ReturnType<typeof makeProject> {
   });
 }
 
+/** One story with a single acceptance criterion, plus a task covering `tokens`. */
+function covering(tokens: string[]): ReturnType<typeof makeProject> {
+  return makeProject({
+    "docs/backlog/epics/EPIC-001-one.md": epic("EPIC-001", { title: "One" }),
+    "docs/backlog/stories/US-001-s.md": story("US-001", "EPIC-001", { title: "Story" }),
+    "docs/backlog/tasks/TASK-001-t.md": task("TASK-001", "US-001", {
+      title: "Task",
+      covers: tokens,
+    }),
+  });
+}
+
 describe("lint", () => {
   it("accepts a healthy graph", () => {
     const ctx = healthy();
@@ -112,6 +124,38 @@ status: todo
       "docs/backlog/stories/US-001-s.md": story("US-001", "EPIC-001", { status: "todo" }),
     });
     expect(lint(ctx).warnings.some((e) => e.code === "open-children")).toBe(true);
+  });
+
+  it("accepts a covers token bound to an existing criterion", () => {
+    const ctx = covering(["US-001#1"]);
+    const r = lint(ctx);
+    expect(r.errors).toEqual([]);
+    expect(r.warnings.map((w) => w.code)).not.toContain("unbound-criterion");
+  });
+
+  it("covers is not an unknown-field on a task", () => {
+    const codes = lint(covering(["US-001#1"])).errors.map((e) => e.code);
+    expect(codes).not.toContain("unknown-field");
+  });
+
+  it("unbound-criterion past the end of the criteria list", () => {
+    const r = lint(covering(["US-001#2"]));
+    const d = r.warnings.find((w) => w.code === "unbound-criterion");
+    expect(d?.message).toContain("US-001#2");
+    expect(d?.file).toContain("TASK-001");
+    expect(d?.line).toBeGreaterThan(0);
+  });
+
+  it("unbound-criterion for a malformed token", () => {
+    for (const token of ["US-001", "US-001#", "US-001#x"]) {
+      const r = lint(covering([token]));
+      expect(r.warnings.some((w) => w.code === "unbound-criterion")).toBe(true);
+    }
+  });
+
+  it("dangling-ref when the covered story does not exist", () => {
+    const r = lint(covering(["US-999#1"]));
+    expect(r.errors.some((e) => e.code === "dangling-ref")).toBe(true);
   });
 
   it("diagnostics include file:line:col", () => {

@@ -128,10 +128,10 @@ export function builtinTypes(): Record<string, TypeConfig> {
           priority: [...PRIORITIES],
           area: [...AREAS],
         },
-        arrays: ["tags", "depends_on", "business_rules", "adrs"],
+        arrays: ["tags", "depends_on", "business_rules", "adrs", "covers"],
         numbers: ["estimate", "phase"],
         parent: "story",
-        optional: ["story", "business_rules", "adrs"],
+        optional: ["story", "business_rules", "adrs", "covers"],
         objects: ["verified"],
         template: "task.md",
       },
@@ -242,6 +242,9 @@ export function builtinEdges(): Record<string, EdgeKind> {
   };
 }
 
+/** Token ceiling the session-start hook primes a brief under. */
+export const DEFAULT_PRIME_BUDGET = 6000;
+
 export function defaultConfig(): PilotbookConfig {
   return {
     name: "",
@@ -252,7 +255,7 @@ export function defaultConfig(): PilotbookConfig {
     edges: builtinEdges(),
     codeMap: {},
     checks: { commands: [] },
-    hooks: { blockOnUnverified: false },
+    hooks: { blockOnUnverified: false, primeBudget: DEFAULT_PRIME_BUDGET },
     peers: [],
   };
 }

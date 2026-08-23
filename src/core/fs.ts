@@ -9,6 +9,8 @@ export interface FileSystem {
   cwd(): string;
   readFile(absPath: string): string;
   writeFile(absPath: string, content: string): void;
+  /** Write `content` so a crash mid-write cannot leave a truncated `absPath`. */
+  writeFileAtomic(absPath: string, content: string): void;
   exists(absPath: string): boolean;
   mkdirp(absPath: string): void;
   readdir(absPath: string): string[];

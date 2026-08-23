@@ -230,6 +230,18 @@ export function nextReady(ctx: OpContext): ReadyItem[] {
     }));
 }
 
+/**
+ * The single in-progress item a session should prime, ordered by the same phase/priority/estimate
+ * comparator `nextReady` applies inside the `resume` rung.
+ */
+export function primeTarget(ctx: OpContext): ParsedItem | null {
+  return (
+    ctx.project.index.items
+      .filter((i) => String(i.data.status) === "in-progress")
+      .sort(sortReady)[0] ?? null
+  );
+}
+
 export interface SearchHit {
   type: string;
   id: string;
@@ -380,3 +392,6 @@ export function graphDot(ctx: OpContext): string {
 export function board(ctx: OpContext): { wrote: string } {
   return { wrote: writeBoard(ctx) };
 }
+
+export type { BoardPlan } from "./items.ts";
+export { boardPlan } from "./items.ts";

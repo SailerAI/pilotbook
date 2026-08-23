@@ -47,6 +47,10 @@ export class MemoryFileSystem implements FileSystem {
     this.#files.set(key, { content, mtimeMs: this.#clock++ });
   }
 
+  writeFileAtomic(absPath: string, content: string): void {
+    this.writeFile(absPath, content);
+  }
+
   exists(absPath: string): boolean {
     const key = norm(absPath);
     if (this.#files.has(key)) return true;

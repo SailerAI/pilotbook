@@ -1,7 +1,9 @@
 import path from "node:path";
+import { parseChecklist } from "./checklist.ts";
 import { findCycle } from "./cycles.ts";
 import { bodyHash, contentHash } from "./hash.ts";
 import { splitRemoteId } from "./ids.ts";
+import { extractSection } from "./markdown.ts";
 import {
   DATE_RE,
   type Diagnostic,
@@ -90,6 +92,9 @@ function asStringList(value: unknown): string[] {
 function isResolvedStatus(status: unknown): boolean {
   return status === "done" || status === "cancelled";
 }
+
+/** ADR-0007: a `covers` token is `ID#N`, N being the 1-based ADR-0003 criterion index. */
+const COVERS_RE = /^([^#\s]+)#(\d+)$/;
 
 export interface LintResult {
   errors: Diagnostic[];
@@ -489,6 +494,52 @@ export function lintGraph(
           "File it under a story, or keep it small.",
         ),
       );
+    }
+  }
+
+  for (const item of items) {
+    if (item.type !== "task") continue;
+    for (const token of asStringList(item.data.covers)) {
+      const match = COVERS_RE.exec(token.trim());
+      if (!match) {
+        warnings.push(
+          warn(
+            item,
+            "unbound-criterion",
+            `covers "${token}" is not an ID#N token`,
+            "covers",
+            "Write `covers: [US-001#2]`, where N is the 1-based criterion index.",
+          ),
+        );
+        continue;
+      }
+      const targetId = match[1]!;
+      const wanted = Number(match[2]);
+      const target = byId.get(targetId);
+      if (!target) {
+        errors.push(
+          err(
+            item,
+            "dangling-ref",
+            `dangling covers ${targetId}`,
+            "covers",
+            `Create ${targetId} or remove ${token} from covers.`,
+          ),
+        );
+        continue;
+      }
+      const criteria = parseChecklist(extractSection(target.body, "Acceptance criteria"));
+      if (wanted < 1 || wanted > criteria.length) {
+        warnings.push(
+          warn(
+            item,
+            "unbound-criterion",
+            `covers ${token} but ${targetId} has ${criteria.length} criteri${criteria.length === 1 ? "on" : "a"}`,
+            "covers",
+            `Point covers at an existing criterion of ${targetId}, or add the criterion.`,
+          ),
+        );
+      }
     }
   }
 

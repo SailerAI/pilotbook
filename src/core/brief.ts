@@ -1,6 +1,12 @@
 import { splitRemoteId } from "./ids.ts";
 import { extractSection } from "./markdown.ts";
-import type { FrontmatterValue, ParsedItem, PeerItem, PilotbookConfig } from "./types.ts";
+import type {
+  Diagnostic,
+  FrontmatterValue,
+  ParsedItem,
+  PeerItem,
+  PilotbookConfig,
+} from "./types.ts";
 import { WORK_TYPES } from "./types.ts";
 
 export type BriefDepth = "full" | "criteria" | "statement" | "title";
@@ -17,12 +23,30 @@ export interface BriefSection {
   rel?: string;
 }
 
+/** A section the budget cut, reduced to enough for the agent to pull it back. */
+export interface BriefFetch {
+  id: string;
+  title: string;
+  fetch: string;
+}
+
+export interface BriefDropped {
+  id: string;
+  title: string;
+  role: string;
+}
+
 export interface BriefResult {
   target: string;
   sections: BriefSection[];
   budget: number | null;
   tokens: number;
   truncated: boolean;
+  /** Cost of every walked section, ignoring the budget. */
+  fullTokens: number;
+  dropped: BriefDropped[];
+  fetch: BriefFetch[];
+  diagnostics: Diagnostic[];
 }
 
 function asList(value: unknown): string[] {
@@ -109,6 +133,8 @@ interface Walked {
   item: ParsedItem;
   role: string;
   depth: BriefDepth;
+  /** Graph distance from the target. Hop 1 is the target and what it references directly. */
+  hop: number;
 }
 
 function walk(
@@ -120,15 +146,15 @@ function walk(
   const seen = new Set<string>();
   const out: Walked[] = [];
 
-  function add(item: ParsedItem | null, role: string, depth: BriefDepth): void {
+  function add(item: ParsedItem | null, role: string, depth: BriefDepth, hop: number): void {
     if (!item) return;
     const key = `${item.data.id}:${role}`;
     if (seen.has(key)) return;
     seen.add(key);
-    out.push({ item, role, depth });
+    out.push({ item, role, depth, hop });
   }
 
-  add(start, "target", "full");
+  add(start, "target", "full", 1);
 
   const parentField = config.types[start.type]?.parent;
   let cursor: ParsedItem | null = start;
@@ -142,38 +168,39 @@ function walk(
     parentChain.push(parent);
     cursor = parent;
   }
-  for (const p of parentChain) add(p, "parent", "criteria");
+  for (const [i, p] of parentChain.entries()) add(p, "parent", "criteria", i + 1);
 
   const origin = parentChain[0] ?? start;
   for (const field of ["business_rules", "adrs"] as const) {
     for (const ref of asList(origin.data[field]).concat(asList(start.data[field]))) {
       const node = lookup(ref, byId, peers);
       if (!node) continue;
-      add(node, field === "adrs" ? "adr" : "rule", "statement");
+      // A rule or ADR the target inherits is binding, so it never degrades to a stub.
+      add(node, field === "adrs" ? "adr" : "rule", "statement", 1);
       if (node.type === "business-rule") {
         for (const rel of asList(node.data.related)) {
           const related = lookup(rel, byId, peers);
-          if (related?.type === "business-rule") add(related, "related-rule", "statement");
+          if (related?.type === "business-rule") add(related, "related-rule", "statement", 2);
         }
       }
       if (node.type === "adr") {
         for (const rel of asList(node.data.supersedes).concat(asList(node.data.superseded_by))) {
-          add(lookup(rel, byId, peers), "adr-chain", "title");
+          add(lookup(rel, byId, peers), "adr-chain", "title", 2);
         }
       }
     }
   }
 
-  const stack = [...asList(start.data.depends_on)];
+  const stack = asList(start.data.depends_on).map((ref) => ({ ref, hop: 2 }));
   const depSeen = new Set<string>();
   while (stack.length) {
-    const ref = stack.pop()!;
+    const { ref, hop } = stack.pop()!;
     if (depSeen.has(ref)) continue;
     depSeen.add(ref);
     const node = lookup(ref, byId, peers);
     if (!node) continue;
-    add(node, "depends_on", "title");
-    stack.push(...asList(node.data.depends_on));
+    add(node, "depends_on", "title", hop);
+    stack.push(...asList(node.data.depends_on).map((r) => ({ ref: r, hop: hop + 1 })));
   }
 
   if (parentField) {
@@ -183,7 +210,7 @@ function walk(
         if (sib.data.id === start.data.id) continue;
         if (sib.type !== start.type) continue;
         if (sib.data[parentField] !== pid) continue;
-        if (sib.data.status === "done") add(sib, "sibling-done", "title");
+        if (sib.data.status === "done") add(sib, "sibling-done", "title", 2);
       }
     }
   }
@@ -215,6 +242,9 @@ export function compileBrief(
 
   const budget = opts.budget ?? null;
   const sections: BriefSection[] = [];
+  const dropped: BriefDropped[] = [];
+  const fetch: BriefFetch[] = [];
+  const diagnostics: Diagnostic[] = [];
   let tokens = 0;
   let truncated = false;
 
@@ -225,9 +255,7 @@ export function compileBrief(
     if (key === area || tags.includes(key)) codePaths.push(...paths);
   }
 
-  for (const w of walked) {
-    const warnings = contradictions(w.item);
-    const body = sliceForDepth(w.item, w.depth);
+  const candidates = walked.map((w) => {
     const section: BriefSection = {
       id: w.item.data.id,
       type: w.item.type,
@@ -235,41 +263,82 @@ export function compileBrief(
       role: w.role,
       depth: w.depth,
       status: typeof w.item.data.status === "string" ? w.item.data.status : undefined,
-      warnings,
-      body,
+      warnings: contradictions(w.item),
+      body: sliceForDepth(w.item, w.depth),
       rel: w.item.rel,
     };
-    const rendered = renderSection(section);
-    const cost = estimateTokens(rendered);
-    if (budget != null && tokens + cost > budget && sections.length > 0) {
-      truncated = true;
-      break;
-    }
-    tokens += cost;
-    sections.push(section);
+    return { walked: w, section, cost: estimateTokens(renderSection(section)) };
+  });
+
+  const codeSection: BriefSection | null = codePaths.length
+    ? {
+        id: "code-map",
+        type: "code",
+        title: "Code paths",
+        role: "code-map",
+        depth: "title",
+        warnings: [],
+        body: codePaths.map((p) => `- ${p}`).join("\n"),
+      }
+    : null;
+  const codeCost = codeSection ? estimateTokens(renderSection(codeSection)) : 0;
+
+  // Costed up front so a truncation diagnostic can name a budget that fits the whole brief.
+  const fullTokens = candidates.reduce((sum, c) => sum + c.cost, 0) + codeCost;
+
+  function cut(w: Walked): void {
+    const id = w.item.data.id;
+    const title = String(w.item.data.title ?? "");
+    if (w.hop > 1) fetch.push({ id, title, fetch: `pb brief ${id}` });
+    else dropped.push({ id, title, role: w.role });
   }
 
-  if (codePaths.length) {
-    const section: BriefSection = {
-      id: "code-map",
-      type: "code",
-      title: "Code paths",
-      role: "code-map",
-      depth: "title",
-      warnings: [],
-      body: codePaths.map((p) => `- ${p}`).join("\n"),
-    };
-    const cost = estimateTokens(renderSection(section));
-    if (budget == null || tokens + cost <= budget) {
-      tokens += cost;
-      sections.push(section);
+  for (const [i, candidate] of candidates.entries()) {
+    if (budget != null && tokens + candidate.cost > budget && sections.length > 0) {
+      truncated = true;
+      for (const rest of candidates.slice(i)) cut(rest.walked);
+      break;
+    }
+    tokens += candidate.cost;
+    sections.push(candidate.section);
+  }
+
+  if (codeSection) {
+    if (budget == null || tokens + codeCost <= budget) {
+      tokens += codeCost;
+      sections.push(codeSection);
     } else {
       truncated = true;
+      dropped.push({ id: codeSection.id, title: codeSection.title, role: codeSection.role });
     }
+  }
+
+  if (truncated) {
+    const n = dropped.length + fetch.length;
+    diagnostics.push({
+      code: "brief_truncated",
+      severity: "warning",
+      message: `dropped ${n} section(s) at budget ${budget}`,
+      file: target.rel,
+      line: 1,
+      column: 1,
+      target: target.data.id,
+      fix: `pb brief ${target.data.id} --budget ${Math.ceil(fullTokens * 1.2)}`,
+    });
   }
 
   void WORK_TYPES;
-  return { target: target.data.id, sections, budget, tokens, truncated };
+  return {
+    target: target.data.id,
+    sections,
+    budget,
+    tokens,
+    truncated,
+    fullTokens,
+    dropped,
+    fetch,
+    diagnostics,
+  };
 }
 
 export function renderSection(section: BriefSection): string {
@@ -289,8 +358,27 @@ export function renderBriefMarkdown(brief: BriefResult): string {
     `_tokens ≈ ${brief.tokens}${brief.budget ? ` / ${brief.budget}` : ""}${brief.truncated ? " · truncated" : ""}_`,
     "",
   ];
+  for (const d of brief.diagnostics) {
+    lines.push(`> **${d.severity} ${d.code}** — ${d.message}`);
+    if (d.fix) lines.push(`> Fix: \`${d.fix}\``);
+    lines.push("");
+  }
+  if (brief.dropped.length) {
+    lines.push(
+      "## Dropped",
+      brief.dropped.map((d) => `- ${d.id} — ${d.title} (${d.role})`).join("\n"),
+      "",
+    );
+  }
   for (const s of brief.sections) {
     lines.push(renderSection(s), "");
+  }
+  if (brief.fetch.length) {
+    lines.push(
+      "## Fetch on demand",
+      brief.fetch.map((f) => `- ${f.id} — ${f.title} · \`${f.fetch}\``).join("\n"),
+      "",
+    );
   }
   return `${lines.join("\n").trimEnd()}\n`;
 }

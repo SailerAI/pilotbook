@@ -169,6 +169,7 @@ export function createItem(
     body?: string;
     [key: string]: unknown;
   },
+  opts?: { skipBoard?: boolean },
 ): PublicItem {
   const type = String(input.type);
   const cfg = ctx.project.config.types[type];
@@ -249,7 +250,7 @@ export function createItem(
   reload(ctx);
   const created = ctx.project.index.byId.get(id);
   if (!created) throw new PilotbookError(`failed to create ${id}`);
-  writeBoard(ctx);
+  if (!opts?.skipBoard) writeBoard(ctx);
   return toPublic(created);
 }
 
@@ -378,8 +379,39 @@ function appendBoardTable(lines: string[], bucket: ParsedItem[], config: { root:
   lines.push("");
 }
 
-export function writeBoard(ctx: OpContext): string {
-  const { projectRoot, config, index } = ctx.project;
+const BOARD_ROW_ID = /^\| \[([A-Z]+-\d+)\]\(/;
+const BOARD_STATUS_HEADING = /^### (.+) \((\d+)\)\s*$/;
+
+export interface BoardPlan {
+  inSync: boolean;
+  added: Array<{ id: string; status: string }>;
+  orphans: Array<{ id: string; status: string }>;
+}
+
+function parseBoardIds(markdown: string): Map<string, string> {
+  const ids = new Map<string, string>();
+  let inByStatus = false;
+  let status = "";
+  for (const line of markdown.split(/\r?\n/)) {
+    if (line.startsWith("## ")) {
+      inByStatus = /^## By status\s*$/.test(line);
+      status = "";
+      continue;
+    }
+    if (!inByStatus) continue;
+    const heading = BOARD_STATUS_HEADING.exec(line);
+    if (heading) {
+      status = heading[1]!;
+      continue;
+    }
+    const row = BOARD_ROW_ID.exec(line);
+    if (row && status) ids.set(row[1]!, status);
+  }
+  return ids;
+}
+
+function renderBoard(ctx: OpContext): string {
+  const { config, index } = ctx.project;
   const work = index.items.filter((i) => WORK_TYPES.includes(i.type));
   const generated = today();
   const lines: string[] = [
@@ -452,9 +484,32 @@ export function writeBoard(ctx: OpContext): string {
     }
   }
 
+  return `${lines.join("\n")}\n`;
+}
+
+export function writeBoard(ctx: OpContext): string {
+  const { projectRoot, config } = ctx.project;
   const outRel = toPosix(`${config.root}/${config.board}`);
   const abs = hostJoin(projectRoot, outRel);
   ctx.fs.mkdirp(hostJoin(abs, ".."));
-  ctx.fs.writeFile(abs, `${lines.join("\n")}\n`);
+  ctx.fs.writeFileAtomic(abs, renderBoard(ctx));
   return outRel;
+}
+
+export function boardPlan(ctx: OpContext): BoardPlan {
+  const { projectRoot, config } = ctx.project;
+  const outRel = toPosix(`${config.root}/${config.board}`);
+  const abs = hostJoin(projectRoot, outRel);
+  const existing = ctx.fs.exists(abs) ? ctx.fs.readFile(abs) : "";
+  const current = parseBoardIds(existing);
+  const next = parseBoardIds(renderBoard(ctx));
+  const added = [...next.entries()]
+    .filter(([id]) => !current.has(id))
+    .map(([id, status]) => ({ id, status }))
+    .sort((a, b) => a.id.localeCompare(b.id));
+  const orphans = [...current.entries()]
+    .filter(([id]) => !next.has(id))
+    .map(([id, status]) => ({ id, status }))
+    .sort((a, b) => a.id.localeCompare(b.id));
+  return { inSync: added.length === 0 && orphans.length === 0, added, orphans };
 }

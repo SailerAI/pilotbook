@@ -124,6 +124,7 @@ export function task(
       depends_on: extra.depends_on ?? [],
       ...(extra.business_rules ? { business_rules: extra.business_rules } : {}),
       ...(extra.adrs ? { adrs: extra.adrs } : {}),
+      ...(extra.covers ? { covers: extra.covers } : {}),
       ...DATES,
       ...(extra.verified ? { verified: extra.verified } : {}),
     },

@@ -3,7 +3,7 @@ import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { applyClarifications, clarifyItem } from "./clarify.ts";
-import { type OpContext, PilotbookError, withProject } from "./context.ts";
+import { type OpContext, PilotbookError, reload, withProject } from "./context.ts";
 import {
   createItem,
   deleteItem,
@@ -14,6 +14,7 @@ import {
   writeBoard,
 } from "./items.ts";
 import { briefOf, graphDot, lint, listReady, nextReady, searchGraph, statusOf } from "./query.ts";
+import { watchProject } from "./watch.ts";
 
 const MIME: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -98,14 +99,44 @@ function serveStatic(urlPath: string, res: http.ServerResponse, dir: string): vo
   fs.createReadStream(abs).pipe(res);
 }
 
+function startSse(req: http.IncomingMessage, res: http.ServerResponse): void {
+  res.writeHead(200, {
+    "Content-Type": "text/event-stream; charset=utf-8",
+    "Cache-Control": "no-cache, no-transform",
+    Connection: "keep-alive",
+    "X-Accel-Buffering": "no",
+  });
+  res.write(":\n\n");
+  req.socket.setTimeout(0);
+}
+
+function pushEvent(clients: Set<http.ServerResponse>, payload: unknown): void {
+  const frame = `data: ${JSON.stringify(payload)}\n\n`;
+  for (const client of clients) {
+    try {
+      client.write(frame);
+    } catch {
+      clients.delete(client);
+    }
+  }
+}
+
 async function handleApi(
   ctx: OpContext,
   req: http.IncomingMessage,
   res: http.ServerResponse,
   url: URL,
+  sse: Set<http.ServerResponse>,
 ): Promise<void> {
   const route = url.pathname.replace(/\/$/, "") || "/";
   try {
+    if (req.method === "GET" && route === "/api/events") {
+      startSse(req, res);
+      sse.add(res);
+      req.on("close", () => sse.delete(res));
+      return;
+    }
+    reload(ctx);
     if (req.method === "GET" && route === "/api/schema") {
       send(res, 200, schemaOf(ctx));
       return;
@@ -214,16 +245,48 @@ export function startUi(opts: { port?: number; cwd?: string } = {}): http.Server
   const port = opts.port ?? Number(process.env.PILOTBOOK_UI_PORT || 4173);
   const ctx = withProject(opts.cwd);
   const dir = path.resolve(uiDir());
+  const sse = new Set<http.ServerResponse>();
+  const disk = watchProject(
+    ctx.project.projectRoot,
+    ctx.project.config,
+    ctx.project.configPath,
+    () => {
+      reload(ctx);
+      pushEvent(sse, { type: "reload" });
+    },
+  );
+  const ping = setInterval(() => {
+    for (const client of sse) {
+      try {
+        client.write(":\n\n");
+      } catch {
+        sse.delete(client);
+      }
+    }
+  }, 25_000);
   const server = http.createServer((req, res) => {
     const url = new URL(req.url ?? "/", `http://${req.headers.host}`);
     if (url.pathname.startsWith("/api/")) {
-      handleApi(ctx, req, res, url).catch((err) => {
+      handleApi(ctx, req, res, url, sse).catch((err) => {
         send(res, 500, { error: err instanceof Error ? err.message : String(err) });
       });
       return;
     }
     serveStatic(url.pathname, res, dir);
   });
+  const stop = (): void => {
+    clearInterval(ping);
+    disk.close();
+    for (const client of sse) {
+      try {
+        client.end();
+      } catch {
+        /* ignore */
+      }
+    }
+    sse.clear();
+  };
+  server.on("close", stop);
   server.on("error", (err: NodeJS.ErrnoException) => {
     if (err.code === "EADDRINUSE") {
       err.message = `port ${port} is already in use. Try \`pb ui --port 4174\` or stop the other process.`;

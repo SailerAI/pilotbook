@@ -12,6 +12,8 @@ export interface Diagnostic {
   file: string;
   line: number;
   column: number;
+  /** Work-item ID the diagnostic is about, when it is not file-local. */
+  target?: string;
   suggestion?: string;
   fix?: string;
 }
@@ -82,7 +84,7 @@ export interface PilotbookConfig {
   edges: Record<string, EdgeKind>;
   codeMap: Record<string, string[]>;
   checks: { commands: string[] };
-  hooks: { blockOnUnverified: boolean };
+  hooks: { blockOnUnverified: boolean; primeBudget: number };
   peers: PeerManifestRef[];
 }
 

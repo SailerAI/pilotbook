@@ -1,9 +1,11 @@
 import { stdin as input, stdout as output } from "node:process";
 import {
+  analyzeGraph,
   applyClarifications,
   briefOf,
   bumpItem,
   clarifyItem,
+  convergeItem,
   createItem,
   deleteItem,
   explain,
@@ -167,6 +169,23 @@ const TOOLS = [
     },
   },
   {
+    name: "analyze",
+    description: "Report graph coverage gaps without an LLM",
+    inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "converge",
+    description: "Append tasks for uncovered acceptance criteria",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        dryRun: { type: "boolean" },
+      },
+      required: ["id"],
+    },
+  },
+  {
     name: "split",
     description: "Split an oversized item into children",
     inputSchema: {
@@ -280,6 +299,10 @@ function callTool(ctx: OpContext, name: string, params: Record<string, unknown>)
       return textResult(bumpItem(ctx, String(params.id)));
     case "impact":
       return textResult(impactOf(ctx, String(params.id)));
+    case "analyze":
+      return textResult(analyzeGraph(ctx));
+    case "converge":
+      return textResult(convergeItem(ctx, String(params.id), { dryRun: Boolean(params.dryRun) }));
     case "split":
       return textResult(
         splitItem(ctx, String(params.id), {

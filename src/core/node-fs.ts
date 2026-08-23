@@ -22,6 +22,23 @@ export class NodeFileSystem implements FileSystem {
     fs.writeFileSync(absPath, content);
   }
 
+  writeFileAtomic(absPath: string, content: string): void {
+    const dir = path.dirname(absPath);
+    fs.mkdirSync(dir, { recursive: true });
+    const tmp = path.join(dir, `.${path.basename(absPath)}.${process.pid}.tmp`);
+    try {
+      fs.writeFileSync(tmp, content);
+      fs.renameSync(tmp, absPath);
+    } catch (err) {
+      try {
+        fs.unlinkSync(tmp);
+      } catch {
+        // best-effort cleanup
+      }
+      throw err;
+    }
+  }
+
   exists(absPath: string): boolean {
     return fs.existsSync(absPath);
   }

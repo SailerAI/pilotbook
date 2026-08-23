@@ -3,7 +3,7 @@ id: US-022
 title: Prime a session with the in-progress brief
 type: story
 epic: EPIC-005
-status: backlog
+status: done
 priority: P1
 estimate: 2
 phase: 2
@@ -24,10 +24,10 @@ updated: 2026-08-23
 
 ## Acceptance criteria
 
-- [ ] Given `pb hook session-start` (or the existing session-start hook in `src/ops/hooks.ts`), when an item is `in-progress`, then stdout includes `pb brief` of that item (budgeted)
-- [ ] Given no in-progress item, when the hook runs, then it prints `pb next` instead of an empty summary
-- [ ] Given truncation, when the primed brief is over budget, then the `brief_truncated` diagnostic is visible in the hook output
-- [ ] Given BR-003, when priming, then the hook does not append repo tours or `AGENTS.md` duplicates of the brief
+- [x] Given `pb hook session-start` (or the existing session-start hook in `src/ops/hooks.ts`), when an item is `in-progress`, then stdout includes `pb brief` of that item (budgeted)
+- [x] Given no in-progress item, when the hook runs, then it prints `pb next` instead of an empty summary
+- [x] Given truncation, when the primed brief is over budget, then the `brief_truncated` diagnostic is visible in the hook output
+- [x] Given BR-003, when priming, then the hook does not append repo tours or `AGENTS.md` duplicates of the brief
 
 ## Notes
 

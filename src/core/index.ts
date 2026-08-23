@@ -1,4 +1,4 @@
-export type { BriefResult, BriefSection } from "./brief.ts";
+export type { BriefDropped, BriefFetch, BriefResult, BriefSection } from "./brief.ts";
 export { compileBrief, renderBriefMarkdown } from "./brief.ts";
 export { parseChecklist, serializeChecklist } from "./checklist.ts";
 export {

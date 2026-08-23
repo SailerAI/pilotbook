@@ -1,3 +1,5 @@
+export type { AnalyzeReport, CoverageRow } from "./analyze.ts";
+export { analyzeGraph } from "./analyze.ts";
 export type { BumpResult } from "./bump.ts";
 export { bumpItem } from "./bump.ts";
 export {
@@ -7,6 +9,8 @@ export {
 } from "./clarify.ts";
 export { complete, completionScript } from "./complete.ts";
 export { type OpContext, openProject, PilotbookError, withProject } from "./context.ts";
+export type { ConvergePlanTask, ConvergeResult } from "./converge.ts";
+export { convergeItem } from "./converge.ts";
 export { hookStop, installHooks, sessionStart } from "./hooks.ts";
 export type { ImpactReport } from "./impact.ts";
 export { impactOf } from "./impact.ts";
@@ -26,9 +30,10 @@ export {
   writeBoard,
 } from "./items.ts";
 export { promoteIdea, rejectIdea } from "./promote.ts";
-export type { Ladder, ReadyItem, SearchHit, StatusOf } from "./query.ts";
+export type { BoardPlan, Ladder, ReadyItem, SearchHit, StatusOf } from "./query.ts";
 export {
   board,
+  boardPlan,
   briefOf,
   explain,
   graphDot,
@@ -37,6 +42,7 @@ export {
   lintText,
   listReady,
   nextReady,
+  primeTarget,
   searchGraph,
   statusOf,
 } from "./query.ts";

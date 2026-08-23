@@ -1,7 +1,7 @@
 import { hostJoin } from "../core/config.ts";
 import type { FileSystem } from "../core/fs.ts";
 import type { OpContext } from "./context.ts";
-import { lint, nextReady } from "./query.ts";
+import { briefOf, lint, nextReady, primeTarget } from "./query.ts";
 
 export interface HookInstallResult {
   wrote: string[];
@@ -88,20 +88,35 @@ function mergeJson(
   fs.writeFile(abs, `${JSON.stringify(merge(cur), null, 2)}\n`);
 }
 
+/**
+ * Primes the session with the in-progress brief under `hooks.prime_budget`. BR-003 forbids a repo
+ * tour here, so nothing is emitted but the lint counts and the brief itself.
+ */
 export function sessionStart(ctx: OpContext): string {
-  const ready = nextReady(ctx);
   const lintRes = lint(ctx);
-  const inProgress = ctx.project.index.items.filter((i) => i.data.status === "in-progress");
   const lines = [
     "# Pilotbook session",
     "",
     `Items: ${ctx.project.index.items.length}. Lint: ${lintRes.errors.length} error(s), ${lintRes.warnings.length} warning(s).`,
     "",
-    "## In progress",
-    inProgress.length
-      ? inProgress.map((i) => `- ${i.data.id} ${i.data.title}`).join("\n")
-      : "_None._",
-    "",
+  ];
+
+  const prime = primeTarget(ctx);
+  if (prime) {
+    const inProgress = ctx.project.index.items.filter((i) => i.data.status === "in-progress");
+    if (inProgress.length > 1) {
+      const others = inProgress.filter((i) => i.data.id !== prime.data.id).map((i) => i.data.id);
+      lines.push(`Also in progress, not primed: ${others.join(", ")}.`, "");
+    }
+    const { text } = briefOf(ctx, prime.data.id, {
+      budget: ctx.project.config.hooks.primeBudget,
+    });
+    lines.push(text.trimEnd());
+    return `${lines.join("\n")}\n`;
+  }
+
+  const ready = nextReady(ctx);
+  lines.push(
     "## Next ready",
     ready.length
       ? ready
@@ -111,7 +126,7 @@ export function sessionStart(ctx: OpContext): string {
       : "_None._",
     "",
     "Run `pb brief <ID>` before implementing.",
-  ];
+  );
   return `${lines.join("\n")}\n`;
 }
 

@@ -116,15 +116,17 @@ pb brief TA<TAB>    # TASK-001  Transaction API
 | `pb new <type> --title "…"` | Allocate the next ID |
 | `pb verify <ID>` | Run `checks.commands`, stamp `verified` |
 | `pb lint` | Graph integrity (`--format github`) |
-| `pb board` | Regenerate `BOARD.md` |
+| `pb board` | Regenerate `BOARD.md` (`--dry-run` reports `in_sync`, added, orphans) |
+| `pb converge <ID>` | Append tasks for uncovered criteria (`--dry-run` reports `converged` or a plan) |
 
 ### Graph
 
 | Command | What it does |
 | --- | --- |
 | `pb init` | Config, directories, templates, agent skills |
+| `pb analyze` | Coverage table; exit 1 for uncovered active rules or done stories with open children |
 | `pb graph --dot` | Graphviz |
-| `pb ui` | Kanban + graph + brief preview (127.0.0.1) |
+| `pb ui` | Kanban + graph + brief preview (127.0.0.1). Reloads when markdown on disk changes. |
 | `pb mcp` | MCP server on stdio |
 | `pb seed --from brief.md` | Materialize epics/stories/tasks |
 | `pb export --to jira\|notion --dry-run` | One-way export |
@@ -154,7 +156,11 @@ checks:
   commands: [pnpm test, pnpm lint]
 hooks:
   block_on_unverified: false
+  prime_budget: 6000
 ```
+
+`hooks.prime_budget` is the token ceiling `pb hook session-start` compiles the in-progress brief
+under. Truncation is reported as a `brief_truncated` warning, never dropped silently.
 
 Discovery walks up from `cwd` for `pilotbook.config.yml`, then the git root.
 

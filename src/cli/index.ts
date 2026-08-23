@@ -5,13 +5,16 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineCommand, runMain } from "citty";
 import {
+  analyzeGraph,
   applyClarifications,
   board,
+  boardPlan,
   briefOf,
   bumpItem,
   clarifyItem,
   complete,
   completionScript,
+  convergeItem,
   createItem,
   explain,
   exportItems,
@@ -331,9 +334,34 @@ const main = defineCommand({
     }),
     board: defineCommand({
       meta: { description: "Regenerate BOARD.md" },
-      args: { ...cwdArg, json: jsonArg.json },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        "dry-run": {
+          type: "boolean",
+          description: "Report added and orphan ids without writing",
+          default: false,
+        },
+      },
       run({ args }) {
         const ctx = ctxFrom(args);
+        if (args["dry-run"]) {
+          const plan = boardPlan(ctx);
+          const added =
+            plan.added.length === 0
+              ? "(none)"
+              : plan.added.map((a) => `${a.id} (${a.status})`).join(", ");
+          const orphans =
+            plan.orphans.length === 0
+              ? "(none)"
+              : plan.orphans.map((o) => `${o.id} (${o.status})`).join(", ");
+          emit(
+            Boolean(args.json),
+            plan,
+            `in_sync: ${plan.inSync}\nadded: ${added}\norphans: ${orphans}\n`,
+          );
+          return;
+        }
         const result = board(ctx);
         emit(Boolean(args.json), result, `wrote ${result.wrote}\n`);
       },
@@ -550,6 +578,65 @@ const main = defineCommand({
                 )}`
               : `${result.id} v${result.version}\nNo inbound stories or tasks.\n`,
           );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    analyze: defineCommand({
+      meta: { description: "Report graph coverage gaps without an LLM" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+      },
+      run({ args }) {
+        const ctx = ctxFrom(args);
+        const result = analyzeGraph(ctx);
+        emit(
+          Boolean(args.json),
+          result,
+          `${printTable(
+            ["Requirement Key", "Has Task?", "Task IDs", "Notes"],
+            result.coverage.map((row) => [
+              row.key,
+              row.hasTask ? "yes" : "no",
+              row.taskIds.join(", "),
+              row.notes,
+            ]),
+          )}coverage ${result.coveragePercent}%\n${result.ok ? "analyze ok" : "analyze failed"}\n`,
+        );
+        process.exit(result.ok ? 0 : 1);
+      },
+    }),
+    converge: defineCommand({
+      meta: { description: "Append tasks for uncovered acceptance criteria" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        id: { type: "positional", required: true, description: "Story or epic ID" },
+        "dry-run": {
+          type: "boolean",
+          description: "Report converged or a plan of tasks without writing",
+          default: false,
+        },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          const result = convergeItem(ctx, String(args.id), {
+            dryRun: Boolean(args["dry-run"]),
+          });
+          const text =
+            result.status === "plan"
+              ? `plan ${result.id}\n${result.tasks
+                  .map((t) => `task\t${t.title}\t${t.covers.join(",")}`)
+                  .join("\n")}\n`
+              : result.created.length
+                ? `converged ${result.id}\n${result.created
+                    .map((c) => `${c.id}\t${String(c.data.title)}`)
+                    .join("\n")}\n`
+                : "converged\n";
+          emit(Boolean(args.json), result, text);
         } catch (err) {
           fail(err);
         }

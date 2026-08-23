@@ -232,6 +232,18 @@ createApp({
       schema.value = sch;
       lint.value = lintRes;
       if (bundle.errors?.length) flash(bundle.errors[0], true);
+      if (editing.value) {
+        const fresh = items.value.find((i) => i.id === editing.value.id);
+        if (fresh) editing.value = fresh;
+        loadStatus(editing.value.id);
+      }
+    }
+
+    function listenForDisk() {
+      const es = new EventSource("/api/events");
+      es.onmessage = () => {
+        refresh().catch((err) => flash(err.message, true));
+      };
     }
 
     const groupTypes = computed(() =>
@@ -750,6 +762,7 @@ createApp({
         }
       });
       refresh().catch((err) => flash(err.message, true));
+      listenForDisk();
     });
 
     return {

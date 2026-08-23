@@ -6,21 +6,16 @@ _Last generated: 2026-08-23_
 
 ## By status
 
-### backlog (18)
+### backlog (13)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
 | [EPIC-004](backlog/epics/EPIC-004-how-to-build.md) | How to build | epic | P1 |
 | [EPIC-005](backlog/epics/EPIC-005-actually-build-it.md) | Actually build it | epic | P1 |
 | [EPIC-006](backlog/epics/EPIC-006-evidence-not-assertion.md) | Evidence, not assertion | epic | P1 |
-| [US-015](backlog/stories/US-015-analyze-graph-coverage-without-an-llm.md) | Analyze graph coverage without an LLM | story | P1 |
-| [US-016](backlog/stories/US-016-converge-by-appending-tasks-only.md) | Converge by appending tasks only | story | P1 |
-| [US-017](backlog/stories/US-017-report-brief-truncation-as-a-diagnostic.md) | Report brief truncation as a diagnostic | story | P1 |
 | [US-018](backlog/stories/US-018-publish-the-agent-contract.md) | Publish the agent contract | story | P2 |
 | [US-019](backlog/stories/US-019-refuse-to-tick-reviewer-owned-criteria.md) | Refuse to tick reviewer-owned criteria | story | P2 |
-| [US-020](backlog/stories/US-020-merge-the-board-without-downgrading-status.md) | Merge the board without downgrading status | story | P1 |
 | [US-021](backlog/stories/US-021-run-an-evidence-backed-epic-retrospective.md) | Run an evidence-backed epic retrospective | story | P3 |
-| [US-022](backlog/stories/US-022-prime-a-session-with-the-in-progress-brief.md) | Prime a session with the in-progress brief | story | P1 |
 | [US-023](backlog/stories/US-023-capture-per-test-results-not-just-exit-codes.md) | Capture per-test results, not just exit codes | story | P1 |
 | [US-024](backlog/stories/US-024-report-unproven-criteria.md) | Report unproven criteria | story | P1 |
 | [US-025](backlog/stories/US-025-gate-done-on-proof.md) | Gate done on proof | story | P1 |
@@ -29,7 +24,7 @@ _Last generated: 2026-08-23_
 | [US-028](backlog/stories/US-028-measure-brief-vs-no-brief-on-a-fixed-task-set.md) | Measure brief vs no brief on a fixed task set | story | P1 |
 | [US-029](backlog/stories/US-029-publish-the-number-and-correct-br-003-if-contradicted.md) | Publish the number and correct BR-003 if contradicted | story | P2 |
 
-### done (56)
+### done (69)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -67,6 +62,14 @@ _Last generated: 2026-08-23_
 | [TASK-035](backlog/tasks/TASK-035-serve-skill-instructions-on-demand-24.md) | CLI pb instructions and pb skill | task | P1 |
 | [TASK-036](backlog/tasks/TASK-036-serve-skill-instructions-on-demand-34.md) | MCP instructions and skill tools | task | P1 |
 | [TASK-037](backlog/tasks/TASK-037-serve-skill-instructions-on-demand-44.md) | Point init AGENTS.md at pb instructions overview | task | P1 |
+| [TASK-038](backlog/tasks/TASK-038-report-brief-truncation-as-a-diagnostic-with-fetch-stubs.md) | Report brief truncation as a diagnostic with fetch stubs | task | P2 |
+| [TASK-039](backlog/tasks/TASK-039-prime-session-start-with-the-budgeted-in-progress-brief.md) | Prime session start with the budgeted in-progress brief | task | P2 |
+| [TASK-040](backlog/tasks/TASK-040-write-boardmd-atomically-without-touching-item-files.md) | Write BOARD.md atomically without touching item files | task | P1 |
+| [TASK-041](backlog/tasks/TASK-041-add-boardplan-and-pb-board-dry-run.md) | Add boardPlan and pb board --dry-run | task | P1 |
+| [TASK-042](backlog/tasks/TASK-042-implement-analyzegraph-coverage-queries.md) | Implement analyzeGraph coverage queries | task | P2 |
+| [TASK-043](backlog/tasks/TASK-043-wire-pb-analyze-through-cli-and-mcp-with-ci-exit.md) | Wire pb analyze through CLI and MCP with CI exit | task | P2 |
+| [TASK-044](backlog/tasks/TASK-044-implement-convergeitem-appending-covers-carrying-tasks.md) | Implement convergeItem appending covers-carrying tasks | task | P1 |
+| [TASK-045](backlog/tasks/TASK-045-wire-pb-converge-through-cli-and-mcp.md) | Wire pb converge through CLI and MCP | task | P1 |
 | [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
 | [US-002](backlog/stories/US-002-clarify-an-item-into-a-bounded-question-set.md) | Clarify an item into a bounded question set | story | P1 |
 | [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
@@ -81,6 +84,11 @@ _Last generated: 2026-08-23_
 | [US-012](backlog/stories/US-012-allow-a-small-change-to-skip-the-epic-and-story.md) | Allow a small change to skip the epic and story | story | P1 |
 | [US-013](backlog/stories/US-013-install-all-five-skills-from-pb-init.md) | Install all five skills from pb init | story | P0 |
 | [US-014](backlog/stories/US-014-serve-skill-instructions-on-demand.md) | Serve skill instructions on demand | story | P1 |
+| [US-015](backlog/stories/US-015-analyze-graph-coverage-without-an-llm.md) | Analyze graph coverage without an LLM | story | P1 |
+| [US-016](backlog/stories/US-016-converge-by-appending-tasks-only.md) | Converge by appending tasks only | story | P1 |
+| [US-017](backlog/stories/US-017-report-brief-truncation-as-a-diagnostic.md) | Report brief truncation as a diagnostic | story | P1 |
+| [US-020](backlog/stories/US-020-merge-the-board-without-downgrading-status.md) | Merge the board without downgrading status | story | P1 |
+| [US-022](backlog/stories/US-022-prime-a-session-with-the-in-progress-brief.md) | Prime a session with the in-progress brief | story | P1 |
 | [US-030](backlog/stories/US-030-navigate-children-and-internal-links-from-the-peek.md) | Navigate children and internal links from the peek | story | P2 |
 | [US-031](backlog/stories/US-031-install-cursor-agent-skills-from-pb-init.md) | Install Cursor agent skills from pb init | story | P1 |
 | [US-032](backlog/stories/US-032-trigger-discover-from-a-vague-demand.md) | Trigger discover from a vague demand | story | P1 |
@@ -104,16 +112,20 @@ _Last generated: 2026-08-23_
 
 ## By phase
 
-### 1 (4)
+### 1 (8)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
 | [EPIC-001](backlog/epics/EPIC-001-dogfood-this-repo.md) | Dogfood this repo | epic | P1 |
 | [TASK-001](backlog/tasks/TASK-001-document-the-dogfood-loop-in-contributing.md) | Document the dogfood loop in CONTRIBUTING | task | P1 |
 | [TASK-002](backlog/tasks/TASK-002-widen-default-cursor-rule-beyond-docs-glob.md) | Widen default Cursor rule beyond docs glob | task | P1 |
+| [TASK-038](backlog/tasks/TASK-038-report-brief-truncation-as-a-diagnostic-with-fetch-stubs.md) | Report brief truncation as a diagnostic with fetch stubs | task | P2 |
+| [TASK-039](backlog/tasks/TASK-039-prime-session-start-with-the-budgeted-in-progress-brief.md) | Prime session start with the budgeted in-progress brief | task | P2 |
+| [TASK-042](backlog/tasks/TASK-042-implement-analyzegraph-coverage-queries.md) | Implement analyzeGraph coverage queries | task | P2 |
+| [TASK-043](backlog/tasks/TASK-043-wire-pb-analyze-through-cli-and-mcp-with-ci-exit.md) | Wire pb analyze through CLI and MCP with CI exit | task | P2 |
 | [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
 
-### 2 (69)
+### 2 (73)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -157,6 +169,10 @@ _Last generated: 2026-08-23_
 | [TASK-035](backlog/tasks/TASK-035-serve-skill-instructions-on-demand-24.md) | CLI pb instructions and pb skill | task | P1 |
 | [TASK-036](backlog/tasks/TASK-036-serve-skill-instructions-on-demand-34.md) | MCP instructions and skill tools | task | P1 |
 | [TASK-037](backlog/tasks/TASK-037-serve-skill-instructions-on-demand-44.md) | Point init AGENTS.md at pb instructions overview | task | P1 |
+| [TASK-040](backlog/tasks/TASK-040-write-boardmd-atomically-without-touching-item-files.md) | Write BOARD.md atomically without touching item files | task | P1 |
+| [TASK-041](backlog/tasks/TASK-041-add-boardplan-and-pb-board-dry-run.md) | Add boardPlan and pb board --dry-run | task | P1 |
+| [TASK-044](backlog/tasks/TASK-044-implement-convergeitem-appending-covers-carrying-tasks.md) | Implement convergeItem appending covers-carrying tasks | task | P1 |
+| [TASK-045](backlog/tasks/TASK-045-wire-pb-converge-through-cli-and-mcp.md) | Wire pb converge through CLI and MCP | task | P1 |
 | [US-002](backlog/stories/US-002-clarify-an-item-into-a-bounded-question-set.md) | Clarify an item into a bounded question set | story | P1 |
 | [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
 | [US-004](backlog/stories/US-004-record-a-kill-verdict-on-an-idea.md) | Record a kill verdict on an idea | story | P2 |
@@ -306,6 +322,39 @@ _Empty._
 | [TASK-035](backlog/tasks/TASK-035-serve-skill-instructions-on-demand-24.md) | CLI pb instructions and pb skill | task | P1 |
 | [TASK-036](backlog/tasks/TASK-036-serve-skill-instructions-on-demand-34.md) | MCP instructions and skill tools | task | P1 |
 | [TASK-037](backlog/tasks/TASK-037-serve-skill-instructions-on-demand-44.md) | Point init AGENTS.md at pb instructions overview | task | P1 |
+
+### US-015 Analyze graph coverage without an LLM (2)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-042](backlog/tasks/TASK-042-implement-analyzegraph-coverage-queries.md) | Implement analyzeGraph coverage queries | task | P2 |
+| [TASK-043](backlog/tasks/TASK-043-wire-pb-analyze-through-cli-and-mcp-with-ci-exit.md) | Wire pb analyze through CLI and MCP with CI exit | task | P2 |
+
+### US-016 Converge by appending tasks only (2)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-044](backlog/tasks/TASK-044-implement-convergeitem-appending-covers-carrying-tasks.md) | Implement convergeItem appending covers-carrying tasks | task | P1 |
+| [TASK-045](backlog/tasks/TASK-045-wire-pb-converge-through-cli-and-mcp.md) | Wire pb converge through CLI and MCP | task | P1 |
+
+### US-017 Report brief truncation as a diagnostic (1)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-038](backlog/tasks/TASK-038-report-brief-truncation-as-a-diagnostic-with-fetch-stubs.md) | Report brief truncation as a diagnostic with fetch stubs | task | P2 |
+
+### US-020 Merge the board without downgrading status (2)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-040](backlog/tasks/TASK-040-write-boardmd-atomically-without-touching-item-files.md) | Write BOARD.md atomically without touching item files | task | P1 |
+| [TASK-041](backlog/tasks/TASK-041-add-boardplan-and-pb-board-dry-run.md) | Add boardPlan and pb board --dry-run | task | P1 |
+
+### US-022 Prime a session with the in-progress brief (1)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-039](backlog/tasks/TASK-039-prime-session-start-with-the-budgeted-in-progress-brief.md) | Prime session start with the budgeted in-progress brief | task | P2 |
 
 ### US-030 Navigate children and internal links from the peek (1)
 

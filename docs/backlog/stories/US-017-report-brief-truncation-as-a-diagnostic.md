@@ -3,7 +3,7 @@ id: US-017
 title: Report brief truncation as a diagnostic
 type: story
 epic: EPIC-005
-status: backlog
+status: done
 priority: P1
 estimate: 3
 phase: 2
@@ -24,10 +24,10 @@ updated: 2026-08-23
 
 ## Acceptance criteria
 
-- [ ] Given `--budget` smaller than the full brief, when I compile, then JSON includes `{severity: "warning", code: "brief_truncated", target, message, fix}` where `fix` is a runnable `pb brief <ID> --budget <larger>` command
-- [ ] Given truncation, when sections are dropped, then lowest-authority sections go first (siblings/code-map, then depends_on, then parents) and rules/ADRs are last
-- [ ] Given hops past the first, when budget is tight, then those items appear as `{id, title, fetch}` rather than full bodies
-- [ ] Given no `--budget`, when I compile, then behaviour stays unlimited **or** a documented default budget is applied and still reports truncation — not silent
+- [x] Given `--budget` smaller than the full brief, when I compile, then JSON includes `{severity: "warning", code: "brief_truncated", target, message, fix}` where `fix` is a runnable `pb brief <ID> --budget <larger>` command
+- [x] Given truncation, when sections are dropped, then lowest-authority sections go first (siblings/code-map, then depends_on, then parents) and rules/ADRs are last
+- [x] Given hops past the first, when budget is tight, then those items appear as `{id, title, fetch}` rather than full bodies
+- [x] Given no `--budget`, when I compile, then behaviour stays unlimited **or** a documented default budget is applied and still reports truncation — not silent
 
 ## Notes
 

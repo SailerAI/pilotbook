@@ -3,7 +3,7 @@ id: US-020
 title: Merge the board without downgrading status
 type: story
 epic: EPIC-005
-status: backlog
+status: done
 priority: P1
 estimate: 3
 phase: 2
@@ -24,10 +24,10 @@ updated: 2026-08-23
 
 ## Acceptance criteria
 
-- [ ] Given an existing board, when I run `pb board`, then item statuses in the graph are the source of truth and the generated markdown reflects them — regeneration never writes a lower status onto an item file
-- [ ] Given `pb board --dry-run`, when I run it, then it reports `in_sync`, new entries, and orphans carrying their old statuses, and writes nothing
-- [ ] Given custom keys and HTML comments in an item file, when the board regenerates, then those pass through untouched on the item
-- [ ] Given a write failure, when serializing the board, then the previous `BOARD.md` is left in place (atomic replace)
+- [x] Given an existing board, when I run `pb board`, then item statuses in the graph are the source of truth and the generated markdown reflects them — regeneration never writes a lower status onto an item file
+- [x] Given `pb board --dry-run`, when I run it, then it reports `in_sync`, new entries, and orphans carrying their old statuses, and writes nothing
+- [x] Given custom keys and HTML comments in an item file, when the board regenerates, then those pass through untouched on the item
+- [x] Given a write failure, when serializing the board, then the previous `BOARD.md` is left in place (atomic replace)
 
 ## Notes
 

@@ -28,6 +28,8 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
     "promote",
     "bump",
     "impact",
+    "analyze",
+    "converge",
     "split",
     "reject",
     "clarify",
@@ -103,7 +105,17 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
     );
   }
   if (
-    ["brief", "explain", "verify", "clarify", "status", "bump", "impact", "split"].includes(cmd) ||
+    [
+      "brief",
+      "explain",
+      "verify",
+      "clarify",
+      "status",
+      "bump",
+      "impact",
+      "split",
+      "converge",
+    ].includes(cmd) ||
     prev === "<ID>"
   ) {
     return filter(

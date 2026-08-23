@@ -21,3 +21,4 @@ checks:
   commands: [pnpm test, pnpm typecheck, pnpm lint]
 hooks:
   block_on_unverified: false
+  prime_budget: 6000

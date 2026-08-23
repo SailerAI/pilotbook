@@ -51,6 +51,8 @@ const fileSchema = z
       .object({
         block_on_unverified: z.boolean().optional(),
         blockOnUnverified: z.boolean().optional(),
+        prime_budget: z.number().int().positive().optional(),
+        primeBudget: z.number().int().positive().optional(),
       })
       .optional(),
     peers: z
@@ -182,6 +184,8 @@ export function parseConfigFile(text: string): PilotbookConfig {
     hooks: {
       blockOnUnverified:
         parsed.hooks?.blockOnUnverified ?? parsed.hooks?.block_on_unverified ?? false,
+      primeBudget:
+        parsed.hooks?.primeBudget ?? parsed.hooks?.prime_budget ?? base.hooks.primeBudget,
     },
     peers: parsed.peers ?? [],
   };
@@ -220,5 +224,6 @@ checks:
   commands: []
 hooks:
   block_on_unverified: false
+  prime_budget: 6000
 `;
 }
