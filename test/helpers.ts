@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { dumpDefaultConfig } from "../src/core/config.ts";
+import { bodyHash } from "../src/core/hash.ts";
 import { MemoryFileSystem } from "../src/core/memory-fs.ts";
 import { type OpContext, withProject } from "../src/ops/context.ts";
 
@@ -97,6 +98,10 @@ export function story(
   );
 }
 
+export function hashedBody(body: string): string {
+  return `${body.trimEnd()}\n`;
+}
+
 export function task(
   id: string,
   storyId: string,
@@ -108,7 +113,7 @@ export function task(
       id,
       title: extra.title ?? id,
       type: "task",
-      story: storyId,
+      ...(storyId ? { story: storyId } : {}),
       status: extra.status ?? "todo",
       priority: extra.priority ?? "P1",
       estimate: extra.estimate ?? 2,
@@ -117,6 +122,8 @@ export function task(
       area: extra.area ?? "backend",
       tags: extra.tags ?? [],
       depends_on: extra.depends_on ?? [],
+      ...(extra.business_rules ? { business_rules: extra.business_rules } : {}),
+      ...(extra.adrs ? { adrs: extra.adrs } : {}),
       ...DATES,
       ...(extra.verified ? { verified: extra.verified } : {}),
     },
@@ -139,29 +146,34 @@ export function idea(id: string, extra: Record<string, unknown> = {}, body?: str
       ...DATES,
     },
     body ??
-      "## Why\n\nWho benefits and why this is worth capturing.\n\n## Sketch\n\nA rough shape of the solution. Not a spec.\n\n## Open questions\n\n- Question 1\n\n## Why not now\n\nWhat would have to be true before this is promoted to an epic or story.\n",
+      "## Why\n\nWho benefits and why this is worth capturing.\n\n## Jobs to be done\n\nThe job the user is hiring this for.\n\n## Personas\n\nWho this is for, in one or two named roles.\n\n## Sketch\n\nA rough shape of the solution. Not a spec.\n\n## Evidence\n\nAt least one URL or internal ID (ADR-, BR-, US-).\n\n## Open questions\n\n- Question 1\n\n## Why not now\n\nWhat would have to be true before this is promoted to an epic or story.\n",
   );
 }
 
 export function adr(id: string, extra: Record<string, unknown> = {}, body?: string): string {
+  const bodyText = body ?? "## Context\n\nWe had to choose.\n\n## Decision\n\nWe chose A.\n";
   return fm(
     {
       id,
       title: extra.title ?? id,
       type: "adr",
       status: extra.status ?? "accepted",
+      version: extra.version ?? 1,
       date: "2026-08-23",
       deciders: ["x"],
       tags: [],
       supersedes: extra.supersedes ?? [],
       superseded_by: extra.superseded_by ?? [],
+      content_hash: extra.content_hash ?? bodyHash(hashedBody(bodyText)),
       ...DATES,
+      ...(extra.amended ? { amended: extra.amended } : {}),
     },
-    body ?? "## Context\n\nWe had to choose.\n\n## Decision\n\nWe chose A.\n",
+    bodyText,
   );
 }
 
 export function rule(id: string, extra: Record<string, unknown> = {}, body?: string): string {
+  const bodyText = body ?? "## Rule\n\nMUST keep money as strings.\n";
   return fm(
     {
       id,
@@ -169,11 +181,13 @@ export function rule(id: string, extra: Record<string, unknown> = {}, body?: str
       type: "business-rule",
       status: extra.status ?? "active",
       domain: "ledger",
-      version: 1,
+      version: extra.version ?? 1,
+      content_hash: extra.content_hash ?? bodyHash(hashedBody(bodyText)),
       related: extra.related ?? [],
       tags: [],
       ...DATES,
+      ...(extra.amended ? { amended: extra.amended } : {}),
     },
-    body ?? "## Rule\n\nMUST keep money as strings.\n",
+    bodyText,
   );
 }

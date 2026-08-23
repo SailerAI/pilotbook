@@ -22,6 +22,7 @@ Init installs every skill. Agents load instructions on demand, a budgeted brief 
 ## Stories
 
 - US-013 — Install all five skills from pb init
+- US-031 — Install Cursor agent skills from pb init
 - US-014 — Serve skill instructions on demand
 - US-015 — Analyze graph coverage without an LLM
 - US-016 — Converge by appending tasks only

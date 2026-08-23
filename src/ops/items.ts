@@ -3,8 +3,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { hostJoin, toPosix } from "../core/config.ts";
 import { cycleIfAdded } from "../core/cycles.ts";
+import { extraKeys } from "../core/defaults.ts";
 import { parseFrontmatter, serializeItem, today } from "../core/frontmatter.ts";
-import { loadGraph, refsOf, toPublic } from "../core/graph.ts";
+import { inboundOf, toPublic } from "../core/graph.ts";
+import { bodyHash } from "../core/hash.ts";
 import { nextId, slugify, splitRemoteId } from "../core/ids.ts";
 import { type ItemData, type ParsedItem, type PublicItem, WORK_TYPES } from "../core/types.ts";
 import { type OpContext, PilotbookError, reload } from "./context.ts";
@@ -57,17 +59,21 @@ function assertRefs(ctx: OpContext, data: ItemData, type: string): void {
 
   if (cfg.parent) {
     const parentId = data[cfg.parent];
-    if (!parentId) throw new PilotbookError(`${type}s require ${cfg.parent}`);
-    const id = String(parentId);
-    const { repo } = splitRemoteId(id);
-    if (repo) {
-      const found = peers.get(repo)?.some((p) => p.id === splitRemoteId(id).id);
-      if (!found) throw new PilotbookError(`dangling ${cfg.parent} ${id}`, "dangling-ref");
+    const optionalParent = (cfg.optional ?? []).includes(cfg.parent);
+    if (!parentId) {
+      if (!optionalParent) throw new PilotbookError(`${type}s require ${cfg.parent}`);
     } else {
-      const parent = index.byId.get(id);
-      if (!parent) throw new PilotbookError(`dangling ${cfg.parent} ${id}`, "dangling-ref");
-      if (parent.type !== cfg.parent) {
-        throw new PilotbookError(`${cfg.parent} ${id} is not a ${cfg.parent}`, "wrong-type-ref");
+      const id = String(parentId);
+      const { repo } = splitRemoteId(id);
+      if (repo) {
+        const found = peers.get(repo)?.some((p) => p.id === splitRemoteId(id).id);
+        if (!found) throw new PilotbookError(`dangling ${cfg.parent} ${id}`, "dangling-ref");
+      } else {
+        const parent = index.byId.get(id);
+        if (!parent) throw new PilotbookError(`dangling ${cfg.parent} ${id}`, "dangling-ref");
+        if (parent.type !== cfg.parent) {
+          throw new PilotbookError(`${cfg.parent} ${id} is not a ${cfg.parent}`, "wrong-type-ref");
+        }
       }
     }
   }
@@ -128,6 +134,27 @@ export function bundledSkills(): string {
   return findBundled("skills", "implement.md");
 }
 
+function dumpItem(
+  cfg: NonNullable<OpContext["project"]["config"]["types"][string]>,
+  data: ItemData,
+  body: string,
+): string {
+  const next: ItemData = { ...data };
+  if (cfg.parent && (cfg.optional ?? []).includes(cfg.parent)) {
+    const parentVal = next[cfg.parent];
+    if (parentVal === "" || parentVal === undefined) delete next[cfg.parent];
+  }
+  return serializeItem(next, body, cfg.required, extraKeys(cfg));
+}
+
+function stampKnowledgeHash(type: string, data: ItemData, body: string): ItemData {
+  if (type !== "adr" && type !== "business-rule") return data;
+  const next: ItemData = { ...data };
+  if (type === "adr" && (next.version === undefined || next.version === "")) next.version = 1;
+  next.content_hash = bodyHash(body);
+  return next;
+}
+
 function fillTemplate(text: string, vars: Record<string, string>): string {
   let out = text;
   for (const [k, v] of Object.entries(vars)) out = out.replaceAll(`{{${k}}}`, v);
@@ -164,7 +191,7 @@ export function createItem(
       title,
       date,
       epic: String(input.epic ?? "EPIC-000"),
-      story: String(input.story ?? "US-000"),
+      story: String(input.story ?? ""),
       goal: String(input.goal || "Describe the outcome of this epic."),
     });
   } else {
@@ -186,6 +213,8 @@ export function createItem(
     next[k] = coerce(cfg, k, v) as ItemData[string];
   }
   if (input.body) parsed.body = String(input.body);
+  if (input.story === undefined || input.story === "") delete next.story;
+  const stamped = stampKnowledgeHash(type, next, parsed.body);
 
   assertRefs(
     {
@@ -210,11 +239,11 @@ export function createItem(
         },
       },
     },
-    next,
+    stamped,
     type,
   );
 
-  const text = serializeItem(next, parsed.body, cfg.required, cfg.objects);
+  const text = dumpItem(cfg, stamped, parsed.body);
   ctx.fs.mkdirp(hostJoin(abs, ".."));
   ctx.fs.writeFile(abs, text);
   reload(ctx);
@@ -248,7 +277,7 @@ export function updateItem(
     throw new PilotbookError(`invalid status "${String(next.status)}" for ${item.type}`);
   }
   assertRefs(ctx, next, item.type);
-  ctx.fs.writeFile(item.abs, serializeItem(next, nextBody, cfg.required, cfg.objects));
+  ctx.fs.writeFile(item.abs, dumpItem(cfg, next, nextBody));
   reload(ctx);
   const updated = ctx.project.index.byId.get(id);
   if (!updated) throw new PilotbookError(`not found: ${id}`, "not-found", 404);
@@ -259,9 +288,7 @@ export function updateItem(
 export function deleteItem(ctx: OpContext, id: string): { deleted: string; rel: string } {
   const item = ctx.project.index.byId.get(id);
   if (!item) throw new PilotbookError(`not found: ${id}`, "not-found", 404);
-  const blockers = ctx.project.index.items.filter(
-    (other) => other.data.id !== id && refsOf(other, ctx.project.config.edges).includes(id),
-  );
+  const blockers = inboundOf(ctx.project.index, id);
   if (blockers.length) {
     throw new PilotbookError(
       `cannot delete ${id}: referenced by ${blockers.map((b) => b.data.id).join(", ")}`,
@@ -294,6 +321,7 @@ export function schemaOf(ctx: OpContext): {
     string,
     {
       required: string[];
+      optional: string[];
       enums: Record<string, string[]>;
       arrays: string[];
       numbers: string[];
@@ -309,6 +337,7 @@ export function schemaOf(ctx: OpContext): {
     string,
     {
       required: string[];
+      optional: string[];
       enums: Record<string, string[]>;
       arrays: string[];
       numbers: string[];
@@ -321,6 +350,7 @@ export function schemaOf(ctx: OpContext): {
   for (const [name, cfg] of Object.entries(ctx.project.config.types)) {
     types[name] = {
       required: cfg.required,
+      optional: cfg.optional ?? [],
       enums: cfg.enums,
       arrays: cfg.arrays,
       numbers: cfg.numbers,
@@ -393,10 +423,38 @@ export function writeBoard(ctx: OpContext): string {
   lines.push(`### Unphased (${unphased.length})`, "");
   appendBoardTable(lines, unphased, config);
 
+  const byStory = new Map<string, ParsedItem[]>();
+  const ungrouped: ParsedItem[] = [];
+  for (const item of work) {
+    if (item.type !== "task") continue;
+    const story = item.data.story;
+    if (typeof story === "string" && story) {
+      const bucket = byStory.get(story) ?? [];
+      bucket.push(item);
+      byStory.set(story, bucket);
+    } else {
+      ungrouped.push(item);
+    }
+  }
+  if (byStory.size || ungrouped.length) {
+    lines.push("## By story", "");
+    const storyIds = [...byStory.keys()].sort();
+    for (const storyId of storyIds) {
+      const bucket = byStory.get(storyId) ?? [];
+      const parent = index.byId.get(storyId);
+      const label = parent ? `${storyId} ${parent.data.title}` : storyId;
+      lines.push(`### ${label} (${bucket.length})`, "");
+      appendBoardTable(lines, bucket, config);
+    }
+    if (ungrouped.length) {
+      lines.push(`### Ungrouped (${ungrouped.length})`, "");
+      appendBoardTable(lines, ungrouped, config);
+    }
+  }
+
   const outRel = toPosix(`${config.root}/${config.board}`);
   const abs = hostJoin(projectRoot, outRel);
   ctx.fs.mkdirp(hostJoin(abs, ".."));
   ctx.fs.writeFile(abs, `${lines.join("\n")}\n`);
-  void loadGraph;
   return outRel;
 }

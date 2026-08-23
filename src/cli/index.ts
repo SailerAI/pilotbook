@@ -8,6 +8,7 @@ import {
   applyClarifications,
   board,
   briefOf,
+  bumpItem,
   clarifyItem,
   complete,
   completionScript,
@@ -16,6 +17,7 @@ import {
   exportItems,
   graphDot,
   hookStop,
+  impactOf,
   initProject,
   installHooks,
   lintText,
@@ -27,6 +29,7 @@ import {
   searchGraph,
   seedFromBrief,
   sessionStart,
+  splitItem,
   startUi,
   statusOf,
   verifyItem,
@@ -218,18 +221,22 @@ const main = defineCommand({
         q: { type: "positional", required: true, description: "Query" },
       },
       run({ args }) {
-        const ctx = ctxFrom(args);
-        const items = searchGraph(ctx, String(args.q ?? ""));
-        emit(
-          Boolean(args.json),
-          { items },
-          items.length
-            ? printTable(
-                ["ID", "Type", "Title", "Snippet"],
-                items.map((i) => [i.id, i.type, i.title, i.snippet]),
-              )
-            : "No matches.\n",
-        );
+        try {
+          const ctx = ctxFrom(args);
+          const items = searchGraph(ctx, String(args.q ?? ""));
+          emit(
+            Boolean(args.json),
+            { items },
+            items.length
+              ? printTable(
+                  ["ID", "Type", "Title", "Snippet"],
+                  items.map((i) => [i.id, i.type, i.title, i.snippet]),
+                )
+              : "No matches.\n",
+          );
+        } catch (err) {
+          fail(err);
+        }
       },
     }),
     brief: defineCommand({
@@ -437,6 +444,85 @@ const main = defineCommand({
           const text = result.dryRun
             ? `would create ${result.type} "${result.title}"${result.epic ? ` under ${result.epic}` : ""}\n`
             : `promoted ${args.id} → ${result.created?.id}\n`;
+          emit(Boolean(args.json), result, text);
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    bump: defineCommand({
+      meta: { description: "Increment version, set amended, refresh content_hash" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        id: { type: "positional", required: true, description: "BR or ADR ID" },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          const result = bumpItem(ctx, String(args.id));
+          const text = result.bumped
+            ? `bumped ${result.id} version=${result.version} amended=${result.amended}\n`
+            : `warning: ${result.warning}\n`;
+          emit(Boolean(args.json), result, text);
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    impact: defineCommand({
+      meta: { description: "List stories and tasks that cite a rule or ADR" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        id: { type: "positional", required: true, description: "BR or ADR ID" },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          const result = impactOf(ctx, String(args.id));
+          emit(
+            Boolean(args.json),
+            result,
+            result.items.length
+              ? `${result.id} v${result.version}\n${printTable(
+                  ["ID", "Type", "Status", "Done", "Title"],
+                  result.items.map((i) => [
+                    i.id,
+                    i.type,
+                    String(i.status ?? ""),
+                    i.done ? "yes" : "",
+                    i.title,
+                  ]),
+                )}`
+              : `${result.id} v${result.version}\nNo inbound stories or tasks.\n`,
+          );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    split: defineCommand({
+      meta: { description: "Split an oversized item into children" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        id: { type: "positional", required: true, description: "Epic, story, or task ID" },
+        "dry-run": { type: "boolean", default: false },
+        epic: { type: "string", description: "Parent epic (parentless task split)" },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          const result = splitItem(ctx, String(args.id), {
+            dryRun: Boolean(args["dry-run"]),
+            epic: typeof args.epic === "string" ? args.epic : undefined,
+          });
+          const text = result.dryRun
+            ? `split ${result.id} recommended=${result.recommended_count}\n${result.children
+                .map((c) => `${c.type}\t${c.title}${c.area ? `\t${c.area}` : ""}`)
+                .join("\n")}\n`
+            : `split ${result.id}\n${result.created.map((c) => `${c.type}\t${c.id ?? "-"}\t${c.title}`).join("\n")}\n`;
           emit(Boolean(args.json), result, text);
         } catch (err) {
           fail(err);

@@ -3,15 +3,16 @@ id: ADR-0005
 title: Version business rules and ADRs for sync-impact
 type: adr
 status: accepted
+version: 1
 date: 2026-08-23
 deciders: [maintainers]
 tags: [schema, rules]
 supersedes: []
 superseded_by: []
+content_hash: 189e1b5e5242
 created: 2026-08-23
 updated: 2026-08-23
 ---
-
 ## Context
 
 Business-rule files already have a `version` integer. ADRs do not. Spec Kit versions its constitution with semver plus a Sync Impact Report; it cannot tell you which shipped work a bump just invalidated. Pilotbook can: inbound `business_rules` and `adrs` edges from stories and tasks.
@@ -32,6 +33,9 @@ The sync-impact query MUST NOT invent a second version scheme (semver, git blame
 - ADRs gain `version`, defaulting to 1 on create.
 - Complexity Tracking (`Violation | Why Needed | Simpler Alternative Rejected Because`) lives in the ADR body, not as a new type.
 - `done` work is never silently rewritten; impact is a report, not a cascade of status changes.
+- `business-rule` and `adr` persist a `content_hash` (sha256 of the markdown body, 12 hex characters) so the "body moved without a bump" check is a pure function of the files.
+- `pb bump <ID>` is the version-bump operation: it increments `version`, sets `amended`, and refreshes `content_hash`. Lint reports the drift and never calls git.
+- Existing rule and ADR files are backfilled with `content_hash` at their current body, without incrementing `version`.
 
 ## Alternatives considered
 

@@ -24,6 +24,7 @@ function typeCfg(
     pad,
     group,
     required,
+    optional: extra.optional ?? [],
     enums: extra.enums ?? {},
     arrays: extra.arrays ?? [],
     numbers: extra.numbers ?? [],
@@ -33,6 +34,10 @@ function typeCfg(
     template: extra.template ?? `${extra.parent ? "" : ""}${dir.split("/").pop()}.md`,
     idPattern: extra.idPattern ?? new RegExp(`^${escaped}\\d{${pad}}$`),
   };
+}
+
+export function extraKeys(cfg: TypeConfig): string[] {
+  return [...(cfg.optional ?? []), ...cfg.objects];
 }
 
 export function builtinTypes(): Record<string, TypeConfig> {
@@ -123,9 +128,10 @@ export function builtinTypes(): Record<string, TypeConfig> {
           priority: [...PRIORITIES],
           area: [...AREAS],
         },
-        arrays: ["tags", "depends_on"],
+        arrays: ["tags", "depends_on", "business_rules", "adrs"],
         numbers: ["estimate", "phase"],
         parent: "story",
+        optional: ["story", "business_rules", "adrs"],
         objects: ["verified"],
         template: "task.md",
       },
@@ -140,18 +146,22 @@ export function builtinTypes(): Record<string, TypeConfig> {
         "title",
         "type",
         "status",
+        "version",
         "date",
         "deciders",
         "tags",
         "supersedes",
         "superseded_by",
+        "content_hash",
         "created",
         "updated",
       ],
       {
         enums: { type: ["adr"], status: [...ADR_STATUS] },
         arrays: ["deciders", "tags", "supersedes", "superseded_by"],
-        dates: ["date", "created", "updated"],
+        numbers: ["version"],
+        dates: ["date", "amended", "created", "updated"],
+        optional: ["amended"],
         template: "adr.md",
       },
     ),
@@ -167,6 +177,7 @@ export function builtinTypes(): Record<string, TypeConfig> {
         "status",
         "domain",
         "version",
+        "content_hash",
         "related",
         "tags",
         "created",
@@ -176,6 +187,8 @@ export function builtinTypes(): Record<string, TypeConfig> {
         enums: { type: ["business-rule"], status: [...BR_STATUS] },
         arrays: ["related", "tags"],
         numbers: ["version"],
+        dates: ["amended", "created", "updated"],
+        optional: ["amended"],
         template: "business-rule.md",
       },
     ),

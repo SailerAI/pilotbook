@@ -13,6 +13,7 @@ export const SHIPPED_SKILLS = [
   "prioritize",
   "architect",
   "discover",
+  "shape",
 ] as const;
 
 export interface InitResult {
@@ -54,28 +55,37 @@ alwaysApply: true
 
 # Pilotbook
 
-Work items live as markdown with YAML frontmatter. Do not move files to change status.
+Work items live as markdown with YAML frontmatter. Do not move files to change status. Never invent IDs — use \`pb new\`.
+
+If the user describes a new feature, idea, epic, or a vague demand ("I want…", "we should build…", "explore…"):
+
+1. Follow the **discover** skill — research into an idea, then promote to an epic.
+2. Immediately follow the **shape** skill on that epic.
+
+If the user is implementing existing work or you ran \`pb next\`:
 
 1. \`pb next\` — pick unblocked work
 2. \`pb brief <ID>\` — load governing rules, ADRs, and parent stories before editing code
 3. Implement against the brief. Money, dates, and architecture constraints in linked BR-/ADR- files win over improvisation.
 4. \`pb verify <ID>\` then set \`status: done\`
 5. \`pb lint\` must exit 0. \`pb board\` refreshes the generated board.
-
-Create items with \`pb new <type> --title "..."\`. Never invent IDs.
 `;
 
 const AGENTS_SNIPPET = `
 ## Pilotbook
 
-This repo uses [Pilotbook](https://github.com/SailerAI/pilotbook). Before implementing a task:
+This repo uses [Pilotbook](https://github.com/SailerAI/pilotbook).
+
+If the user describes a new feature, idea, or vague demand, follow the **discover** skill then the **shape** skill. Do not jump to \`pb next\`.
+
+If they are implementing existing work:
 
 \`\`\`bash
 pb next
 pb brief TASK-NNN
 \`\`\`
 
-Treat linked business rules and accepted ADRs as binding. Run \`pb lint\` before you finish.
+Treat linked business rules and accepted ADRs as binding. Run \`pb lint\` before you finish. Never invent IDs.
 `;
 
 export function initProject(

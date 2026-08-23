@@ -13,6 +13,7 @@ export interface Diagnostic {
   line: number;
   column: number;
   suggestion?: string;
+  fix?: string;
 }
 
 export interface FieldPos {
@@ -39,6 +40,8 @@ export interface TypeConfig {
   pad: number;
   group: string;
   required: string[];
+  /** Known keys that are not required. `unknown-field` allows these. */
+  optional: string[];
   enums: Record<string, string[]>;
   arrays: string[];
   numbers: string[];

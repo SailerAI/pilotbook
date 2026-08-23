@@ -3,15 +3,16 @@ id: ADR-0004
 title: Tasks may exist without a story parent
 type: adr
 status: accepted
+version: 1
 date: 2026-08-23
 deciders: [maintainers]
 tags: [schema, routing]
 supersedes: []
 superseded_by: []
+content_hash: 74d5b1a6514a
 created: 2026-08-23
 updated: 2026-08-23
 ---
-
 ## Context
 
 Today `task` requires a `story` parent (`src/core/defaults.ts`, `src/ops/items.ts` `assertRefs`). Scale-adaptive routing — BMAD's "small changes go straight to build" — needs a one-line typo fix to be a task without inventing an epic and a story. That change touches parent handling in lint, brief, board, and `pb next`.

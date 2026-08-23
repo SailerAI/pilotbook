@@ -5,6 +5,7 @@ type: business-rule
 status: draft
 domain: general
 version: 1
+content_hash: pending
 related: []
 tags: []
 created: {{date}}

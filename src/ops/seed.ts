@@ -9,6 +9,7 @@ export interface SeedPlanItem {
   area?: string;
   goal?: string;
   body?: string;
+  depends_on?: string[];
 }
 
 export interface SeedResult {
@@ -79,11 +80,20 @@ export function planFromBrief(markdown: string): SeedPlanItem[] {
     if (/^task\b/i.test(t) || h.level === 3) {
       const title = stripPrefix(t, "task");
       const areaLine = h.body.split("\n").find((l) => /^area\s*:/i.test(l));
+      const depLine = h.body.split("\n").find((l) => /^depends_on\s*:/i.test(l));
+      const depends_on = depLine
+        ? depLine
+            .replace(/^depends_on\s*:\s*/i, "")
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : undefined;
       plan.push({
         type: "task",
         title,
         parent: story,
         area: areaLine ? areaLine.replace(/^area\s*:\s*/i, "").trim() : "backend",
+        depends_on,
         body: `## Scope\n\n${h.body.trim()}\n`,
       });
     }
@@ -98,7 +108,7 @@ export function planFromBrief(markdown: string): SeedPlanItem[] {
 export function seedFromBrief(
   ctx: OpContext,
   markdown: string,
-  opts: { dryRun?: boolean } = {},
+  opts: { dryRun?: boolean; storyId?: string; epicId?: string; chainDependsOn?: boolean } = {},
 ): SeedResult {
   const plan = planFromBrief(markdown);
   if (opts.dryRun) {
@@ -107,6 +117,7 @@ export function seedFromBrief(
   const created: SeedResult["created"] = [];
   const epicIds = new Map<string, string>();
   const storyIds = new Map<string, string>();
+  let lastTaskId: string | undefined;
   for (const step of plan) {
     if (step.type === "epic") {
       const item = createItem(ctx, {
@@ -118,21 +129,25 @@ export function seedFromBrief(
       epicIds.set(step.title, item.id);
       created.push({ type: "epic", title: step.title, id: item.id });
     } else if (step.type === "story") {
-      const epic = step.parent ? epicIds.get(step.parent) : undefined;
+      const epic = step.parent ? epicIds.get(step.parent) : opts.epicId;
       if (!epic) throw new PilotbookError(`story "${step.title}" has no epic`);
       const item = createItem(ctx, { type: "story", title: step.title, epic, body: step.body });
       storyIds.set(step.title, item.id);
       created.push({ type: "story", title: step.title, id: item.id });
     } else if (step.type === "task") {
-      const story = step.parent ? storyIds.get(step.parent) : undefined;
+      const story = step.parent ? storyIds.get(step.parent) : opts.storyId;
       if (!story) throw new PilotbookError(`task "${step.title}" has no story`);
+      const depends_on =
+        step.depends_on ?? (opts.chainDependsOn && lastTaskId ? [lastTaskId] : undefined);
       const item = createItem(ctx, {
         type: "task",
         title: step.title,
         story,
         area: step.area,
+        ...(depends_on ? { depends_on } : {}),
         body: step.body,
       });
+      lastTaskId = item.id;
       created.push({ type: "task", title: step.title, id: item.id });
     }
   }

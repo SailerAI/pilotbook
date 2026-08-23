@@ -3,11 +3,13 @@ id: ADR-0002
 title: No behaviour in a transport
 type: adr
 status: accepted
+version: 1
 date: 2026-08-23
 deciders: [maintainers]
 tags: [architecture]
 supersedes: []
 superseded_by: []
+content_hash: d1628db3edb9
 created: 2026-08-23
 updated: 2026-08-23
 ---

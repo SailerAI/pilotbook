@@ -6,16 +6,13 @@ _Last generated: 2026-08-23_
 
 ## By status
 
-### backlog (22)
+### backlog (19)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
 | [EPIC-004](backlog/epics/EPIC-004-how-to-build.md) | How to build | epic | P1 |
 | [EPIC-005](backlog/epics/EPIC-005-actually-build-it.md) | Actually build it | epic | P1 |
 | [EPIC-006](backlog/epics/EPIC-006-evidence-not-assertion.md) | Evidence, not assertion | epic | P1 |
-| [US-010](backlog/stories/US-010-split-an-item-from-graph-complexity-signals.md) | Split an item from graph complexity signals | story | P1 |
-| [US-011](backlog/stories/US-011-report-sync-impact-of-a-rule-or-adr-bump.md) | Report sync-impact of a rule or ADR bump | story | P2 |
-| [US-012](backlog/stories/US-012-allow-a-small-change-to-skip-the-epic-and-story.md) | Allow a small change to skip the epic and story | story | P2 |
 | [US-014](backlog/stories/US-014-serve-skill-instructions-on-demand.md) | Serve skill instructions on demand | story | P1 |
 | [US-015](backlog/stories/US-015-analyze-graph-coverage-without-an-llm.md) | Analyze graph coverage without an LLM | story | P1 |
 | [US-016](backlog/stories/US-016-converge-by-appending-tasks-only.md) | Converge by appending tasks only | story | P1 |
@@ -33,13 +30,14 @@ _Last generated: 2026-08-23_
 | [US-028](backlog/stories/US-028-measure-brief-vs-no-brief-on-a-fixed-task-set.md) | Measure brief vs no brief on a fixed task set | story | P1 |
 | [US-029](backlog/stories/US-029-publish-the-number-and-correct-br-003-if-contradicted.md) | Publish the number and correct BR-003 if contradicted | story | P2 |
 
-### done (31)
+### done (51)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
 | [EPIC-001](backlog/epics/EPIC-001-dogfood-this-repo.md) | Dogfood this repo | epic | P1 |
 | [EPIC-002](backlog/epics/EPIC-002-what-to-build.md) | What to build | epic | P1 |
 | [EPIC-003](backlog/epics/EPIC-003-when-to-build.md) | When to build | epic | P1 |
+| [EPIC-007](backlog/epics/EPIC-007-upstream-discovery-that-agents-can-run.md) | Upstream discovery that agents can run | epic | P1 |
 | [TASK-001](backlog/tasks/TASK-001-document-the-dogfood-loop-in-contributing.md) | Document the dogfood loop in CONTRIBUTING | task | P1 |
 | [TASK-002](backlog/tasks/TASK-002-widen-default-cursor-rule-beyond-docs-glob.md) | Widen default Cursor rule beyond docs glob | task | P1 |
 | [TASK-003](backlog/tasks/TASK-003-show-peek-children-and-follow-internal-links.md) | Show peek children and follow internal links | task | P2 |
@@ -57,6 +55,15 @@ _Last generated: 2026-08-23_
 | [TASK-022](backlog/tasks/TASK-022-header-search-hits-apisearch.md) | Header search hits /api/search | task | P1 |
 | [TASK-023](backlog/tasks/TASK-023-board-phase-section.md) | Board phase section | task | P2 |
 | [TASK-024](backlog/tasks/TASK-024-roadmap-tab.md) | Roadmap tab | task | P2 |
+| [TASK-025](backlog/tasks/TASK-025-make-story-optional-on-a-task.md) | Make story optional on a task | task | P2 |
+| [TASK-026](backlog/tasks/TASK-026-board-ungrouped-bucket-for-parentless-tasks.md) | Board Ungrouped bucket for parentless tasks | task | P2 |
+| [TASK-027](backlog/tasks/TASK-027-adr-version-amended-and-content-hash-schema-with-backfill.md) | ADR version amended and content_hash schema with backfill | task | P2 |
+| [TASK-028](backlog/tasks/TASK-028-body-hash-lint-error-and-pb-bump.md) | Body hash lint error and pb bump | task | P2 |
+| [TASK-029](backlog/tasks/TASK-029-inbound-edges-and-pb-impact-across-cli-and-mcp.md) | Inbound edges and pb impact across CLI and MCP | task | P2 |
+| [TASK-030](backlog/tasks/TASK-030-score-complexity-and-split-dry-run.md) | Score complexity and split dry-run | task | P2 |
+| [TASK-031](backlog/tasks/TASK-031-apply-a-split-through-seed-with-cli-and-mcp.md) | Apply a split through seed with CLI and MCP | task | P2 |
+| [TASK-032](backlog/tasks/TASK-032-point-the-architect-skill-at-pb-split.md) | Point the architect skill at pb split | task | P2 |
+| [TASK-033](backlog/tasks/TASK-033-split-a-parentless-task-into-a-new-story.md) | Split a parentless task into a new story | task | P2 |
 | [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
 | [US-002](backlog/stories/US-002-clarify-an-item-into-a-bounded-question-set.md) | Clarify an item into a bounded question set | story | P1 |
 | [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
@@ -66,8 +73,18 @@ _Last generated: 2026-08-23_
 | [US-007](backlog/stories/US-007-order-next-by-a-fixed-action-ladder.md) | Order next by a fixed action ladder | story | P1 |
 | [US-008](backlog/stories/US-008-render-a-roadmap-from-phase.md) | Render a roadmap from phase | story | P2 |
 | [US-009](backlog/stories/US-009-search-the-graph-from-cli-and-ui.md) | Search the graph from CLI and UI | story | P1 |
+| [US-010](backlog/stories/US-010-split-an-item-from-graph-complexity-signals.md) | Split an item from graph complexity signals | story | P1 |
+| [US-011](backlog/stories/US-011-report-sync-impact-of-a-rule-or-adr-bump.md) | Report sync-impact of a rule or ADR bump | story | P2 |
+| [US-012](backlog/stories/US-012-allow-a-small-change-to-skip-the-epic-and-story.md) | Allow a small change to skip the epic and story | story | P1 |
 | [US-013](backlog/stories/US-013-install-all-five-skills-from-pb-init.md) | Install all five skills from pb init | story | P0 |
 | [US-030](backlog/stories/US-030-navigate-children-and-internal-links-from-the-peek.md) | Navigate children and internal links from the peek | story | P2 |
+| [US-031](backlog/stories/US-031-install-cursor-agent-skills-from-pb-init.md) | Install Cursor agent skills from pb init | story | P1 |
+| [US-032](backlog/stories/US-032-trigger-discover-from-a-vague-demand.md) | Trigger discover from a vague demand | story | P1 |
+| [US-033](backlog/stories/US-033-capture-jtbd-personas-and-evidence-on-an-idea.md) | Capture JTBD personas and evidence on an idea | story | P1 |
+| [US-034](backlog/stories/US-034-find-similar-items-and-filter-search-by-type.md) | Find similar items and filter search by type | story | P1 |
+| [US-035](backlog/stories/US-035-shape-an-epic-into-shippable-stories.md) | Shape an epic into shippable stories | story | P1 |
+| [US-036](backlog/stories/US-036-install-the-shape-skill-from-pb-init.md) | Install the shape skill from pb init | story | P1 |
+| [US-037](backlog/stories/US-037-teach-explore-and-ship-loops-in-the-docs.md) | Teach explore and ship loops in the docs | story | P1 |
 
 ### cancelled (7)
 
@@ -92,7 +109,7 @@ _Last generated: 2026-08-23_
 | [TASK-002](backlog/tasks/TASK-002-widen-default-cursor-rule-beyond-docs-glob.md) | Widen default Cursor rule beyond docs glob | task | P1 |
 | [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
 
-### 2 (48)
+### 2 (65)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -100,6 +117,7 @@ _Last generated: 2026-08-23_
 | [EPIC-003](backlog/epics/EPIC-003-when-to-build.md) | When to build | epic | P1 |
 | [EPIC-004](backlog/epics/EPIC-004-how-to-build.md) | How to build | epic | P1 |
 | [EPIC-005](backlog/epics/EPIC-005-actually-build-it.md) | Actually build it | epic | P1 |
+| [EPIC-007](backlog/epics/EPIC-007-upstream-discovery-that-agents-can-run.md) | Upstream discovery that agents can run | epic | P1 |
 | [TASK-003](backlog/tasks/TASK-003-show-peek-children-and-follow-internal-links.md) | Show peek children and follow internal links | task | P2 |
 | [TASK-004](backlog/tasks/TASK-004-promote-an-idea-via-ops-cli-and-mcp.md) | Promote an idea via ops CLI and MCP | task | P1 |
 | [TASK-005](backlog/tasks/TASK-005-point-discover-skill-at-pb-promote.md) | Point discover skill at pb promote | task | P1 |
@@ -122,6 +140,15 @@ _Last generated: 2026-08-23_
 | [TASK-022](backlog/tasks/TASK-022-header-search-hits-apisearch.md) | Header search hits /api/search | task | P1 |
 | [TASK-023](backlog/tasks/TASK-023-board-phase-section.md) | Board phase section | task | P2 |
 | [TASK-024](backlog/tasks/TASK-024-roadmap-tab.md) | Roadmap tab | task | P2 |
+| [TASK-025](backlog/tasks/TASK-025-make-story-optional-on-a-task.md) | Make story optional on a task | task | P2 |
+| [TASK-026](backlog/tasks/TASK-026-board-ungrouped-bucket-for-parentless-tasks.md) | Board Ungrouped bucket for parentless tasks | task | P2 |
+| [TASK-027](backlog/tasks/TASK-027-adr-version-amended-and-content-hash-schema-with-backfill.md) | ADR version amended and content_hash schema with backfill | task | P2 |
+| [TASK-028](backlog/tasks/TASK-028-body-hash-lint-error-and-pb-bump.md) | Body hash lint error and pb bump | task | P2 |
+| [TASK-029](backlog/tasks/TASK-029-inbound-edges-and-pb-impact-across-cli-and-mcp.md) | Inbound edges and pb impact across CLI and MCP | task | P2 |
+| [TASK-030](backlog/tasks/TASK-030-score-complexity-and-split-dry-run.md) | Score complexity and split dry-run | task | P2 |
+| [TASK-031](backlog/tasks/TASK-031-apply-a-split-through-seed-with-cli-and-mcp.md) | Apply a split through seed with CLI and MCP | task | P2 |
+| [TASK-032](backlog/tasks/TASK-032-point-the-architect-skill-at-pb-split.md) | Point the architect skill at pb split | task | P2 |
+| [TASK-033](backlog/tasks/TASK-033-split-a-parentless-task-into-a-new-story.md) | Split a parentless task into a new story | task | P2 |
 | [US-002](backlog/stories/US-002-clarify-an-item-into-a-bounded-question-set.md) | Clarify an item into a bounded question set | story | P1 |
 | [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
 | [US-004](backlog/stories/US-004-record-a-kill-verdict-on-an-idea.md) | Record a kill verdict on an idea | story | P2 |
@@ -132,7 +159,7 @@ _Last generated: 2026-08-23_
 | [US-009](backlog/stories/US-009-search-the-graph-from-cli-and-ui.md) | Search the graph from CLI and UI | story | P1 |
 | [US-010](backlog/stories/US-010-split-an-item-from-graph-complexity-signals.md) | Split an item from graph complexity signals | story | P1 |
 | [US-011](backlog/stories/US-011-report-sync-impact-of-a-rule-or-adr-bump.md) | Report sync-impact of a rule or ADR bump | story | P2 |
-| [US-012](backlog/stories/US-012-allow-a-small-change-to-skip-the-epic-and-story.md) | Allow a small change to skip the epic and story | story | P2 |
+| [US-012](backlog/stories/US-012-allow-a-small-change-to-skip-the-epic-and-story.md) | Allow a small change to skip the epic and story | story | P1 |
 | [US-013](backlog/stories/US-013-install-all-five-skills-from-pb-init.md) | Install all five skills from pb init | story | P0 |
 | [US-014](backlog/stories/US-014-serve-skill-instructions-on-demand.md) | Serve skill instructions on demand | story | P1 |
 | [US-015](backlog/stories/US-015-analyze-graph-coverage-without-an-llm.md) | Analyze graph coverage without an LLM | story | P1 |
@@ -144,6 +171,13 @@ _Last generated: 2026-08-23_
 | [US-021](backlog/stories/US-021-run-an-evidence-backed-epic-retrospective.md) | Run an evidence-backed epic retrospective | story | P3 |
 | [US-022](backlog/stories/US-022-prime-a-session-with-the-in-progress-brief.md) | Prime a session with the in-progress brief | story | P1 |
 | [US-030](backlog/stories/US-030-navigate-children-and-internal-links-from-the-peek.md) | Navigate children and internal links from the peek | story | P2 |
+| [US-031](backlog/stories/US-031-install-cursor-agent-skills-from-pb-init.md) | Install Cursor agent skills from pb init | story | P1 |
+| [US-032](backlog/stories/US-032-trigger-discover-from-a-vague-demand.md) | Trigger discover from a vague demand | story | P1 |
+| [US-033](backlog/stories/US-033-capture-jtbd-personas-and-evidence-on-an-idea.md) | Capture JTBD personas and evidence on an idea | story | P1 |
+| [US-034](backlog/stories/US-034-find-similar-items-and-filter-search-by-type.md) | Find similar items and filter search by type | story | P1 |
+| [US-035](backlog/stories/US-035-shape-an-epic-into-shippable-stories.md) | Shape an epic into shippable stories | story | P1 |
+| [US-036](backlog/stories/US-036-install-the-shape-skill-from-pb-init.md) | Install the shape skill from pb init | story | P1 |
+| [US-037](backlog/stories/US-037-teach-explore-and-ship-loops-in-the-docs.md) | Teach explore and ship loops in the docs | story | P1 |
 
 ### 3 (8)
 
@@ -161,4 +195,104 @@ _Last generated: 2026-08-23_
 ### Unphased (0)
 
 _Empty._
+
+## By story
+
+### US-001 Run Pilotbook on the Pilotbook repo (2)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-001](backlog/tasks/TASK-001-document-the-dogfood-loop-in-contributing.md) | Document the dogfood loop in CONTRIBUTING | task | P1 |
+| [TASK-002](backlog/tasks/TASK-002-widen-default-cursor-rule-beyond-docs-glob.md) | Widen default Cursor rule beyond docs glob | task | P1 |
+
+### US-002 Clarify an item into a bounded question set (4)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-007](backlog/tasks/TASK-007-lift-markdown-section-and-checklist-helpers.md) | Lift markdown section and checklist helpers | task | P1 |
+| [TASK-008](backlog/tasks/TASK-008-clarify-detect-and-apply-ops-cli-and-mcp.md) | Clarify detect and apply ops CLI and MCP | task | P1 |
+| [TASK-014](backlog/tasks/TASK-014-lift-markdown-section-and-checklist-helpers.md) | Lift markdown section and checklist helpers | task | P2 |
+| [TASK-015](backlog/tasks/TASK-015-detect-and-apply-clarifications-via-ops-cli-mcp.md) | Detect and apply clarifications via ops CLI MCP | task | P2 |
+
+### US-003 Promote an idea along promoted_to (4)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-004](backlog/tasks/TASK-004-promote-an-idea-via-ops-cli-and-mcp.md) | Promote an idea via ops CLI and MCP | task | P1 |
+| [TASK-005](backlog/tasks/TASK-005-point-discover-skill-at-pb-promote.md) | Point discover skill at pb promote | task | P1 |
+| [TASK-010](backlog/tasks/TASK-010-implement-promoteidea-ops-cli-and-mcp.md) | Implement promoteIdea ops CLI and MCP | task | P2 |
+| [TASK-012](backlog/tasks/TASK-012-point-discover-skill-at-pb-promote.md) | Point discover skill at pb promote | task | P2 |
+
+### US-004 Record a kill verdict on an idea (2)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-006](backlog/tasks/TASK-006-reject-an-idea-with-a-recorded-verdict.md) | Reject an idea with a recorded verdict | task | P2 |
+| [TASK-013](backlog/tasks/TASK-013-record-reject-verdict-and-keep-nextready-clean.md) | Record reject verdict and keep nextReady clean | task | P2 |
+
+### US-005 Answer clarifications in the browser (4)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-009](backlog/tasks/TASK-009-expose-intake-and-clarify-rest-endpoints.md) | Expose intake and clarify REST endpoints | task | P2 |
+| [TASK-011](backlog/tasks/TASK-011-add-ideas-tab-demand-form-for-clarifications.md) | Add Ideas-tab demand form for clarifications | task | P2 |
+| [TASK-016](backlog/tasks/TASK-016-add-intake-and-clarify-rest-endpoints.md) | Add intake and clarify REST endpoints | task | P2 |
+| [TASK-017](backlog/tasks/TASK-017-ideas-tab-demand-form-for-clarifications.md) | Ideas-tab demand form for clarifications | task | P2 |
+
+### US-006 Expose status JSON with requires, missingDeps, and unlocks (2)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-018](backlog/tasks/TASK-018-status-json-in-ops-cli-mcp-and-rest.md) | Status JSON in ops, CLI, MCP, and REST | task | P1 |
+| [TASK-019](backlog/tasks/TASK-019-peek-shows-requires-missingdeps-unlocks.md) | Peek shows requires, missingDeps, unlocks | task | P1 |
+
+### US-007 Order next by a fixed action ladder (1)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-020](backlog/tasks/TASK-020-order-next-by-action-ladder.md) | Order next by action ladder | task | P1 |
+
+### US-008 Render a roadmap from phase (2)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-023](backlog/tasks/TASK-023-board-phase-section.md) | Board phase section | task | P2 |
+| [TASK-024](backlog/tasks/TASK-024-roadmap-tab.md) | Roadmap tab | task | P2 |
+
+### US-009 Search the graph from CLI and UI (2)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-021](backlog/tasks/TASK-021-search-ops-cli-mcp-rest.md) | Search ops, CLI, MCP, REST | task | P1 |
+| [TASK-022](backlog/tasks/TASK-022-header-search-hits-apisearch.md) | Header search hits /api/search | task | P1 |
+
+### US-010 Split an item from graph complexity signals (3)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-030](backlog/tasks/TASK-030-score-complexity-and-split-dry-run.md) | Score complexity and split dry-run | task | P2 |
+| [TASK-031](backlog/tasks/TASK-031-apply-a-split-through-seed-with-cli-and-mcp.md) | Apply a split through seed with CLI and MCP | task | P2 |
+| [TASK-032](backlog/tasks/TASK-032-point-the-architect-skill-at-pb-split.md) | Point the architect skill at pb split | task | P2 |
+
+### US-011 Report sync-impact of a rule or ADR bump (3)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-027](backlog/tasks/TASK-027-adr-version-amended-and-content-hash-schema-with-backfill.md) | ADR version amended and content_hash schema with backfill | task | P2 |
+| [TASK-028](backlog/tasks/TASK-028-body-hash-lint-error-and-pb-bump.md) | Body hash lint error and pb bump | task | P2 |
+| [TASK-029](backlog/tasks/TASK-029-inbound-edges-and-pb-impact-across-cli-and-mcp.md) | Inbound edges and pb impact across CLI and MCP | task | P2 |
+
+### US-012 Allow a small change to skip the epic and story (3)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-025](backlog/tasks/TASK-025-make-story-optional-on-a-task.md) | Make story optional on a task | task | P2 |
+| [TASK-026](backlog/tasks/TASK-026-board-ungrouped-bucket-for-parentless-tasks.md) | Board Ungrouped bucket for parentless tasks | task | P2 |
+| [TASK-033](backlog/tasks/TASK-033-split-a-parentless-task-into-a-new-story.md) | Split a parentless task into a new story | task | P2 |
+
+### US-030 Navigate children and internal links from the peek (1)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-003](backlog/tasks/TASK-003-show-peek-children-and-follow-internal-links.md) | Show peek children and follow internal links | task | P2 |
 

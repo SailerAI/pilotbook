@@ -3,11 +3,13 @@ id: {{id}}
 title: {{title}}
 type: adr
 status: proposed
+version: 1
 date: {{date}}
 deciders: [unassigned]
 tags: []
 supersedes: []
 superseded_by: []
+content_hash: pending
 created: {{date}}
 updated: {{date}}
 ---

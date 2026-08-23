@@ -2,11 +2,13 @@ import { stdin as input, stdout as output } from "node:process";
 import {
   applyClarifications,
   briefOf,
+  bumpItem,
   clarifyItem,
   createItem,
   deleteItem,
   explain,
   getItem,
+  impactOf,
   lint,
   listItems,
   listReady,
@@ -17,6 +19,7 @@ import {
   rejectIdea,
   schemaOf,
   searchGraph,
+  splitItem,
   statusOf,
   updateItem,
   verifyItem,
@@ -144,6 +147,37 @@ const TOOLS = [
     },
   },
   {
+    name: "bump",
+    description: "Increment version and refresh content_hash on a business rule or ADR",
+    inputSchema: {
+      type: "object",
+      properties: { id: { type: "string" } },
+      required: ["id"],
+    },
+  },
+  {
+    name: "impact",
+    description: "List stories and tasks that cite a business rule or ADR",
+    inputSchema: {
+      type: "object",
+      properties: { id: { type: "string" } },
+      required: ["id"],
+    },
+  },
+  {
+    name: "split",
+    description: "Split an oversized item into children",
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        dryRun: { type: "boolean" },
+        epic: { type: "string" },
+      },
+      required: ["id"],
+    },
+  },
+  {
     name: "reject",
     description: "Record a kill verdict on an idea",
     inputSchema: {
@@ -226,6 +260,17 @@ function callTool(ctx: OpContext, name: string, params: Record<string, unknown>)
         }),
       );
     }
+    case "bump":
+      return textResult(bumpItem(ctx, String(params.id)));
+    case "impact":
+      return textResult(impactOf(ctx, String(params.id)));
+    case "split":
+      return textResult(
+        splitItem(ctx, String(params.id), {
+          dryRun: Boolean(params.dryRun),
+          epic: typeof params.epic === "string" ? params.epic : undefined,
+        }),
+      );
     case "reject":
       return textResult(
         rejectIdea(ctx, String(params.id), { reason: String(params.reason ?? "") }),

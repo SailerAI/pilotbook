@@ -127,11 +127,15 @@ export function serializeItem(
   for (const key of [...required, ...extraKeys]) {
     if (!(key in data) || seen.has(key)) continue;
     seen.add(key);
-    lines.push(`${key}: ${formatValue(data[key])}`);
+    const value = data[key];
+    if (value === "" || value === undefined) continue;
+    lines.push(`${key}: ${formatValue(value)}`);
   }
   for (const key of Object.keys(data)) {
     if (seen.has(key)) continue;
-    lines.push(`${key}: ${formatValue(data[key])}`);
+    const value = data[key];
+    if (value === "" || value === undefined) continue;
+    lines.push(`${key}: ${formatValue(value)}`);
   }
   lines.push("---", "");
   const trimmed = String(body ?? "")

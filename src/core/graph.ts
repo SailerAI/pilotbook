@@ -173,3 +173,18 @@ export function refsOf(item: ParsedItem, edges: PilotbookConfig["edges"]): strin
   }
   return out;
 }
+
+function fieldHasId(value: unknown, id: string): boolean {
+  if (typeof value === "string") return value === id;
+  if (Array.isArray(value)) return value.some((v) => v === id);
+  return false;
+}
+
+/** Items that point at `id`. When `fields` is set, only those keys are scanned. */
+export function inboundOf(index: GraphIndex, id: string, fields?: string[]): ParsedItem[] {
+  return index.items.filter((item) => {
+    if (item.data.id === id) return false;
+    if (fields?.length) return fields.some((field) => fieldHasId(item.data[field], id));
+    return Object.values(item.data).some((value) => fieldHasId(value, id));
+  });
+}

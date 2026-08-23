@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { extraKeys } from "../core/defaults.ts";
 import { serializeItem, today } from "../core/frontmatter.ts";
 import { contentHash } from "../core/hash.ts";
 import type { ItemData } from "../core/types.ts";
@@ -90,7 +91,7 @@ export function verifyItem(
       ...(bypassed ? { bypassed: true } : {}),
     },
   };
-  ctx.fs.writeFile(item.abs, serializeItem(next, item.body, cfg.required, cfg.objects));
+  ctx.fs.writeFile(item.abs, serializeItem(next, item.body, cfg.required, extraKeys(cfg)));
   reload(ctx);
   writeBoard(ctx);
   return { id, ok: ok || bypassed, hash, checks: results, bypassed };

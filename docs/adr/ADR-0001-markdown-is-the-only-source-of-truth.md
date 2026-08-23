@@ -3,11 +3,13 @@ id: ADR-0001
 title: Markdown is the only source of truth
 type: adr
 status: accepted
+version: 1
 date: 2026-08-23
 deciders: [maintainers]
 tags: [storage]
 supersedes: []
 superseded_by: []
+content_hash: fc0a216daf56
 created: 2026-08-23
 updated: 2026-08-23
 ---

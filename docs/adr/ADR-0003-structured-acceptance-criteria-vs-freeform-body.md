@@ -3,15 +3,16 @@ id: ADR-0003
 title: Structured acceptance criteria vs freeform body
 type: adr
 status: accepted
+version: 1
 date: 2026-08-23
 deciders: [maintainers]
 tags: [schema, criteria]
 supersedes: []
 superseded_by: []
+content_hash: db0cf010e250
 created: 2026-08-23
 updated: 2026-08-23
 ---
-
 ## Context
 
 Pilotbook keeps acceptance criteria as prose under `## Acceptance criteria` in the markdown body. Backlog.md types them as `{index, text, checked}`. Several capabilities need a machine-readable set: UI checkboxes, a reviewer-owned verify gate that counts unchecked items, the coverage half of `pb analyze` (criteria with no covering task), and criterion-to-test binding (ADR-0006, US-024, US-025).

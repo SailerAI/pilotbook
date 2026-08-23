@@ -5,12 +5,12 @@ type: business-rule
 status: draft
 domain: criteria
 version: 1
+content_hash: 5d08e1e6297a
 related: []
 tags: [criteria, verify]
 created: 2026-08-23
 updated: 2026-08-23
 ---
-
 ## Rule
 
 An acceptance criterion is proven by a green bound test or by a named reviewer ticking the box. It is NEVER proven by assertion, by a passing suite that does not name the criterion, or by an agent writing `[x]` on a reviewer-owned line.

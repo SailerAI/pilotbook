@@ -1,6 +1,6 @@
 import path from "node:path";
 import { findCycle } from "./cycles.ts";
-import { contentHash } from "./hash.ts";
+import { bodyHash, contentHash } from "./hash.ts";
 import { splitRemoteId } from "./ids.ts";
 import {
   DATE_RE,
@@ -23,6 +23,7 @@ function err(
   message: string,
   field: string,
   suggestion?: string,
+  fix?: string,
 ): Diagnostic {
   const p = pos(item, field);
   return {
@@ -33,6 +34,7 @@ function err(
     line: p.line,
     column: p.column,
     suggestion,
+    fix,
   };
 }
 
@@ -136,7 +138,9 @@ export function lintGraph(
     }
     const data = item.data;
 
+    const optional = cfg.optional ?? [];
     for (const field of cfg.required) {
+      if (optional.includes(field)) continue;
       const value = data[field];
       if (value === undefined || value === "") {
         errors.push(
@@ -151,7 +155,7 @@ export function lintGraph(
       }
     }
     for (const key of Object.keys(data)) {
-      if (!cfg.required.includes(key) && !cfg.objects.includes(key)) {
+      if (!cfg.required.includes(key) && !optional.includes(key) && !cfg.objects.includes(key)) {
         errors.push(
           err(
             item,
@@ -468,6 +472,47 @@ export function lintGraph(
     }
   }
 
+  for (const item of items) {
+    if (item.type !== "task") continue;
+    const story = item.data.story;
+    if (typeof story === "string" && story) continue;
+    const estimate = item.data.estimate;
+    const priority = item.data.priority;
+    const large = typeof estimate === "number" && estimate >= 3;
+    if (large || priority === "P0") {
+      warnings.push(
+        warn(
+          item,
+          "parentless-task",
+          `${item.data.id} has no story and estimate>=3 or priority P0; it probably wants a story`,
+          "story",
+          "File it under a story, or keep it small.",
+        ),
+      );
+    }
+  }
+
+  for (const item of items) {
+    const activeRule = item.type === "business-rule" && item.data.status === "active";
+    const acceptedAdr = item.type === "adr" && item.data.status === "accepted";
+    if (!activeRule && !acceptedAdr) continue;
+    const stored = typeof item.data.content_hash === "string" ? item.data.content_hash : "";
+    const current = bodyHash(item.body);
+    if (stored && stored !== current) {
+      const id = item.data.id;
+      errors.push(
+        err(
+          item,
+          "stale-content-hash",
+          `${id} body hash ${current} does not match content_hash ${stored}`,
+          "content_hash",
+          `pb bump ${id}`,
+          `pb bump ${id}`,
+        ),
+      );
+    }
+  }
+
   return { errors, warnings, count: items.length };
 }
 
@@ -484,5 +529,6 @@ export function formatGithub(diagnostics: Diagnostic[]): string {
 export function formatDiagnostic(d: Diagnostic): string {
   const loc = d.file ? `${d.file}:${d.line}:${d.column}` : "";
   const sug = d.suggestion ? ` (${d.suggestion})` : "";
-  return `${d.severity} ${d.code} ${loc} ${d.message}${sug}`.trim();
+  const fix = d.fix && d.fix !== d.suggestion ? ` fix: ${d.fix}` : "";
+  return `${d.severity} ${d.code} ${loc} ${d.message}${sug}${fix}`.trim();
 }

@@ -11,11 +11,11 @@ export {
   toPosix,
 } from "./config.ts";
 export { cycleIfAdded, findCycle } from "./cycles.ts";
-export { builtinEdges, builtinTypes, defaultConfig } from "./defaults.ts";
+export { builtinEdges, builtinTypes, defaultConfig, extraKeys } from "./defaults.ts";
 export { parseFrontmatter, serializeItem, today } from "./frontmatter.ts";
 export type { FileStat, FileSystem } from "./fs.ts";
-export { groupBy, loadGraph, refsOf, toPublic } from "./graph.ts";
-export { contentHash } from "./hash.ts";
+export { groupBy, inboundOf, loadGraph, refsOf, toPublic } from "./graph.ts";
+export { bodyHash, contentHash } from "./hash.ts";
 export { nextId, slugify, splitRemoteId } from "./ids.ts";
 export { formatDiagnostic, formatGithub, lintGraph } from "./lint.ts";
 export { extractSection, upsertSection } from "./markdown.ts";

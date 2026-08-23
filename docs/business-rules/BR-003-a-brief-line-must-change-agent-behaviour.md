@@ -5,12 +5,12 @@ type: business-rule
 status: draft
 domain: brief
 version: 1
+content_hash: 4d2903c12865
 related: []
 tags: [brief, pruning]
 created: 2026-08-23
 updated: 2026-08-23
 ---
-
 ## Rule
 
 Every line the brief compiler emits MUST be able to change what an agent does next. A line that would not change behaviour MUST NOT ship in the brief.

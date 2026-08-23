@@ -5,6 +5,7 @@ type: business-rule
 status: active
 domain: integrity
 version: 1
+content_hash: 179b81ff4e7f
 related: []
 tags: [lint]
 created: 2026-08-23

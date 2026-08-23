@@ -19,6 +19,7 @@ const typeOverlaySchema = z
     numbers: z.array(z.string()).optional(),
     dates: z.array(z.string()).optional(),
     objects: z.array(z.string()).optional(),
+    optional: z.array(z.string()).optional(),
   })
   .strict();
 
@@ -141,6 +142,7 @@ function overlayType(
     numbers: raw.numbers ?? base?.numbers ?? [],
     dates: raw.dates ?? base?.dates ?? ["created", "updated"],
     objects: raw.objects ?? base?.objects ?? [],
+    optional: raw.optional ?? base?.optional ?? [],
     parent: raw.parent ?? base?.parent,
     template: raw.template ?? base?.template ?? `${name}.md`,
     idPattern: new RegExp(`^${escaped}\\d{${pad}}$`),

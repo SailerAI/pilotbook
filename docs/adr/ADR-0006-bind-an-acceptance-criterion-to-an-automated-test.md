@@ -3,15 +3,16 @@ id: ADR-0006
 title: Bind an acceptance criterion to an automated test
 type: adr
 status: accepted
+version: 1
 date: 2026-08-23
 deciders: [maintainers]
 tags: [criteria, verify]
 supersedes: []
 superseded_by: []
+content_hash: 59bf79ae15ac
 created: 2026-08-23
 updated: 2026-08-23
 ---
-
 ## Context
 
 `pb verify` records `{command, exit, ms}` per check and discards piped stdout. It can prove the suite passed. It cannot prove criterion 3 holds. Acceptance criteria live on stories as markdown checklists; `verified` is a task-only object (`objects: ["verified"]` on the task type). Binding each criterion to a test is the field's open problem, and it needs two decisions: how the link is expressed, and where proof is stored.

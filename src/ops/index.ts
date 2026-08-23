@@ -1,3 +1,5 @@
+export type { BumpResult } from "./bump.ts";
+export { bumpItem } from "./bump.ts";
 export {
   applyClarifications,
   clarifyItem,
@@ -6,6 +8,8 @@ export {
 export { complete, completionScript } from "./complete.ts";
 export { type OpContext, openProject, PilotbookError, withProject } from "./context.ts";
 export { hookStop, installHooks, sessionStart } from "./hooks.ts";
+export type { ImpactReport } from "./impact.ts";
+export { impactOf } from "./impact.ts";
 export { initProject, SHIPPED_SKILLS } from "./init.ts";
 export { buildManifest, exportItems, writeManifest } from "./interop.ts";
 export {
@@ -36,4 +40,6 @@ export {
 } from "./query.ts";
 export { planFromBrief, seedFromBrief } from "./seed.ts";
 export { findPackageRoot, startUi, uiDir } from "./serve.ts";
+export type { SplitResult } from "./split.ts";
+export { scoreComplexity, splitItem } from "./split.ts";
 export { verifyItem } from "./verify.ts";

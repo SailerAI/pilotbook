@@ -43,7 +43,14 @@ describe("complete", () => {
 });
 
 describe("init", () => {
-  const shippedSkills = ["implement", "groom", "prioritize", "architect", "discover"] as const;
+  const shippedSkills = [
+    "implement",
+    "groom",
+    "prioritize",
+    "architect",
+    "discover",
+    "shape",
+  ] as const;
 
   function seedInitFs(): MemoryFileSystem {
     const fs = new MemoryFileSystem("/app");
@@ -58,7 +65,7 @@ describe("init", () => {
     return fs;
   }
 
-  it("writes config, Cursor rule, and all five shipped skills", () => {
+  it("writes config, Cursor rule, and all six shipped skills", () => {
     const fs = seedInitFs();
     const result = initProject("/app", { ai: true }, fs);
     expect(result.wrote).toContain("pilotbook.config.yml");
