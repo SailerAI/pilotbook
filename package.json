@@ -28,12 +28,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/molinavinicius/pilotbook.git"
+    "url": "git+https://github.com/SailerAI/pilotbook.git"
   },
   "bugs": {
-    "url": "https://github.com/molinavinicius/pilotbook/issues"
+    "url": "https://github.com/SailerAI/pilotbook/issues"
   },
-  "homepage": "https://github.com/molinavinicius/pilotbook#readme",
+  "homepage": "https://github.com/SailerAI/pilotbook#readme",
   "keywords": [
     "backlog",
     "markdown",

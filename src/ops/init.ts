@@ -43,7 +43,7 @@ Create items with \`pb new <type> --title "..."\`. Never invent IDs.
 const AGENTS_SNIPPET = `
 ## Pilotbook
 
-This repo uses [Pilotbook](https://github.com/molinavinicius/pilotbook). Before implementing a task:
+This repo uses [Pilotbook](https://github.com/SailerAI/pilotbook). Before implementing a task:
 
 \`\`\`bash
 pb next
