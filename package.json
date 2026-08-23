@@ -1,0 +1,74 @@
+{
+  "name": "pilotbook",
+  "version": "0.0.0",
+  "description": "Repo-native project management for AI agents. Your repo has the chart. Pilotbook has the directions.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "pilotbook": "dist/cli/index.js",
+    "pb": "dist/cli/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/ops/index.d.ts",
+      "import": "./dist/ops/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "skills",
+    "ui",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/molinavinicius/pilotbook.git"
+  },
+  "bugs": {
+    "url": "https://github.com/molinavinicius/pilotbook/issues"
+  },
+  "homepage": "https://github.com/molinavinicius/pilotbook#readme",
+  "keywords": [
+    "backlog",
+    "markdown",
+    "adr",
+    "agents",
+    "cli",
+    "knowledge-graph",
+    "project-management"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "check:package": "publint && attw --pack . --profile esm-only",
+    "prepublishOnly": "pnpm build && pnpm check:package && npm pack --dry-run"
+  },
+  "dependencies": {
+    "citty": "^0.1.6",
+    "picocolors": "^1.1.1",
+    "yaml": "^2.8.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.1",
+    "@biomejs/biome": "^2.2.4",
+    "@changesets/cli": "^2.29.5",
+    "@types/node": "^24.3.0",
+    "publint": "^0.3.12",
+    "tsdown": "^0.15.1",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "packageManager": "pnpm@10.28.1"
+}

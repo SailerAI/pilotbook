@@ -1,0 +1,48 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`brief > snapshot markdown 1`] = `
+"# Brief: TASK-001
+
+_tokens ≈ 161_
+
+### BR-001 — Money
+_rule · business-rule · active_
+
+MUST keep money as strings.
+
+### BR-002 — Rounding
+_related-rule · business-rule · deprecated_
+> **DEPRECATED rule — do not enforce.**
+
+MUST keep money as strings.
+
+### ADR-0001 — Hono
+_adr · adr · accepted_
+> **SUPERSEDED by ADR-0002 — do not follow this decision.**
+
+Use Hono.
+
+### ADR-0002 — Still Hono
+_adr-chain · adr · accepted_
+
+### TASK-001 — API
+_target · task · todo_
+
+## Scope
+
+Do the thing.
+
+### US-001 — Post tx
+_parent · story · todo_
+
+- [ ] Amounts are strings
+
+### EPIC-001 — Ledger
+_parent · epic · todo_
+
+Done when ready.
+
+### TASK-002 — Done sib
+_sibling-done · task · done_
+"
+`;

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="420" viewBox="0 0 920 420" role="img" aria-label="Demo of pb brief TASK-001">
+  <rect width="920" height="420" rx="12" fill="#111214"/>
+  <text x="24" y="36" fill="#8a8f98" font-family="ui-monospace, Menlo, monospace" font-size="14">pilotbook</text>
+  <text x="24" y="80" fill="#e8e8ea" font-family="ui-monospace, Menlo, monospace" font-size="16">$ pb brief TA</text>
+  <text x="24" y="108" fill="#5e6ad2" font-family="ui-monospace, Menlo, monospace" font-size="14">TASK-001  Transaction API</text>
+  <text x="24" y="128" fill="#8a8f98" font-family="ui-monospace, Menlo, monospace" font-size="14">TASK-002  Done sib</text>
+  <text x="24" y="168" fill="#e8e8ea" font-family="ui-monospace, Menlo, monospace" font-size="16">$ pb brief TASK-001</text>
+  <text x="24" y="204" fill="#4cb782" font-family="ui-monospace, Menlo, monospace" font-size="14"># Brief: TASK-001</text>
+  <text x="24" y="232" fill="#e8e8ea" font-family="ui-monospace, Menlo, monospace" font-size="14">### BR-001  Money is a string</text>
+  <text x="24" y="252" fill="#8a8f98" font-family="ui-monospace, Menlo, monospace" font-size="13">JSON money MUST be a string.</text>
+  <text x="24" y="280" fill="#e8e8ea" font-family="ui-monospace, Menlo, monospace" font-size="14">### ADR-0001  Numeric money</text>
+  <text x="24" y="300" fill="#8a8f98" font-family="ui-monospace, Menlo, monospace" font-size="13">Store money as decimal strings.</text>
+  <text x="24" y="328" fill="#e8e8ea" font-family="ui-monospace, Menlo, monospace" font-size="14">### TASK-001  Transaction API</text>
+  <text x="24" y="348" fill="#8a8f98" font-family="ui-monospace, Menlo, monospace" font-size="13">REST handler for posting a transaction.</text>
+  <text x="24" y="390" fill="#62666d" font-family="ui-monospace, Menlo, monospace" font-size="12">npx pilotbook brief TASK-001</text>
+</svg>

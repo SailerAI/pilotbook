@@ -1,0 +1,11 @@
+root: docs
+types:
+  epic:  { dir: backlog/epics,   prefix: EPIC-, pad: 3 }
+  story: { dir: backlog/stories, prefix: US-,   pad: 3, parent: epic }
+  task:  { dir: backlog/tasks,   prefix: TASK-, pad: 3, parent: story }
+  adr:   { dir: adr,             prefix: ADR-,  pad: 4 }
+  business-rule: { dir: business-rules, prefix: BR-, pad: 3 }
+code_map:
+  backend: [src]
+checks:
+  commands: []

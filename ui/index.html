@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pilotbook</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "./vendor/vue.esm-browser.prod.js",
+          "marked": "./vendor/marked.esm.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app">
+      <header class="top">
+        <div class="brand">Pilotbook <span>Board</span></div>
+        <nav class="tabs">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            :class="{ active: group === tab.id }"
+            @click="group = tab.id"
+          >
+            {{ tab.label }}
+          </button>
+        </nav>
+        <div class="seg">
+          <button :class="{ active: view === 'kanban' }" @click="view = 'kanban'">Board</button>
+          <button :class="{ active: view === 'list' }" @click="view = 'list'">List</button>
+          <button :class="{ active: view === 'graph' }" @click="view = 'graph'">Graph</button>
+        </div>
+        <div class="grow"></div>
+        <input class="search" v-model="query" placeholder="Search id or title" />
+        <span class="lint" :class="lintClass">{{ lintLabel }}</span>
+        <button class="btn" @click="refresh">Reload</button>
+        <button class="btn primary" @click="openCreate">New</button>
+      </header>
+
+      <div class="filters">
+        <select v-model="typeFilter">
+          <option value="all">All types</option>
+          <option v-for="t in groupTypes" :key="t" :value="t">{{ t }}</option>
+        </select>
+        <select v-if="group === 'backlog'" v-model="epicFilter">
+          <option value="all">All epics</option>
+          <option v-for="e in epics" :key="e.id" :value="e.id">{{ e.id }}</option>
+        </select>
+        <select v-if="group === 'backlog'" v-model="phaseFilter">
+          <option value="all">All phases</option>
+          <option v-for="p in phases" :key="p" :value="String(p)">Phase {{ p }}</option>
+        </select>
+        <select v-if="group === 'backlog'" v-model="priorityFilter">
+          <option value="all">All priorities</option>
+          <option v-for="p in ['P0','P1','P2','P3']" :key="p" :value="p">{{ p }}</option>
+        </select>
+        <label class="check" v-if="group === 'backlog'">
+          <input type="checkbox" v-model="hideDone" />
+          Hide done / cancelled
+        </label>
+        <span class="lint">{{ filtered.length }} items</span>
+      </div>
+
+      <section v-if="view === 'kanban'" class="board">
+        <div
+          class="col"
+          v-for="col in columns"
+          :key="col"
+          @dragover.prevent="onDragOver($event, col)"
+          @dragleave="dragOver = null"
+          @drop="onDrop($event, col)"
+          :class="{ drop: dragOver === col }"
+          :data-status="col"
+        >
+          <div class="col-h">
+            <span class="dot"></span>
+            <span>{{ col }}</span>
+            <span class="count">{{ byStatus(col).length }}</span>
+          </div>
+          <div class="col-body">
+            <article
+              class="card"
+              v-for="item in byStatus(col)"
+              :key="item.id"
+              :class="'type-' + item.type"
+              draggable="true"
+              @dragstart="onDragStart($event, item)"
+              @click="openItem(item)"
+            >
+              <div class="card-id">
+                <span>{{ item.id }}</span>
+                <span class="kind">{{ item.type }}</span>
+              </div>
+              <div class="card-title">{{ item.data.title }}</div>
+              <div class="meta">
+                <span v-if="item.data.priority" class="pill" :class="item.data.priority">{{ item.data.priority }}</span>
+                <span v-if="item.data.phase" class="pill">ph {{ item.data.phase }}</span>
+                <span v-if="item.data.epic" class="pill">{{ item.data.epic }}</span>
+                <span v-if="item.data.story" class="pill">{{ item.data.story }}</span>
+              </div>
+            </article>
+            <div v-if="!byStatus(col).length" class="empty">Drop here</div>
+          </div>
+        </div>
+      </section>
+
+      <section v-else-if="view === 'list'" class="list-wrap">
+        <table class="list">
+          <thead>
+            <tr>
+              <th @click="sortBy('id')">ID</th>
+              <th @click="sortBy('title')">Title</th>
+              <th @click="sortBy('type')">Type</th>
+              <th @click="sortBy('status')">Status</th>
+              <th @click="sortBy('priority')">Pri</th>
+              <th>Parent</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in listed" :key="item.id" @click="openItem(item)">
+              <td class="id">{{ item.id }}</td>
+              <td>{{ item.data.title }}</td>
+              <td class="muted">{{ item.type }}</td>
+              <td class="muted">{{ item.data.status }}</td>
+              <td><span class="pill" :class="item.data.priority || ''">{{ item.data.priority || "—" }}</span></td>
+              <td class="muted">{{ item.data.epic || item.data.story || "—" }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section v-else class="list-wrap graph-view">
+        <svg class="graph-svg" viewBox="0 0 1200 640" @click="selectedEdge = null">
+          <line
+            v-for="(e, i) in graphEdges"
+            :key="'e'+i"
+            :x1="e.x1" :y1="e.y1" :x2="e.x2" :y2="e.y2"
+            class="g-edge"
+          />
+          <g
+            v-for="n in graphNodes"
+            :key="n.id"
+            class="g-node"
+            @click.stop="openItem(n.item)"
+          >
+            <rect :x="n.x" :y="n.y" width="160" height="44" rx="6" :class="'type-' + n.item.type" />
+            <text :x="n.x + 8" :y="n.y + 18" class="g-id">{{ n.id }}</text>
+            <text :x="n.x + 8" :y="n.y + 34" class="g-title">{{ n.title }}</text>
+          </g>
+        </svg>
+        <p class="muted" style="padding:12px 16px">Click a node to open it. Edges are parent, depends_on, rules, and ADRs.</p>
+      </section>
+
+      <div v-if="editing" class="peek-root" :class="'layout-' + peekLayout">
+        <div class="peek-bg" @click="closeEditor"></div>
+        <aside class="peek" @click.stop>
+          <header class="peek-bar">
+            <span class="peek-id">{{ editing.id }}</span>
+            <span class="peek-type">{{ editing.type }}</span>
+            <div class="grow"></div>
+            <div class="seg">
+              <button :class="{ active: peekTab === 'edit' }" @click="peekTab = 'edit'">Edit</button>
+              <button :class="{ active: peekTab === 'brief' }" @click="loadBrief">Brief</button>
+            </div>
+            <div class="seg" title="Layout">
+              <button :class="{ active: peekLayout === 'side' }" @click="setLayout('side')">Side</button>
+              <button :class="{ active: peekLayout === 'center' }" @click="setLayout('center')">Center</button>
+              <button :class="{ active: peekLayout === 'full' }" @click="setLayout('full')">Full</button>
+            </div>
+            <button class="btn" @click="closeEditor">Close</button>
+          </header>
+          <div class="peek-scroll" v-if="peekTab === 'edit'">
+            <input class="peek-title" v-model="form.title" placeholder="Untitled" />
+            <div class="path">{{ editing.rel }}</div>
+            <div class="props">
+              <div class="prop" v-for="field in editableFields" :key="field.key">
+                <label>{{ field.key.replaceAll('_', ' ') }}</label>
+                <select v-if="field.enum" v-model="form[field.key]">
+                  <option v-for="opt in field.enum" :key="opt" :value="opt">{{ opt }}</option>
+                </select>
+                <input v-else-if="field.number" type="number" v-model.number="form[field.key]" />
+                <input v-else v-model="form[field.key]" />
+              </div>
+            </div>
+            <div class="md-pane" :class="'mode-' + bodyMode">
+              <div v-if="bodyMode !== 'edit'" class="md-body" v-html="renderedBody" @click="onMdClick"></div>
+              <textarea v-if="bodyMode !== 'preview'" class="md-source" v-model="form.body" spellcheck="false"></textarea>
+            </div>
+          </div>
+          <div class="peek-scroll" v-else>
+            <div class="md-body" v-html="briefHtml"></div>
+          </div>
+          <footer class="peek-foot">
+            <button class="btn danger" @click="removeCurrent">Delete file</button>
+            <div class="grow"></div>
+            <button class="btn" @click="closeEditor">Cancel</button>
+            <button class="btn primary" :disabled="saving" @click="save">Save</button>
+          </footer>
+        </aside>
+      </div>
+
+      <div v-if="creating" class="modal-bg" @click="creating = false"></div>
+      <div v-if="creating" class="modal" @click.stop>
+        <h3>New {{ create.type }}</h3>
+        <div class="form" style="padding: 0">
+          <div class="field wide">
+            <label>Type</label>
+            <select v-model="create.type">
+              <option v-for="t in Object.keys(schema.types || {})" :key="t" :value="t">{{ t }}</option>
+            </select>
+          </div>
+          <div class="field wide">
+            <label>Title</label>
+            <input v-model="create.title" />
+          </div>
+          <div class="field wide" v-if="create.type === 'story'">
+            <label>Epic</label>
+            <select v-model="create.epic">
+              <option v-for="e in epics" :key="e.id" :value="e.id">{{ e.id }} — {{ e.data.title }}</option>
+            </select>
+          </div>
+          <div class="field wide" v-if="create.type === 'task'">
+            <label>Story</label>
+            <select v-model="create.story">
+              <option v-for="s in stories" :key="s.id" :value="s.id">{{ s.id }} — {{ s.data.title }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn" @click="creating = false">Cancel</button>
+          <button class="btn primary" @click="submitCreate">Create</button>
+        </div>
+      </div>
+
+      <div v-if="toast" class="toast" :class="{ error: toastError }">{{ toast }}</div>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
