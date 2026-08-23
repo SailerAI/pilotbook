@@ -13,10 +13,12 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
     "init",
     "new",
     "next",
+    "status",
     "brief",
     "lint",
     "board",
     "explain",
+    "search",
     "graph",
     "verify",
     "ui",
@@ -85,7 +87,7 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
       last,
     );
   }
-  if (["brief", "explain", "verify", "clarify"].includes(cmd) || prev === "<ID>") {
+  if (["brief", "explain", "verify", "clarify", "status"].includes(cmd) || prev === "<ID>") {
     return filter(
       ctx.project.index.items.map((i) => ({ value: i.data.id, description: String(i.data.title) })),
       last,

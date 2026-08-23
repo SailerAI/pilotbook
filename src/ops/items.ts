@@ -333,6 +333,21 @@ export function schemaOf(ctx: OpContext): {
   return { types, workTypes: WORK_TYPES };
 }
 
+function appendBoardTable(lines: string[], bucket: ParsedItem[], config: { root: string }): void {
+  if (!bucket.length) {
+    lines.push("_Empty._", "");
+    return;
+  }
+  lines.push("| ID | Title | Type | Pri |", "| --- | --- | --- | --- |");
+  for (const item of bucket) {
+    const rel = toPosix(item.rel.replace(`${config.root}/`, ""));
+    lines.push(
+      `| [${item.data.id}](${rel}) | ${item.data.title} | ${item.type} | ${String(item.data.priority ?? "—")} |`,
+    );
+  }
+  lines.push("");
+}
+
 export function writeBoard(ctx: OpContext): string {
   const { projectRoot, config, index } = ctx.project;
   const work = index.items.filter((i) => WORK_TYPES.includes(i.type));
@@ -353,19 +368,31 @@ export function writeBoard(ctx: OpContext): string {
   for (const status of statuses) {
     const bucket = work.filter((i) => i.data.status === status);
     lines.push(`### ${status} (${bucket.length})`, "");
-    if (!bucket.length) {
-      lines.push("_Empty._", "");
-      continue;
-    }
-    lines.push("| ID | Title | Type | Pri |", "| --- | --- | --- | --- |");
-    for (const item of bucket) {
-      const rel = toPosix(item.rel.replace(`${config.root}/`, ""));
-      lines.push(
-        `| [${item.data.id}](${rel}) | ${item.data.title} | ${item.type} | ${String(item.data.priority ?? "—")} |`,
-      );
-    }
-    lines.push("");
+    appendBoardTable(lines, bucket, config);
   }
+
+  lines.push("## By phase", "");
+  const byPhase = new Map<number, ParsedItem[]>();
+  const unphased: ParsedItem[] = [];
+  for (const item of work) {
+    const phase = item.data.phase;
+    if (typeof phase === "number") {
+      const bucket = byPhase.get(phase) ?? [];
+      bucket.push(item);
+      byPhase.set(phase, bucket);
+    } else {
+      unphased.push(item);
+    }
+  }
+  const phases = [...byPhase.keys()].sort((a, b) => a - b);
+  for (const phase of phases) {
+    const bucket = byPhase.get(phase) ?? [];
+    lines.push(`### ${phase} (${bucket.length})`, "");
+    appendBoardTable(lines, bucket, config);
+  }
+  lines.push(`### Unphased (${unphased.length})`, "");
+  appendBoardTable(lines, unphased, config);
+
   const outRel = toPosix(`${config.root}/${config.board}`);
   const abs = hostJoin(projectRoot, outRel);
   ctx.fs.mkdirp(hostJoin(abs, ".."));

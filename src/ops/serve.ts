@@ -13,7 +13,7 @@ import {
   updateItem,
   writeBoard,
 } from "./items.ts";
-import { briefOf, graphDot, lint, nextReady } from "./query.ts";
+import { briefOf, graphDot, lint, listReady, nextReady, searchGraph, statusOf } from "./query.ts";
 
 const MIME: Record<string, string> = {
   ".html": "text/html; charset=utf-8",
@@ -120,6 +120,19 @@ async function handleApi(
     }
     if (req.method === "GET" && route === "/api/next") {
       send(res, 200, { items: nextReady(ctx) });
+      return;
+    }
+    if (req.method === "GET" && route === "/api/status") {
+      send(res, 200, { items: listReady(ctx) });
+      return;
+    }
+    const statusMatch = route.match(/^\/api\/status\/([^/]+)$/);
+    if (statusMatch && req.method === "GET") {
+      send(res, 200, statusOf(ctx, decodeURIComponent(statusMatch[1]!)));
+      return;
+    }
+    if (req.method === "GET" && route === "/api/search") {
+      send(res, 200, { items: searchGraph(ctx, url.searchParams.get("q") ?? "") });
       return;
     }
     if (req.method === "GET" && route === "/api/graph.dot") {

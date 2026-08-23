@@ -2,7 +2,7 @@
 id: EPIC-003
 title: When to build
 type: epic
-status: backlog
+status: done
 priority: P1
 estimate: 8
 phase: 2

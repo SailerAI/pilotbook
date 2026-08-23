@@ -3,7 +3,7 @@ id: US-008
 title: Render a roadmap from phase
 type: story
 epic: EPIC-003
-status: backlog
+status: done
 priority: P2
 estimate: 3
 phase: 2
@@ -24,10 +24,10 @@ updated: 2026-08-23
 
 ## Acceptance criteria
 
-- [ ] Given the UI, when I open the Roadmap tab, then items group by `phase` ascending, with epics as swimlanes and stories/tasks nested
-- [ ] Given `GET /api/items`, when the roadmap renders, then it does not recompute phase — it reads the field
-- [ ] Given an item with no `phase`, when I view the roadmap, then it lands in an "Unphased" column, not dropped
-- [ ] Given `pb board`, when regenerated, then a phase section appears in `BOARD.md` (or a linked file under `docs/backlog/`)
+- [x] Given the UI, when I open the Roadmap tab, then items group by `phase` ascending, with epics as swimlanes and stories/tasks nested
+- [x] Given `GET /api/items`, when the roadmap renders, then it does not recompute phase — it reads the field
+- [x] Given an item with no `phase`, when I view the roadmap, then it lands in an "Unphased" column, not dropped
+- [x] Given `pb board`, when regenerated, then a phase section appears in `BOARD.md` (or a linked file under `docs/backlog/`)
 
 ## Notes
 
