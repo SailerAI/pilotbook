@@ -1,4 +1,3 @@
-import path from "node:path";
 import { findProjectRoot, hostJoin, loadConfig, toPosix } from "../core/config.ts";
 import type { FileSystem } from "../core/fs.ts";
 import { loadGraph } from "../core/graph.ts";
@@ -53,7 +52,10 @@ export function loadPeerManifests(
 
 export function openProject(cwd?: string, fs?: FileSystem): LoadedProject {
   const io = fs ?? new NodeFileSystem(cwd);
-  const start = cwd ? path.resolve(cwd) : io.cwd();
+  // Injected filesystems (tests) use POSIX roots like "/project". path.resolve
+  // on Windows maps that to a drive path (e.g. "C:\\project") and the graph
+  // finds no files.
+  const start = fs ? (cwd ?? io.cwd()) : io.cwd();
   const { root, configPath } = findProjectRoot(start, io);
   const config = loadConfig(root, io, configPath);
   const index = loadGraph(root, config, io);

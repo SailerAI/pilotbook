@@ -82,6 +82,11 @@ export function toPosix(p: string): string {
 
 export function hostJoin(root: string, rel: string): string {
   const parts = toPosix(rel).split("/").filter(Boolean);
+  // Keep POSIX-absolute roots POSIX (in-memory FS and tests). path.join on
+  // Windows would turn "/project" into "\\project".
+  if (root.startsWith("/") && !/^[A-Za-z]:/.test(root)) {
+    return path.posix.join(toPosix(root), ...parts);
+  }
   return path.join(root, ...parts);
 }
 
