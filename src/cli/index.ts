@@ -22,6 +22,7 @@ import {
   installHooks,
   lintText,
   listReady,
+  listSkills,
   nextReady,
   PilotbookError,
   promoteIdea,
@@ -29,6 +30,7 @@ import {
   searchGraph,
   seedFromBrief,
   sessionStart,
+  skillOf,
   splitItem,
   startUi,
   statusOf,
@@ -255,6 +257,57 @@ const main = defineCommand({
           const result = briefOf(ctx, String(args.id), { budget });
           if (args.json || args.format === "json") emit(true, result.brief, "");
           else process.stdout.write(result.text);
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    instructions: defineCommand({
+      meta: { description: "List shipped skills (progressive disclosure)" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        topic: { type: "positional", required: false, description: "overview (default)" },
+      },
+      run({ args }) {
+        try {
+          const topic = args.topic == null || args.topic === "" ? "overview" : String(args.topic);
+          if (topic !== "overview") {
+            fail(
+              new PilotbookError(
+                `unknown instructions topic: ${topic}`,
+                "unknown-topic",
+                400,
+                "pb instructions overview",
+              ),
+            );
+          }
+          const skills = listSkills();
+          emit(
+            Boolean(args.json),
+            skills,
+            printTable(
+              ["Name", "Description"],
+              skills.map((s) => [s.name, s.description]),
+            ),
+          );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    skill: defineCommand({
+      meta: { description: "Print one shipped skill body" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        name: { type: "positional", required: true, description: "Skill name" },
+      },
+      run({ args }) {
+        try {
+          const skill = skillOf(String(args.name));
+          if (args.json) emit(true, skill, "");
+          else process.stdout.write(skill.body.endsWith("\n") ? skill.body : `${skill.body}\n`);
         } catch (err) {
           fail(err);
         }

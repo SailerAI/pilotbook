@@ -11,6 +11,8 @@ export { hookStop, installHooks, sessionStart } from "./hooks.ts";
 export type { ImpactReport } from "./impact.ts";
 export { impactOf } from "./impact.ts";
 export { initProject, SHIPPED_SKILLS } from "./init.ts";
+export type { SkillDoc, SkillSummary } from "./instructions.ts";
+export { listSkills, skillOf } from "./instructions.ts";
 export { buildManifest, exportItems, writeManifest } from "./interop.ts";
 export {
   bundledSkills,

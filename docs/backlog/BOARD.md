@@ -6,14 +6,13 @@ _Last generated: 2026-08-23_
 
 ## By status
 
-### backlog (19)
+### backlog (18)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
 | [EPIC-004](backlog/epics/EPIC-004-how-to-build.md) | How to build | epic | P1 |
 | [EPIC-005](backlog/epics/EPIC-005-actually-build-it.md) | Actually build it | epic | P1 |
 | [EPIC-006](backlog/epics/EPIC-006-evidence-not-assertion.md) | Evidence, not assertion | epic | P1 |
-| [US-014](backlog/stories/US-014-serve-skill-instructions-on-demand.md) | Serve skill instructions on demand | story | P1 |
 | [US-015](backlog/stories/US-015-analyze-graph-coverage-without-an-llm.md) | Analyze graph coverage without an LLM | story | P1 |
 | [US-016](backlog/stories/US-016-converge-by-appending-tasks-only.md) | Converge by appending tasks only | story | P1 |
 | [US-017](backlog/stories/US-017-report-brief-truncation-as-a-diagnostic.md) | Report brief truncation as a diagnostic | story | P1 |
@@ -30,7 +29,7 @@ _Last generated: 2026-08-23_
 | [US-028](backlog/stories/US-028-measure-brief-vs-no-brief-on-a-fixed-task-set.md) | Measure brief vs no brief on a fixed task set | story | P1 |
 | [US-029](backlog/stories/US-029-publish-the-number-and-correct-br-003-if-contradicted.md) | Publish the number and correct BR-003 if contradicted | story | P2 |
 
-### done (51)
+### done (56)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -64,6 +63,10 @@ _Last generated: 2026-08-23_
 | [TASK-031](backlog/tasks/TASK-031-apply-a-split-through-seed-with-cli-and-mcp.md) | Apply a split through seed with CLI and MCP | task | P2 |
 | [TASK-032](backlog/tasks/TASK-032-point-the-architect-skill-at-pb-split.md) | Point the architect skill at pb split | task | P2 |
 | [TASK-033](backlog/tasks/TASK-033-split-a-parentless-task-into-a-new-story.md) | Split a parentless task into a new story | task | P2 |
+| [TASK-034](backlog/tasks/TASK-034-serve-skill-instructions-on-demand-14.md) | Ops list and read packaged skills | task | P1 |
+| [TASK-035](backlog/tasks/TASK-035-serve-skill-instructions-on-demand-24.md) | CLI pb instructions and pb skill | task | P1 |
+| [TASK-036](backlog/tasks/TASK-036-serve-skill-instructions-on-demand-34.md) | MCP instructions and skill tools | task | P1 |
+| [TASK-037](backlog/tasks/TASK-037-serve-skill-instructions-on-demand-44.md) | Point init AGENTS.md at pb instructions overview | task | P1 |
 | [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
 | [US-002](backlog/stories/US-002-clarify-an-item-into-a-bounded-question-set.md) | Clarify an item into a bounded question set | story | P1 |
 | [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
@@ -77,6 +80,7 @@ _Last generated: 2026-08-23_
 | [US-011](backlog/stories/US-011-report-sync-impact-of-a-rule-or-adr-bump.md) | Report sync-impact of a rule or ADR bump | story | P2 |
 | [US-012](backlog/stories/US-012-allow-a-small-change-to-skip-the-epic-and-story.md) | Allow a small change to skip the epic and story | story | P1 |
 | [US-013](backlog/stories/US-013-install-all-five-skills-from-pb-init.md) | Install all five skills from pb init | story | P0 |
+| [US-014](backlog/stories/US-014-serve-skill-instructions-on-demand.md) | Serve skill instructions on demand | story | P1 |
 | [US-030](backlog/stories/US-030-navigate-children-and-internal-links-from-the-peek.md) | Navigate children and internal links from the peek | story | P2 |
 | [US-031](backlog/stories/US-031-install-cursor-agent-skills-from-pb-init.md) | Install Cursor agent skills from pb init | story | P1 |
 | [US-032](backlog/stories/US-032-trigger-discover-from-a-vague-demand.md) | Trigger discover from a vague demand | story | P1 |
@@ -109,7 +113,7 @@ _Last generated: 2026-08-23_
 | [TASK-002](backlog/tasks/TASK-002-widen-default-cursor-rule-beyond-docs-glob.md) | Widen default Cursor rule beyond docs glob | task | P1 |
 | [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
 
-### 2 (65)
+### 2 (69)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -149,6 +153,10 @@ _Last generated: 2026-08-23_
 | [TASK-031](backlog/tasks/TASK-031-apply-a-split-through-seed-with-cli-and-mcp.md) | Apply a split through seed with CLI and MCP | task | P2 |
 | [TASK-032](backlog/tasks/TASK-032-point-the-architect-skill-at-pb-split.md) | Point the architect skill at pb split | task | P2 |
 | [TASK-033](backlog/tasks/TASK-033-split-a-parentless-task-into-a-new-story.md) | Split a parentless task into a new story | task | P2 |
+| [TASK-034](backlog/tasks/TASK-034-serve-skill-instructions-on-demand-14.md) | Ops list and read packaged skills | task | P1 |
+| [TASK-035](backlog/tasks/TASK-035-serve-skill-instructions-on-demand-24.md) | CLI pb instructions and pb skill | task | P1 |
+| [TASK-036](backlog/tasks/TASK-036-serve-skill-instructions-on-demand-34.md) | MCP instructions and skill tools | task | P1 |
+| [TASK-037](backlog/tasks/TASK-037-serve-skill-instructions-on-demand-44.md) | Point init AGENTS.md at pb instructions overview | task | P1 |
 | [US-002](backlog/stories/US-002-clarify-an-item-into-a-bounded-question-set.md) | Clarify an item into a bounded question set | story | P1 |
 | [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
 | [US-004](backlog/stories/US-004-record-a-kill-verdict-on-an-idea.md) | Record a kill verdict on an idea | story | P2 |
@@ -289,6 +297,15 @@ _Empty._
 | [TASK-025](backlog/tasks/TASK-025-make-story-optional-on-a-task.md) | Make story optional on a task | task | P2 |
 | [TASK-026](backlog/tasks/TASK-026-board-ungrouped-bucket-for-parentless-tasks.md) | Board Ungrouped bucket for parentless tasks | task | P2 |
 | [TASK-033](backlog/tasks/TASK-033-split-a-parentless-task-into-a-new-story.md) | Split a parentless task into a new story | task | P2 |
+
+### US-014 Serve skill instructions on demand (4)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-034](backlog/tasks/TASK-034-serve-skill-instructions-on-demand-14.md) | Ops list and read packaged skills | task | P1 |
+| [TASK-035](backlog/tasks/TASK-035-serve-skill-instructions-on-demand-24.md) | CLI pb instructions and pb skill | task | P1 |
+| [TASK-036](backlog/tasks/TASK-036-serve-skill-instructions-on-demand-34.md) | MCP instructions and skill tools | task | P1 |
+| [TASK-037](backlog/tasks/TASK-037-serve-skill-instructions-on-demand-44.md) | Point init AGENTS.md at pb instructions overview | task | P1 |
 
 ### US-030 Navigate children and internal links from the peek (1)
 

@@ -78,6 +78,13 @@ This repo uses [Pilotbook](https://github.com/SailerAI/pilotbook).
 
 If the user describes a new feature, idea, or vague demand, follow the **discover** skill then the **shape** skill. Do not jump to \`pb next\`.
 
+Load one workflow at a time instead of inlining every skill:
+
+\`\`\`bash
+pb instructions overview
+pb skill implement
+\`\`\`
+
 If they are implementing existing work:
 
 \`\`\`bash

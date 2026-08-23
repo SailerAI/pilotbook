@@ -1,5 +1,6 @@
 import { BACKLOG_STATUS, PRIORITIES } from "../core/types.ts";
 import type { OpContext } from "./context.ts";
+import { SHIPPED_SKILLS } from "./init.ts";
 
 export interface CompletionHit {
   value: string;
@@ -34,6 +35,8 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
     "manifest",
     "hook",
     "completions",
+    "instructions",
+    "skill",
   ];
 
   if (args.length <= 1) {
@@ -79,6 +82,15 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
     const values = cmd === "promote" ? ["epic", "story"] : ["jira", "notion"];
     return filter(
       values.map((v) => ({ value: v })),
+      last,
+    );
+  }
+  if (cmd === "instructions") {
+    return filter([{ value: "overview", description: "List shipped skills" }], last);
+  }
+  if (cmd === "skill") {
+    return filter(
+      SHIPPED_SKILLS.map((n) => ({ value: n })),
       last,
     );
   }

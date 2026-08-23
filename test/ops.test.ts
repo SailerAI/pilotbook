@@ -40,6 +40,13 @@ describe("complete", () => {
     const hits = complete(ctx, ["brief", "EP"]);
     expect(hits.some((h) => h.value === "EPIC-001")).toBe(true);
   });
+
+  it("completes instructions overview and skill names", () => {
+    const ctx = makeProject();
+    expect(complete(ctx, ["instructions", "ov"]).map((h) => h.value)).toContain("overview");
+    expect(complete(ctx, ["skill", "imp"]).map((h) => h.value)).toContain("implement");
+    expect(complete(ctx, ["in"]).map((h) => h.value)).toContain("instructions");
+  });
 });
 
 describe("init", () => {
@@ -109,6 +116,16 @@ describe("init", () => {
     expect(second.wrote).not.toContain(".cursor/skills/implement/SKILL.md");
     expect(fs.readFile("/app/.claude/skills/pilotbook-implement.md")).toBe("stale implement\n");
     expect(fs.readFile("/app/.cursor/skills/implement/SKILL.md")).toBe("stale cursor implement\n");
+  });
+
+  it("points a fresh AGENTS.md at pb instructions overview", () => {
+    const fs = seedInitFs();
+    initProject("/app", { ai: true }, fs);
+    const agents = fs.readFile("/app/AGENTS.md");
+    expect(agents).toContain("pb instructions overview");
+    expect(agents).toContain("pb skill implement");
+    expect(agents).not.toContain("skills/implement.md");
+    expect(agents).not.toContain(".cursor/skills/groom");
   });
 });
 

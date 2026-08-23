@@ -106,6 +106,8 @@ pb brief TA<TAB>    # TASK-001  Transaction API
 | `pb brief <ID>` | Context pack (`--budget`, `--format json`) |
 | `pb next` | Unblocked work, phase then priority |
 | `pb status [ID]` | Ready/blocked with requires, missingDeps, unlocks |
+| `pb instructions [overview]` | List shipped skills (name + description) |
+| `pb skill <name>` | Print one skill body (`--json` includes commands, writes, done) |
 
 ### Ship
 

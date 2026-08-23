@@ -3,7 +3,7 @@ id: US-014
 title: Serve skill instructions on demand
 type: story
 epic: EPIC-005
-status: backlog
+status: done
 priority: P1
 estimate: 3
 phase: 2
@@ -15,7 +15,6 @@ adrs: [ADR-0002]
 created: 2026-08-23
 updated: 2026-08-23
 ---
-
 ## Story
 
 **As an** agent,
@@ -24,10 +23,10 @@ updated: 2026-08-23
 
 ## Acceptance criteria
 
-- [ ] Given `pb instructions`, when I run it, then it lists the shipped skills with a one-line description (from skill frontmatter)
-- [ ] Given `pb skill implement`, when I run it, then stdout is the skill body and `--json` includes `name`, `commands`, `writes`, `done`
-- [ ] Given `AGENTS.md` after init, when I read it, then it tells the agent to run `pb instructions overview` (or `pb skill implement`) rather than inlining every skill
-- [ ] Given CLI and MCP, when they serve a skill, then they read the packaged `skills/` files through ops
+- [x] Given `pb instructions`, when I run it, then it lists the shipped skills with a one-line description (from skill frontmatter)
+- [x] Given `pb skill implement`, when I run it, then stdout is the skill body and `--json` includes `name`, `commands`, `writes`, `done`
+- [x] Given `AGENTS.md` after init, when I read it, then it tells the agent to run `pb instructions overview` (or `pb skill implement`) rather than inlining every skill
+- [x] Given CLI and MCP, when they serve a skill, then they read the packaged `skills/` files through ops
 
 ## Notes
 

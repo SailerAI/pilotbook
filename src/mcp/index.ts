@@ -12,6 +12,7 @@ import {
   lint,
   listItems,
   listReady,
+  listSkills,
   nextReady,
   type OpContext,
   PilotbookError,
@@ -19,6 +20,7 @@ import {
   rejectIdea,
   schemaOf,
   searchGraph,
+  skillOf,
   splitItem,
   statusOf,
   updateItem,
@@ -198,6 +200,20 @@ const TOOLS = [
       required: ["id"],
     },
   },
+  {
+    name: "instructions",
+    description: "List shipped Pilotbook skills with one-line descriptions",
+    inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "skill",
+    description: "Return one shipped skill body and frontmatter",
+    inputSchema: {
+      type: "object",
+      properties: { name: { type: "string", description: "Skill name (e.g. implement)" } },
+      required: ["name"],
+    },
+  },
 ];
 
 function textResult(obj: unknown): { content: Array<{ type: "text"; text: string }> } {
@@ -280,6 +296,10 @@ function callTool(ctx: OpContext, name: string, params: Record<string, unknown>)
         return textResult(applyClarifications(ctx, String(params.id), params.answers));
       }
       return textResult(clarifyItem(ctx, String(params.id)));
+    case "instructions":
+      return textResult(listSkills());
+    case "skill":
+      return textResult(skillOf(String(params.name ?? "")));
     default:
       throw new Error(`unknown tool: ${name}`);
   }
