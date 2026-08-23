@@ -6,6 +6,44 @@ _Last generated: 2026-08-23_
 
 ## By status
 
+### backlog (33)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [EPIC-002](backlog/epics/EPIC-002-what-to-build.md) | What to build | epic | P1 |
+| [EPIC-003](backlog/epics/EPIC-003-when-to-build.md) | When to build | epic | P1 |
+| [EPIC-004](backlog/epics/EPIC-004-how-to-build.md) | How to build | epic | P1 |
+| [EPIC-005](backlog/epics/EPIC-005-actually-build-it.md) | Actually build it | epic | P1 |
+| [EPIC-006](backlog/epics/EPIC-006-evidence-not-assertion.md) | Evidence, not assertion | epic | P1 |
+| [US-002](backlog/stories/US-002-clarify-an-item-into-a-bounded-question-set.md) | Clarify an item into a bounded question set | story | P1 |
+| [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
+| [US-004](backlog/stories/US-004-record-a-kill-verdict-on-an-idea.md) | Record a kill verdict on an idea | story | P2 |
+| [US-005](backlog/stories/US-005-answer-clarifications-in-the-browser.md) | Answer clarifications in the browser | story | P2 |
+| [US-006](backlog/stories/US-006-expose-status-json-with-requires-missingdeps-and-unlocks.md) | Expose status JSON with requires, missingDeps, and unlocks | story | P1 |
+| [US-007](backlog/stories/US-007-order-next-by-a-fixed-action-ladder.md) | Order next by a fixed action ladder | story | P1 |
+| [US-008](backlog/stories/US-008-render-a-roadmap-from-phase.md) | Render a roadmap from phase | story | P2 |
+| [US-009](backlog/stories/US-009-search-the-graph-from-cli-and-ui.md) | Search the graph from CLI and UI | story | P1 |
+| [US-010](backlog/stories/US-010-split-an-item-from-graph-complexity-signals.md) | Split an item from graph complexity signals | story | P1 |
+| [US-011](backlog/stories/US-011-report-sync-impact-of-a-rule-or-adr-bump.md) | Report sync-impact of a rule or ADR bump | story | P2 |
+| [US-012](backlog/stories/US-012-allow-a-small-change-to-skip-the-epic-and-story.md) | Allow a small change to skip the epic and story | story | P2 |
+| [US-013](backlog/stories/US-013-install-all-five-skills-from-pb-init.md) | Install all five skills from pb init | story | P0 |
+| [US-014](backlog/stories/US-014-serve-skill-instructions-on-demand.md) | Serve skill instructions on demand | story | P1 |
+| [US-015](backlog/stories/US-015-analyze-graph-coverage-without-an-llm.md) | Analyze graph coverage without an LLM | story | P1 |
+| [US-016](backlog/stories/US-016-converge-by-appending-tasks-only.md) | Converge by appending tasks only | story | P1 |
+| [US-017](backlog/stories/US-017-report-brief-truncation-as-a-diagnostic.md) | Report brief truncation as a diagnostic | story | P1 |
+| [US-018](backlog/stories/US-018-publish-the-agent-contract.md) | Publish the agent contract | story | P2 |
+| [US-019](backlog/stories/US-019-refuse-to-tick-reviewer-owned-criteria.md) | Refuse to tick reviewer-owned criteria | story | P2 |
+| [US-020](backlog/stories/US-020-merge-the-board-without-downgrading-status.md) | Merge the board without downgrading status | story | P1 |
+| [US-021](backlog/stories/US-021-run-an-evidence-backed-epic-retrospective.md) | Run an evidence-backed epic retrospective | story | P3 |
+| [US-022](backlog/stories/US-022-prime-a-session-with-the-in-progress-brief.md) | Prime a session with the in-progress brief | story | P1 |
+| [US-023](backlog/stories/US-023-capture-per-test-results-not-just-exit-codes.md) | Capture per-test results, not just exit codes | story | P1 |
+| [US-024](backlog/stories/US-024-report-unproven-criteria.md) | Report unproven criteria | story | P1 |
+| [US-025](backlog/stories/US-025-gate-done-on-proof.md) | Gate done on proof | story | P1 |
+| [US-026](backlog/stories/US-026-detect-code-that-no-in-flight-item-claims.md) | Detect code that no in-flight item claims | story | P1 |
+| [US-027](backlog/stories/US-027-surface-drift-in-ci-and-the-pre-commit-hook.md) | Surface drift in CI and the pre-commit hook | story | P2 |
+| [US-028](backlog/stories/US-028-measure-brief-vs-no-brief-on-a-fixed-task-set.md) | Measure brief vs no brief on a fixed task set | story | P1 |
+| [US-029](backlog/stories/US-029-publish-the-number-and-correct-br-003-if-contradicted.md) | Publish the number and correct BR-003 if contradicted | story | P2 |
+
 ### todo (1)
 
 | ID | Title | Type | Pri |
