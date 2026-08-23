@@ -59,6 +59,35 @@ describe("startUi", () => {
     const sch = (await schema.json()) as { types: Record<string, { parent?: string }> };
     expect(sch.types.story?.parent).toBe("epic");
     expect(sch.types.task?.parent).toBe("story");
+
+    const status = await fetch(`${base}/api/status/TASK-001`);
+    expect(status.status).toBe(200);
+    const statusBody = (await status.json()) as {
+      id: string;
+      state: string;
+      requires: unknown[];
+      missingDeps: unknown[];
+      unlocks: unknown[];
+    };
+    expect(statusBody.id).toBe("TASK-001");
+    expect(statusBody.state).toBe("ready");
+    expect(statusBody.requires).toEqual([]);
+    expect(Array.isArray(statusBody.missingDeps)).toBe(true);
+    expect(Array.isArray(statusBody.unlocks)).toBe(true);
+
+    const readyList = await fetch(`${base}/api/status`);
+    expect(readyList.status).toBe(200);
+    const readyBody = (await readyList.json()) as { items: Array<{ id: string }> };
+    expect(readyBody.items.some((i) => i.id === "TASK-001")).toBe(true);
+
+    const search = await fetch(`${base}/api/search?q=${encodeURIComponent("Transaction")}`);
+    expect(search.status).toBe(200);
+    const hits = (await search.json()) as { items: Array<{ id: string; snippet: string }> };
+    expect(hits.items.some((h) => h.id === "TASK-001")).toBe(true);
+
+    const empty = await fetch(`${base}/api/search?q=`);
+    expect(empty.status).toBe(200);
+    expect(await empty.json()).toEqual({ items: [] });
   });
 
   it("creates an idea from intake and writes clarifications back", async () => {

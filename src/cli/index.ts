@@ -19,13 +19,16 @@ import {
   initProject,
   installHooks,
   lintText,
+  listReady,
   nextReady,
   PilotbookError,
   promoteIdea,
   rejectIdea,
+  searchGraph,
   seedFromBrief,
   sessionStart,
   startUi,
+  statusOf,
   verifyItem,
   withProject,
   writeManifest,
@@ -145,7 +148,7 @@ const main = defineCommand({
           { items },
           items.length
             ? printTable(
-                ["ID", "Type", "Phase", "Pri", "Est", "Status", "Title"],
+                ["ID", "Type", "Phase", "Pri", "Est", "Status", "Ladder", "Title"],
                 items.map((i) => [
                   i.id,
                   i.type,
@@ -153,10 +156,79 @@ const main = defineCommand({
                   i.priority,
                   i.estimate,
                   i.status,
+                  i.ladder,
                   i.title,
                 ]),
               )
             : "No unblocked backlog items.\n",
+        );
+      },
+    }),
+    status: defineCommand({
+      meta: { description: "Computed ready/blocked state with requires and unlocks" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        id: { type: "positional", required: false, description: "Item ID" },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          if (!args.id) {
+            const items = listReady(ctx);
+            emit(
+              Boolean(args.json),
+              { items },
+              items.length
+                ? printTable(
+                    ["ID", "Type", "State", "Title"],
+                    items.map((i) => [i.id, i.type, i.state, i.title]),
+                  )
+                : "No ready items.\n",
+            );
+            return;
+          }
+          const result = statusOf(ctx, String(args.id));
+          emit(
+            Boolean(args.json),
+            result,
+            `${[
+              `${result.id} state=${result.state} status=${String(result.status)}`,
+              result.requires.length
+                ? `requires: ${result.requires.map((r) => `${r.id} (${r.state})`).join(", ")}`
+                : "requires: (none)",
+              result.missingDeps.length
+                ? `missing: ${result.missingDeps.join(", ")}`
+                : "missing: (none)",
+              result.unlocks.length
+                ? `unlocks: ${result.unlocks.map((u) => `${u.id} (${u.state}) ${u.title}`).join(", ")}`
+                : "unlocks: (none)",
+            ].join("\n")}\n`,
+          );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    search: defineCommand({
+      meta: { description: "Search item ids, titles, and bodies" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        q: { type: "positional", required: true, description: "Query" },
+      },
+      run({ args }) {
+        const ctx = ctxFrom(args);
+        const items = searchGraph(ctx, String(args.q ?? ""));
+        emit(
+          Boolean(args.json),
+          { items },
+          items.length
+            ? printTable(
+                ["ID", "Type", "Title", "Snippet"],
+                items.map((i) => [i.id, i.type, i.title, i.snippet]),
+              )
+            : "No matches.\n",
         );
       },
     }),

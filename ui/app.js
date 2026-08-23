@@ -11,6 +11,69 @@ const GROUP_TYPES = {
 const SKIP_FIELDS = new Set(["id", "type", "title", "created", "updated", "body"]);
 const LAYOUT_KEY = "pilotbook.peekLayout";
 const BODY_KEY = "pilotbook.bodyMode";
+const UNPHASED = "Unphased";
+
+function parentField(schema, type) {
+  return schema?.types?.[type]?.parent;
+}
+
+function sortById(list) {
+  return [...list].sort((a, b) => String(a.id).localeCompare(String(b.id), undefined, { numeric: true }));
+}
+
+function phaseKey(item) {
+  const p = item.data?.phase;
+  return p == null || p === "" ? UNPHASED : p;
+}
+
+function workTypesOf(schema) {
+  const named = schema?.workTypes;
+  if (Array.isArray(named) && named.length) return named;
+  return Object.entries(schema?.types || {})
+    .filter(([, cfg]) => cfg.numbers?.includes("phase"))
+    .map(([name]) => name);
+}
+
+function findSwimlaneRoot(schema, byId, item) {
+  let cur = item;
+  const seen = new Set();
+  while (cur && !seen.has(cur.id)) {
+    seen.add(cur.id);
+    const field = parentField(schema, cur.type);
+    if (!field) return cur;
+    const pid = cur.data[field];
+    if (!pid) return cur;
+    const parent = byId.get(pid);
+    if (!parent) return cur;
+    cur = parent;
+  }
+  return item;
+}
+
+function nestRows(schema, cellItems) {
+  const ids = new Set(cellItems.map((i) => i.id));
+  const tops = sortById(
+    cellItems.filter((item) => {
+      const field = parentField(schema, item.type);
+      if (!field) return true;
+      const pid = item.data[field];
+      return !pid || !ids.has(pid);
+    }),
+  );
+  const rows = [];
+  const walk = (item, depth) => {
+    rows.push({ item, depth });
+    const kids = sortById(
+      cellItems.filter((child) => {
+        const field = parentField(schema, child.type);
+        return field && child.data[field] === item.id;
+      }),
+    );
+    for (const kid of kids) walk(kid, depth + 1);
+  };
+  for (const top of tops) walk(top, 0);
+  return rows;
+}
 
 marked.setOptions({ gfm: true, breaks: false });
 
@@ -102,6 +165,9 @@ createApp({
     const group = ref("backlog");
     const view = ref("kanban");
     const query = ref("");
+    const searchHits = ref([]);
+    const searchBusy = ref(false);
+    const peekStatus = ref(null);
     const typeFilter = ref("all");
     const epicFilter = ref("all");
     const phaseFilter = ref("all");
@@ -132,6 +198,7 @@ createApp({
 
     const tabs = [
       { id: "backlog", label: "Backlog" },
+      { id: "roadmap", label: "Roadmap" },
       { id: "adr", label: "ADRs" },
       { id: "rules", label: "Rules" },
       { id: "ideas", label: "Ideas" },
@@ -167,7 +234,9 @@ createApp({
       if (bundle.errors?.length) flash(bundle.errors[0], true);
     }
 
-    const groupTypes = computed(() => GROUP_TYPES[group.value] ?? []);
+    const groupTypes = computed(() =>
+      group.value === "roadmap" ? workTypesOf(schema.value) : (GROUP_TYPES[group.value] ?? []),
+    );
     const epics = computed(() => items.value.filter((i) => i.type === "epic"));
     const stories = computed(() => items.value.filter((i) => i.type === "story"));
     const phases = computed(() => {
@@ -181,7 +250,6 @@ createApp({
     });
 
     const filtered = computed(() => {
-      const q = query.value.trim().toLowerCase();
       return items.value.filter((item) => {
         if (!groupTypes.value.includes(item.type)) return false;
         if (typeFilter.value !== "all" && item.type !== typeFilter.value) return false;
@@ -195,13 +263,47 @@ createApp({
         if (phaseFilter.value !== "all" && String(item.data.phase) !== phaseFilter.value) return false;
         if (priorityFilter.value !== "all" && item.data.priority !== priorityFilter.value) return false;
         if (hideDone.value && ["done", "cancelled"].includes(item.data.status)) return false;
-        if (q) {
-          const hay = `${item.id} ${item.data.title} ${item.type}`.toLowerCase();
-          if (!hay.includes(q)) return false;
-        }
         return true;
       });
     });
+
+    const roadmapColumns = computed(() => [...phases.value, UNPHASED]);
+    const roadmapLanes = computed(() => {
+      const sch = schema.value;
+      const byId = new Map(items.value.map((i) => [i.id, i]));
+      const lanes = new Map();
+      const unassigned = [];
+      for (const item of filtered.value) {
+        const root = findSwimlaneRoot(sch, byId, item);
+        if (parentField(sch, root.type)) {
+          unassigned.push(item);
+          continue;
+        }
+        let lane = lanes.get(root.id);
+        if (!lane) {
+          lane = { root, items: [] };
+          lanes.set(root.id, lane);
+        }
+        lane.items.push(item);
+      }
+      const out = [...lanes.values()].sort((a, b) =>
+        String(a.root.id).localeCompare(String(b.root.id), undefined, { numeric: true }),
+      );
+      if (unassigned.length) out.push({ root: null, items: unassigned });
+      return out;
+    });
+
+    function roadmapColLabel(col) {
+      return col === UNPHASED ? UNPHASED : `Phase ${col}`;
+    }
+    function roadmapColCount(col) {
+      return filtered.value.filter((i) => phaseKey(i) === col).length;
+    }
+    function roadmapCell(lane, col) {
+      const sch = schema.value;
+      const cellItems = lane.items.filter((item) => parentField(sch, item.type) && phaseKey(item) === col);
+      return nestRows(sch, cellItems);
+    }
 
     function byStatus(status) {
       return filtered.value
@@ -359,6 +461,69 @@ createApp({
       if (idx >= 0) toggleTaskAt(idx);
     }
 
+    let searchSeq = 0;
+    let searchTimer = 0;
+    let statusSeq = 0;
+
+    watch(query, (raw) => {
+      window.clearTimeout(searchTimer);
+      const q = String(raw ?? "").trim();
+      if (!q) {
+        searchSeq += 1;
+        searchHits.value = [];
+        searchBusy.value = false;
+        return;
+      }
+      searchBusy.value = true;
+      searchTimer = window.setTimeout(async () => {
+        const seq = ++searchSeq;
+        try {
+          const data = await api(`/api/search?q=${encodeURIComponent(q)}`);
+          if (seq !== searchSeq) return;
+          searchHits.value = Array.isArray(data.items) ? data.items : [];
+        } catch (err) {
+          if (seq !== searchSeq) return;
+          searchHits.value = [];
+          flash(err.message, true);
+        } finally {
+          if (seq === searchSeq) searchBusy.value = false;
+        }
+      }, 200);
+    });
+
+    async function loadStatus(id) {
+      const seq = ++statusSeq;
+      peekStatus.value = null;
+      try {
+        const data = await api(`/api/status/${encodeURIComponent(id)}`);
+        if (seq !== statusSeq) return;
+        peekStatus.value = {
+          ...data,
+          requires: Array.isArray(data.requires) ? data.requires : [],
+          missingDeps: Array.isArray(data.missingDeps) ? data.missingDeps : [],
+          unlocks: Array.isArray(data.unlocks) ? data.unlocks : [],
+        };
+      } catch (err) {
+        if (seq !== statusSeq) return;
+        peekStatus.value = { error: err.message, requires: [], missingDeps: [], unlocks: [] };
+      }
+    }
+
+    function findItem(id) {
+      return items.value.find((i) => i.id === id) ?? null;
+    }
+
+    function openById(id) {
+      const item = findItem(id);
+      if (item) openItem(item);
+    }
+
+    function openSearchHit(hit) {
+      query.value = "";
+      searchHits.value = [];
+      openById(hit.id);
+    }
+
     function openItem(item, opts = {}) {
       if (opts.push !== false && editing.value && editing.value.id !== item.id) {
         peekStack.value.push(editing.value.id);
@@ -373,6 +538,7 @@ createApp({
         next[key] = cfg.arrays?.includes(key) && Array.isArray(val) ? val.join(", ") : val;
       }
       form.value = next;
+      loadStatus(item.id);
     }
 
     function peekBack() {
@@ -400,6 +566,8 @@ createApp({
     function closeEditor() {
       editing.value = null;
       peekStack.value = [];
+      peekStatus.value = null;
+      statusSeq += 1;
     }
 
     async function save() {
@@ -565,6 +733,7 @@ createApp({
 
     watch(group, () => {
       typeFilter.value = "all";
+      if (group.value === "roadmap") phaseFilter.value = "all";
     });
     watch(peekLayout, (v) => localStorage.setItem(LAYOUT_KEY, v));
     watch(bodyMode, (v) => localStorage.setItem(BODY_KEY, v));
@@ -589,6 +758,9 @@ createApp({
       group,
       view,
       query,
+      searchHits,
+      searchBusy,
+      peekStatus,
       typeFilter,
       epicFilter,
       phaseFilter,
@@ -623,6 +795,11 @@ createApp({
       columns,
       filtered,
       listed,
+      roadmapColumns,
+      roadmapLanes,
+      roadmapColLabel,
+      roadmapColCount,
+      roadmapCell,
       graphNodes,
       graphEdges,
       lintLabel,
@@ -633,6 +810,9 @@ createApp({
       sortBy,
       refresh,
       openItem,
+      openById,
+      openSearchHit,
+      findItem,
       peekBack,
       closeEditor,
       setLayout,

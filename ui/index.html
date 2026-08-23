@@ -28,13 +28,36 @@
             {{ tab.label }}
           </button>
         </nav>
-        <div class="seg">
+        <div class="seg" v-if="group !== 'roadmap'">
           <button :class="{ active: view === 'kanban' }" @click="view = 'kanban'">Board</button>
           <button :class="{ active: view === 'list' }" @click="view = 'list'">List</button>
           <button :class="{ active: view === 'graph' }" @click="view = 'graph'">Graph</button>
         </div>
         <div class="grow"></div>
-        <input class="search" v-model="query" placeholder="Search id or title" />
+        <div class="search-wrap">
+          <input
+            class="search"
+            v-model="query"
+            placeholder="Search id, title, or body"
+            aria-label="Search the graph"
+          />
+          <div class="search-hits" v-if="query.trim()" @mousedown.prevent>
+            <div v-if="searchBusy && !searchHits.length" class="search-empty">Searching…</div>
+            <button
+              v-for="hit in searchHits"
+              :key="hit.id"
+              type="button"
+              class="search-hit"
+              @click="openSearchHit(hit)"
+            >
+              <span class="search-hit-id">{{ hit.id }}</span>
+              <span class="search-hit-type">{{ hit.type }}</span>
+              <span class="search-hit-title">{{ hit.title }}</span>
+              <span v-if="hit.snippet && hit.snippet !== hit.title" class="search-hit-snippet">{{ hit.snippet }}</span>
+            </button>
+            <div v-if="!searchBusy && !searchHits.length" class="search-empty">No matches</div>
+          </div>
+        </div>
         <span class="lint" :class="lintClass">{{ lintLabel }}</span>
         <button class="btn" @click="refresh">Reload</button>
         <button class="btn primary" @click="openCreate">New</button>
@@ -45,7 +68,7 @@
           <option value="all">All types</option>
           <option v-for="t in groupTypes" :key="t" :value="t">{{ t }}</option>
         </select>
-        <select v-if="group === 'backlog'" v-model="epicFilter">
+        <select v-if="group === 'backlog' || group === 'roadmap'" v-model="epicFilter">
           <option value="all">All epics</option>
           <option v-for="e in epics" :key="e.id" :value="e.id">{{ e.id }}</option>
         </select>
@@ -53,11 +76,11 @@
           <option value="all">All phases</option>
           <option v-for="p in phases" :key="p" :value="String(p)">Phase {{ p }}</option>
         </select>
-        <select v-if="group === 'backlog'" v-model="priorityFilter">
+        <select v-if="group === 'backlog' || group === 'roadmap'" v-model="priorityFilter">
           <option value="all">All priorities</option>
           <option v-for="p in ['P0','P1','P2','P3']" :key="p" :value="p">{{ p }}</option>
         </select>
-        <label class="check" v-if="group === 'backlog'">
+        <label class="check" v-if="group === 'backlog' || group === 'roadmap'">
           <input type="checkbox" v-model="hideDone" />
           Hide done / cancelled
         </label>
@@ -102,7 +125,78 @@
         </div>
       </section>
 
-      <section v-if="view === 'kanban'" class="board">
+      <section
+        v-if="group === 'roadmap'"
+        class="roadmap"
+      >
+        <div
+          class="roadmap-grid"
+          :style="{ gridTemplateColumns: '200px repeat(' + roadmapColumns.length + ', minmax(240px, 1fr))' }"
+        >
+          <div class="roadmap-corner"></div>
+          <div
+            class="roadmap-col-h"
+            v-for="col in roadmapColumns"
+            :key="'h-' + col"
+            :data-phase="col"
+          >
+            <span class="dot"></span>
+            <span>{{ roadmapColLabel(col) }}</span>
+            <span class="count">{{ roadmapColCount(col) }}</span>
+          </div>
+          <template v-for="lane in roadmapLanes" :key="lane.root ? lane.root.id : 'unassigned'">
+            <button
+              type="button"
+              class="roadmap-lane-h"
+              :class="{ muted: !lane.root }"
+              @click="lane.root && openItem(lane.root)"
+            >
+              <template v-if="lane.root">
+                <div class="card-id">
+                  <span>{{ lane.root.id }}</span>
+                  <span class="kind">{{ lane.root.type }}</span>
+                </div>
+                <div class="card-title">{{ lane.root.data.title }}</div>
+                <div class="meta">
+                  <span v-if="lane.root.data.priority" class="pill" :class="lane.root.data.priority">{{ lane.root.data.priority }}</span>
+                  <span v-if="lane.root.data.phase != null" class="pill">ph {{ lane.root.data.phase }}</span>
+                  <span class="pill">{{ lane.root.data.status }}</span>
+                </div>
+              </template>
+              <template v-else>
+                <div class="card-title">Unassigned</div>
+                <div class="meta"><span class="pill">no parent</span></div>
+              </template>
+            </button>
+            <div
+              class="roadmap-cell"
+              v-for="col in roadmapColumns"
+              :key="(lane.root ? lane.root.id : 'unassigned') + '-' + col"
+            >
+              <article
+                class="card"
+                v-for="row in roadmapCell(lane, col)"
+                :key="row.item.id"
+                :class="['type-' + row.item.type, 'depth-' + row.depth]"
+                @click="openItem(row.item)"
+              >
+                <div class="card-id">
+                  <span>{{ row.item.id }}</span>
+                  <span class="kind">{{ row.item.type }}</span>
+                </div>
+                <div class="card-title">{{ row.item.data.title }}</div>
+                <div class="meta">
+                  <span v-if="row.item.data.priority" class="pill" :class="row.item.data.priority">{{ row.item.data.priority }}</span>
+                  <span class="pill">{{ row.item.data.status }}</span>
+                </div>
+              </article>
+            </div>
+          </template>
+        </div>
+        <p v-if="!roadmapLanes.length" class="empty">No work items to place on the roadmap.</p>
+      </section>
+
+      <section v-else-if="view === 'kanban'" class="board">
         <div
           class="col"
           v-for="col in columns"
@@ -198,6 +292,11 @@
           <header class="peek-bar">
             <span class="peek-id">{{ editing.id }}</span>
             <span class="peek-type">{{ editing.type }}</span>
+            <span
+              v-if="peekStatus && peekStatus.state"
+              class="peek-state"
+              :data-state="peekStatus.state"
+            >{{ peekStatus.state }}</span>
             <div class="grow"></div>
             <button class="btn" v-if="peekStack.length" @click="peekBack">Back</button>
             <div class="seg">
@@ -262,6 +361,56 @@
                 <span class="related-status">{{ child.data.status }}</span>
               </button>
             </nav>
+            <nav class="related" v-if="peekStatus && !peekStatus.error">
+              <div class="related-h">Requires</div>
+              <p v-if="!peekStatus.requires.length" class="related-empty">None</p>
+              <button
+                v-for="req in peekStatus.requires"
+                :key="'req-' + req.id"
+                type="button"
+                class="related-row"
+                :class="{ missing: peekStatus.missingDeps.includes(req.id) }"
+                :disabled="!findItem(req.id)"
+                @click="openById(req.id)"
+              >
+                <span class="related-id">{{ req.id }}</span>
+                <span class="related-title">{{ findItem(req.id)?.data.title || "" }}</span>
+                <span class="related-status" :data-state="req.state">{{ req.state }}</span>
+              </button>
+            </nav>
+            <nav class="related" v-if="peekStatus && !peekStatus.error">
+              <div class="related-h">Missing deps</div>
+              <p v-if="!peekStatus.missingDeps.length" class="related-empty">None</p>
+              <button
+                v-for="id in peekStatus.missingDeps"
+                :key="'miss-' + id"
+                type="button"
+                class="related-row missing"
+                :disabled="!findItem(id)"
+                @click="openById(id)"
+              >
+                <span class="related-id">{{ id }}</span>
+                <span class="related-title">{{ findItem(id)?.data.title || "" }}</span>
+                <span class="related-status">unmet</span>
+              </button>
+            </nav>
+            <nav class="related" v-if="peekStatus && !peekStatus.error">
+              <div class="related-h">Unlocks</div>
+              <p v-if="!peekStatus.unlocks.length" class="related-empty">None</p>
+              <button
+                v-for="u in peekStatus.unlocks"
+                :key="'unl-' + u.id"
+                type="button"
+                class="related-row"
+                :disabled="!findItem(u.id)"
+                @click="openById(u.id)"
+              >
+                <span class="related-id">{{ u.id }}</span>
+                <span class="related-title">{{ u.title }}</span>
+                <span class="related-status" :data-state="u.state">{{ u.state }}</span>
+              </button>
+            </nav>
+            <p v-if="peekStatus && peekStatus.error" class="related-empty">{{ peekStatus.error }}</p>
             <div class="md-pane" :class="'mode-' + bodyMode">
               <div v-if="bodyMode !== 'edit'" class="md-body" v-html="renderedBody" @click="onMdClick"></div>
               <textarea v-if="bodyMode !== 'preview'" class="md-source" v-model="form.body" spellcheck="false"></textarea>

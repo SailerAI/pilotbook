@@ -3,14 +3,14 @@ id: US-007
 title: Order next by a fixed action ladder
 type: story
 epic: EPIC-003
-status: backlog
+status: done
 priority: P1
 estimate: 2
 phase: 2
 owner: unassigned
 tags: [next, ops]
 depends_on: [US-006]
-business_rules: []
+business_rules: [BR-002]
 adrs: [ADR-0002]
 created: 2026-08-23
 updated: 2026-08-23
@@ -24,10 +24,10 @@ updated: 2026-08-23
 
 ## Acceptance criteria
 
-- [ ] Given an `in-progress` item that is still unblocked, when I run `pb next`, then it ranks above `review`, which ranks above `todo`/`ready`, which ranks above `backlog`
-- [ ] Given equal ladder rank, when I run `pb next`, then existing phase-then-priority order still applies
-- [ ] Given `--json`, when I inspect the list, then each row includes `ladder` so agents can see why it ranked there
-- [ ] Given a `blocked` item, when I run `pb next`, then it is omitted (unchanged)
+- [x] Given an `in-progress` item that is still unblocked, when I run `pb next`, then it ranks above `review`, which ranks above `todo`/`ready`, which ranks above `backlog`
+- [x] Given equal ladder rank, when I run `pb next`, then existing phase-then-priority order still applies
+- [x] Given `--json`, when I inspect the list, then each row includes `ladder` so agents can see why it ranked there
+- [x] Given a `blocked` item, when I run `pb next`, then it is omitted (unchanged)
 
 ## Notes
 

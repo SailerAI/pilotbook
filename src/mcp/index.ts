@@ -9,12 +9,15 @@ import {
   getItem,
   lint,
   listItems,
+  listReady,
   nextReady,
   type OpContext,
   PilotbookError,
   promoteIdea,
   rejectIdea,
   schemaOf,
+  searchGraph,
+  statusOf,
   updateItem,
   verifyItem,
   withProject,
@@ -54,6 +57,23 @@ const TOOLS = [
     name: "next",
     description: "Unblocked work items",
     inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "status",
+    description: "Computed ready/blocked state with requires, missingDeps, and unlocks",
+    inputSchema: {
+      type: "object",
+      properties: { id: { type: "string", description: "Item ID; omit for the ready list" } },
+    },
+  },
+  {
+    name: "search",
+    description: "Search item ids, titles, and bodies",
+    inputSchema: {
+      type: "object",
+      properties: { q: { type: "string" } },
+      required: ["q"],
+    },
   },
   {
     name: "list_items",
@@ -164,6 +184,13 @@ function callTool(ctx: OpContext, name: string, params: Record<string, unknown>)
     }
     case "next":
       return textResult(nextReady(ctx));
+    case "status":
+      if (params.id == null || params.id === "") {
+        return textResult({ items: listReady(ctx) });
+      }
+      return textResult(statusOf(ctx, String(params.id)));
+    case "search":
+      return textResult(searchGraph(ctx, String(params.q ?? "")));
     case "list_items":
       return textResult(listItems(ctx));
     case "get_item":

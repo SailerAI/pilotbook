@@ -20,7 +20,20 @@ export {
   writeBoard,
 } from "./items.ts";
 export { promoteIdea, rejectIdea } from "./promote.ts";
-export { board, briefOf, explain, graphDot, lint, lintText, nextReady } from "./query.ts";
+export type { Ladder, ReadyItem, SearchHit, StatusOf } from "./query.ts";
+export {
+  board,
+  briefOf,
+  explain,
+  graphDot,
+  itemState,
+  lint,
+  lintText,
+  listReady,
+  nextReady,
+  searchGraph,
+  statusOf,
+} from "./query.ts";
 export { planFromBrief, seedFromBrief } from "./seed.ts";
 export { findPackageRoot, startUi, uiDir } from "./serve.ts";
 export { verifyItem } from "./verify.ts";
