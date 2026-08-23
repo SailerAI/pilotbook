@@ -1,8 +1,19 @@
+import nodeFs from "node:fs";
+import path from "node:path";
 import { dumpDefaultConfig, hostJoin } from "../core/config.ts";
 import { defaultConfig } from "../core/defaults.ts";
 import type { FileSystem } from "../core/fs.ts";
 import { NodeFileSystem } from "../core/node-fs.ts";
-import { bundledTemplates } from "./items.ts";
+import { bundledSkills, bundledTemplates } from "./items.ts";
+
+/** Skill files shipped in `skills/` and copied by `pb init`. */
+export const SHIPPED_SKILLS = [
+  "implement",
+  "groom",
+  "prioritize",
+  "architect",
+  "discover",
+] as const;
 
 export interface InitResult {
   root: string;
@@ -105,12 +116,12 @@ export function initProject(
       write(".cursor/rules/pilotbook.mdc", CURSOR_RULE);
     }
     if (detected.claude || opts.ai) {
-      write(
-        ".claude/skills/pilotbook-implement.md",
-        fs.exists(hostJoin(bundled, "../skills/implement.md"))
-          ? fs.readFile(hostJoin(bundled, "../skills/implement.md"))
-          : CURSOR_RULE,
-      );
+      const skillsDir = bundledSkills();
+      for (const name of SHIPPED_SKILLS) {
+        const src = path.join(skillsDir, `${name}.md`);
+        if (!nodeFs.existsSync(src)) continue;
+        write(`.claude/skills/pilotbook-${name}.md`, nodeFs.readFileSync(src, "utf8"));
+      }
     }
     if (detected.agentsMd) {
       const abs = hostJoin(root, "AGENTS.md");

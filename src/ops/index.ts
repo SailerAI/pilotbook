@@ -6,9 +6,10 @@ export {
 export { complete, completionScript } from "./complete.ts";
 export { type OpContext, openProject, PilotbookError, withProject } from "./context.ts";
 export { hookStop, installHooks, sessionStart } from "./hooks.ts";
-export { initProject } from "./init.ts";
+export { initProject, SHIPPED_SKILLS } from "./init.ts";
 export { buildManifest, exportItems, writeManifest } from "./interop.ts";
 export {
+  bundledSkills,
   bundledTemplates,
   createItem,
   deleteItem,

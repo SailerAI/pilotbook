@@ -108,16 +108,24 @@ function templateDir(ctx: OpContext): string {
   return bundledTemplates();
 }
 
-export function bundledTemplates(): string {
+function findBundled(subdir: string, marker: string): string {
   let dir = path.dirname(fileURLToPath(import.meta.url));
   while (true) {
-    const candidate = path.join(dir, "templates");
-    if (fs.existsSync(path.join(candidate, "idea.md"))) return candidate;
+    const candidate = path.join(dir, subdir);
+    if (fs.existsSync(path.join(candidate, marker))) return candidate;
     const parent = path.dirname(dir);
     if (parent === dir) break;
     dir = parent;
   }
-  throw new PilotbookError("could not locate bundled templates");
+  throw new PilotbookError(`could not locate bundled ${subdir}`);
+}
+
+export function bundledTemplates(): string {
+  return findBundled("templates", "idea.md");
+}
+
+export function bundledSkills(): string {
+  return findBundled("skills", "implement.md");
 }
 
 function fillTemplate(text: string, vars: Record<string, string>): string {

@@ -6,7 +6,7 @@ _Last generated: 2026-08-23_
 
 ## By status
 
-### backlog (28)
+### backlog (27)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -21,7 +21,6 @@ _Last generated: 2026-08-23_
 | [US-010](backlog/stories/US-010-split-an-item-from-graph-complexity-signals.md) | Split an item from graph complexity signals | story | P1 |
 | [US-011](backlog/stories/US-011-report-sync-impact-of-a-rule-or-adr-bump.md) | Report sync-impact of a rule or ADR bump | story | P2 |
 | [US-012](backlog/stories/US-012-allow-a-small-change-to-skip-the-epic-and-story.md) | Allow a small change to skip the epic and story | story | P2 |
-| [US-013](backlog/stories/US-013-install-all-five-skills-from-pb-init.md) | Install all five skills from pb init | story | P0 |
 | [US-014](backlog/stories/US-014-serve-skill-instructions-on-demand.md) | Serve skill instructions on demand | story | P1 |
 | [US-015](backlog/stories/US-015-analyze-graph-coverage-without-an-llm.md) | Analyze graph coverage without an LLM | story | P1 |
 | [US-016](backlog/stories/US-016-converge-by-appending-tasks-only.md) | Converge by appending tasks only | story | P1 |
@@ -39,7 +38,7 @@ _Last generated: 2026-08-23_
 | [US-028](backlog/stories/US-028-measure-brief-vs-no-brief-on-a-fixed-task-set.md) | Measure brief vs no brief on a fixed task set | story | P1 |
 | [US-029](backlog/stories/US-029-publish-the-number-and-correct-br-003-if-contradicted.md) | Publish the number and correct BR-003 if contradicted | story | P2 |
 
-### done (18)
+### done (19)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -60,6 +59,7 @@ _Last generated: 2026-08-23_
 | [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
 | [US-004](backlog/stories/US-004-record-a-kill-verdict-on-an-idea.md) | Record a kill verdict on an idea | story | P2 |
 | [US-005](backlog/stories/US-005-answer-clarifications-in-the-browser.md) | Answer clarifications in the browser | story | P2 |
+| [US-013](backlog/stories/US-013-install-all-five-skills-from-pb-init.md) | Install all five skills from pb init | story | P0 |
 | [US-030](backlog/stories/US-030-navigate-children-and-internal-links-from-the-peek.md) | Navigate children and internal links from the peek | story | P2 |
 
 ### cancelled (7)

@@ -5,7 +5,7 @@ import { MemoryFileSystem } from "../src/core/memory-fs.ts";
 import { complete } from "../src/ops/complete.ts";
 import { initProject } from "../src/ops/init.ts";
 import { exportItems, writeManifest } from "../src/ops/interop.ts";
-import { bundledTemplates, listItems, schemaOf } from "../src/ops/items.ts";
+import { bundledSkills, bundledTemplates, listItems, schemaOf } from "../src/ops/items.ts";
 import { lint } from "../src/ops/query.ts";
 import { seedFromBrief } from "../src/ops/seed.ts";
 import { verifyItem } from "../src/ops/verify.ts";
@@ -43,7 +43,9 @@ describe("complete", () => {
 });
 
 describe("init", () => {
-  it("writes config and dirs", () => {
+  const shippedSkills = ["implement", "groom", "prioritize", "architect", "discover"] as const;
+
+  function seedInitFs(): MemoryFileSystem {
     const fs = new MemoryFileSystem("/app");
     fs.seed({
       "templates/epic.md": loadTemplate("epic.md"),
@@ -53,12 +55,40 @@ describe("init", () => {
       "templates/business-rule.md": loadTemplate("business-rule.md"),
       "templates/idea.md": loadTemplate("idea.md"),
     });
+    return fs;
+  }
+
+  it("writes config, Cursor rule, and all five shipped skills", () => {
+    const fs = seedInitFs();
     const result = initProject("/app", { ai: true }, fs);
     expect(result.wrote).toContain("pilotbook.config.yml");
     expect(fs.exists("/app/AGENTS.md")).toBe(true);
     const rule = fs.readFile("/app/.cursor/rules/pilotbook.mdc");
     expect(rule).toContain("alwaysApply: true");
     expect(rule).not.toContain("globs: docs/**/*.md");
+    for (const name of shippedSkills) {
+      const rel = `.claude/skills/pilotbook-${name}.md`;
+      expect(result.wrote, `missing skill ${name}`).toContain(rel);
+      expect(fs.readFile(`/app/${rel}`)).toContain(`name: ${name}`);
+    }
+  });
+
+  it("still writes the Cursor rule when .cursor is already present", () => {
+    const fs = seedInitFs();
+    fs.seed({ ".cursor/rules/keep.mdc": "existing" });
+    const result = initProject("/app", {}, fs);
+    expect(result.wrote).toContain(".cursor/rules/pilotbook.mdc");
+    expect(fs.readFile("/app/.cursor/rules/pilotbook.mdc")).toContain("alwaysApply: true");
+  });
+
+  it("skips existing skill files on re-run", () => {
+    const fs = seedInitFs();
+    initProject("/app", { ai: true }, fs);
+    fs.writeFile("/app/.claude/skills/pilotbook-implement.md", "stale implement\n");
+    const second = initProject("/app", { ai: true }, fs);
+    expect(second.skipped).toContain(".claude/skills/pilotbook-implement.md");
+    expect(second.wrote).not.toContain(".claude/skills/pilotbook-implement.md");
+    expect(fs.readFile("/app/.claude/skills/pilotbook-implement.md")).toBe("stale implement\n");
   });
 });
 
@@ -85,6 +115,12 @@ describe("manifest / export", () => {
 describe("bundledTemplates", () => {
   it("resolves the package templates directory", () => {
     expect(existsSync(path.join(bundledTemplates(), "idea.md"))).toBe(true);
+  });
+});
+
+describe("bundledSkills", () => {
+  it("resolves the package skills directory", () => {
+    expect(existsSync(path.join(bundledSkills(), "implement.md"))).toBe(true);
   });
 });
 
