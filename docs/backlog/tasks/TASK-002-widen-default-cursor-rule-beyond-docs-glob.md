@@ -3,7 +3,7 @@ id: TASK-002
 title: Widen default Cursor rule beyond docs glob
 type: task
 story: US-001
-status: todo
+status: done
 priority: P1
 estimate: 2
 phase: 1
@@ -13,6 +13,7 @@ tags: [dogfood, init]
 depends_on: []
 created: 2026-08-23
 updated: 2026-08-23
+verified: { at: 2026-08-23, checks: [pnpm test, pnpm typecheck, pnpm lint], hash: 0f5eae25eb4a }
 ---
 ## Scope
 
@@ -20,9 +21,9 @@ updated: 2026-08-23
 
 ## Steps
 
-- [ ] Change the bundled Cursor rule in `src/ops/init.ts` so it applies outside `docs/` (always-apply, or globs that include source)
-- [ ] Cover the installed rule text in an init test
-- [ ] Keep this repo's local rule in sync if the default catches up
+- [x] Change the bundled Cursor rule in `src/ops/init.ts` so it applies outside `docs/` (always-apply, or globs that include source)
+- [x] Cover the installed rule text in an init test
+- [x] Keep this repo's local rule in sync if the default catches up
 
 ## Verification
 

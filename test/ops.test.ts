@@ -53,6 +53,9 @@ describe("init", () => {
     const result = initProject("/app", { ai: true }, fs);
     expect(result.wrote).toContain("pilotbook.config.yml");
     expect(fs.exists("/app/AGENTS.md")).toBe(true);
+    const rule = fs.readFile("/app/.cursor/rules/pilotbook.mdc");
+    expect(rule).toContain("alwaysApply: true");
+    expect(rule).not.toContain("globs: docs/**/*.md");
   });
 });
 

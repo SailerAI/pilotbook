@@ -44,22 +44,12 @@ _Last generated: 2026-08-23_
 | [US-028](backlog/stories/US-028-measure-brief-vs-no-brief-on-a-fixed-task-set.md) | Measure brief vs no brief on a fixed task set | story | P1 |
 | [US-029](backlog/stories/US-029-publish-the-number-and-correct-br-003-if-contradicted.md) | Publish the number and correct BR-003 if contradicted | story | P2 |
 
-### todo (1)
-
-| ID | Title | Type | Pri |
-| --- | --- | --- | --- |
-| [TASK-002](backlog/tasks/TASK-002-widen-default-cursor-rule-beyond-docs-glob.md) | Widen default Cursor rule beyond docs glob | task | P1 |
-
-### in-progress (2)
+### done (4)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
 | [EPIC-001](backlog/epics/EPIC-001-dogfood-this-repo.md) | Dogfood this repo | epic | P1 |
-| [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
-
-### review (1)
-
-| ID | Title | Type | Pri |
-| --- | --- | --- | --- |
 | [TASK-001](backlog/tasks/TASK-001-document-the-dogfood-loop-in-contributing.md) | Document the dogfood loop in CONTRIBUTING | task | P1 |
+| [TASK-002](backlog/tasks/TASK-002-widen-default-cursor-rule-beyond-docs-glob.md) | Widen default Cursor rule beyond docs glob | task | P1 |
+| [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
 

@@ -3,7 +3,7 @@ id: US-001
 title: Run Pilotbook on the Pilotbook repo
 type: story
 epic: EPIC-001
-status: in-progress
+status: done
 priority: P1
 estimate: 3
 phase: 1

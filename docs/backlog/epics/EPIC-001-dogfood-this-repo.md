@@ -2,7 +2,7 @@
 id: EPIC-001
 title: Dogfood this repo
 type: epic
-status: in-progress
+status: done
 priority: P1
 estimate: 8
 phase: 1

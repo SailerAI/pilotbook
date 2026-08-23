@@ -3,7 +3,7 @@ id: TASK-001
 title: Document the dogfood loop in CONTRIBUTING
 type: task
 story: US-001
-status: review
+status: done
 priority: P1
 estimate: 2
 phase: 1
@@ -13,6 +13,7 @@ tags: [dogfood]
 depends_on: []
 created: 2026-08-23
 updated: 2026-08-23
+verified: { at: 2026-08-23, checks: [pnpm test, pnpm typecheck, pnpm lint], hash: 701b4cca1cc3 }
 ---
 ## Scope
 
@@ -25,5 +26,4 @@ Tell contributors this repo is a Pilotbook project: `pnpm lint` is Biome, `pnpm 
 
 ## Verification
 
-CONTRIBUTING mentions both linters. CI runs graph lint after the CLI is built. `pnpm pb lint` is green; `pnpm pb verify` is blocked by an unrelated `src/cli/index.ts` typecheck error in uncommitted UI work.
-
+CONTRIBUTING mentions both linters. CI runs graph lint after the CLI is built.
