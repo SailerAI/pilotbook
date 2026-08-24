@@ -1,5 +1,16 @@
 # pilotbook
 
+## 0.2.0
+
+### Minor Changes
+
+- 5cf0104: Add `pb instructions` and `pb skill` so agents load one shipped workflow at a time instead of inlining every skill into AGENTS.md.
+
+### Patch Changes
+
+- 57b7d54: Copy shipped skills into `.cursor/skills/<name>/SKILL.md` during `pb init`, in addition to the Cursor rule and Claude skills.
+- 245fc09: Reload the local UI when markdown on disk changes, instead of keeping a graph snapshot from process start.
+
 ## 0.1.0
 
 ### Minor Changes
