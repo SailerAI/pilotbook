@@ -4,6 +4,7 @@ import { formatDiagnostic, formatGithub, type LintResult, lintGraph } from "../c
 import { type ParsedItem, type PeerItem, PRIORITIES, WORK_TYPES } from "../core/types.ts";
 import { type OpContext, PilotbookError } from "./context.ts";
 import { writeBoard } from "./items.ts";
+import { tokenize, tokenOverlap } from "./tokens.ts";
 
 export function lint(ctx: OpContext): LintResult {
   return lintGraph(ctx.project.index, ctx.project.config, ctx.project.peers);
@@ -250,6 +251,38 @@ export interface SearchHit {
   snippet: string;
 }
 
+export interface SimilarHit extends SearchHit {
+  score: number;
+}
+
+/** Parse `--type idea,epic` against config type names. Unknown types refuse with a `fix`. */
+export function parseTypeFilter(
+  raw: string | undefined,
+  known: string[],
+  command = "pb search <q> --type",
+): string[] | undefined {
+  if (raw == null || String(raw).trim() === "") return undefined;
+  const types = String(raw)
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  for (const t of types) {
+    if (!known.includes(t)) {
+      throw new PilotbookError(
+        `unknown type: ${t}`,
+        "unknown-type",
+        400,
+        `${command} ${known.join(",")}`,
+      );
+    }
+  }
+  return types.length ? types : undefined;
+}
+
+function typeAllowed(type: string, filter?: string[]): boolean {
+  return !filter?.length || filter.includes(type);
+}
+
 const SNIPPET_PAD = 40;
 const SNIPPET_TAIL = 80;
 
@@ -267,13 +300,18 @@ function excerpt(text: string, q: string, fallback: string): string {
 }
 
 /** Search the loaded markdown index. Empty/whitespace query → []. No SQLite. */
-export function searchGraph(ctx: OpContext, q: string): SearchHit[] {
+export function searchGraph(
+  ctx: OpContext,
+  q: string,
+  opts: { type?: string[] } = {},
+): SearchHit[] {
   const query = q.trim();
   if (!query) return [];
   const needle = query.toLowerCase();
   const titleHits: SearchHit[] = [];
   const bodyHits: SearchHit[] = [];
   for (const item of ctx.project.index.items) {
+    if (!typeAllowed(item.type, opts.type)) continue;
     const id = item.data.id;
     const title = String(item.data.title ?? "");
     const idHit = id.toLowerCase().includes(needle);
@@ -294,6 +332,39 @@ export function searchGraph(ctx: OpContext, q: string): SearchHit[] {
     }
   }
   return [...titleHits, ...bodyHits];
+}
+
+const TITLE_WEIGHT = 3;
+
+/** Rank items by title-then-body token overlap. Empty/whitespace query → []. */
+export function similarItems(
+  ctx: OpContext,
+  q: string,
+  opts: { type?: string[] } = {},
+): SimilarHit[] {
+  const query = q.trim();
+  if (!query) return [];
+  const qTokens = tokenize(query);
+  if (!qTokens.length) return [];
+  const hits: SimilarHit[] = [];
+  for (const item of ctx.project.index.items) {
+    if (!typeAllowed(item.type, opts.type)) continue;
+    const id = item.data.id;
+    const title = String(item.data.title ?? "");
+    const titleScore = tokenOverlap(qTokens, tokenize(title)) * TITLE_WEIGHT;
+    const bodyScore = tokenOverlap(qTokens, tokenize(`${id} ${item.body ?? ""}`));
+    const score = titleScore + bodyScore;
+    if (score <= 0) continue;
+    hits.push({
+      type: item.type,
+      id,
+      title,
+      path: item.rel,
+      score,
+      snippet: excerpt(`${title}\n${item.body ?? ""}`, query, title),
+    });
+  }
+  return hits.sort((a, b) => b.score - a.score || a.id.localeCompare(b.id));
 }
 
 export function briefOf(

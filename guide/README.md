@@ -6,10 +6,10 @@ These pages are the source of truth. They render on [GitHub](https://github.com/
 
 ## Start here
 
-1. [Getting started](./getting-started.md) — install, `init`, first items, `brief`, `ui`
+1. [Getting started](./getting-started.md) — install, `init`, first items, first explore
 2. [Concepts](./concepts.md) — types, IDs, status, file layout
-3. [Explore](./explore.md) — idea → epic → stories
-4. [Ship](./ship.md) — `next` → `brief` → verify → lint
+3. [Explore](./explore.md) — calibrate, research, idea → epic → stories
+4. [Ship](./ship.md) — `profile` → `next` → `brief` → verify → lint
 
 ## How-to
 

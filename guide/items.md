@@ -73,7 +73,7 @@ Required: `id`, `title`, `type`, `status`, `impact`, `effort`, `promoted_to`, `r
 
 `impact` / `effort`: `low` | `medium` | `high` | `large`.
 
-Body: `## Why`, `## Sketch`, `## Open questions`, `## Why not now`. Promotion writes `promoted_to` via `pb promote`, not by hand.
+Body: `## Why`, `## Jobs to be done`, `## Personas`, `## Sketch`, `## Prior art`, `## Evidence`, `## Open questions`, `## Why not now`. Promotion writes `promoted_to` via `pb promote`, not by hand. A promoted idea with no URL or internal ID (`ADR-`, `BR-`, `US-`, `EPIC-`, `IDEA-`, `TASK-`) under Evidence is a `missing-evidence` lint warning.
 
 ## Shared work fields
 

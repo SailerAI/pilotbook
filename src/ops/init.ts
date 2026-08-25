@@ -5,6 +5,7 @@ import { defaultConfig } from "../core/defaults.ts";
 import type { FileSystem } from "../core/fs.ts";
 import { NodeFileSystem } from "../core/node-fs.ts";
 import { bundledSkills, bundledTemplates } from "./items.ts";
+import { skillWriteAction } from "./skill-legacy.ts";
 
 /** Skill files shipped in `skills/` and copied by `pb init`. */
 export const SHIPPED_SKILLS = [
@@ -37,14 +38,29 @@ function detectAgents(
 }
 
 function copyShippedSkills(
-  write: (rel: string, content: string) => void,
+  fs: FileSystem,
+  root: string,
   dest: (name: string) => string,
+  refresh: boolean,
+  wrote: string[],
+  skipped: string[],
 ): void {
   const skillsDir = bundledSkills();
   for (const name of SHIPPED_SKILLS) {
     const src = path.join(skillsDir, `${name}.md`);
     if (!nodeFs.existsSync(src)) continue;
-    write(dest(name), nodeFs.readFileSync(src, "utf8"));
+    const bundled = nodeFs.readFileSync(src, "utf8");
+    const rel = dest(name);
+    const abs = hostJoin(root, rel);
+    const existing = fs.exists(abs) ? fs.readFile(abs) : null;
+    const action = skillWriteAction(name, existing, bundled, refresh);
+    if (action === "skip-exists" || action === "skip-edited") {
+      skipped.push(rel);
+      continue;
+    }
+    fs.mkdirp(hostJoin(abs, ".."));
+    fs.writeFile(abs, bundled);
+    wrote.push(rel);
   }
 }
 
@@ -57,18 +73,14 @@ alwaysApply: true
 
 Work items live as markdown with YAML frontmatter. Do not move files to change status. Never invent IDs — use \`pb new\`.
 
-If the user describes a new feature, idea, epic, or a vague demand ("I want…", "we should build…", "explore…"):
+Load the explore/ship router, then one skill:
 
-1. Follow the **discover** skill — research into an idea, then promote to an epic.
-2. Immediately follow the **shape** skill on that epic.
+\`\`\`bash
+pb instructions overview
+pb skill discover
+\`\`\`
 
-If the user is implementing existing work or you ran \`pb next\`:
-
-1. \`pb next\` — pick unblocked work
-2. \`pb brief <ID>\` — load governing rules, ADRs, and parent stories before editing code
-3. Implement against the brief. Money, dates, and architecture constraints in linked BR-/ADR- files win over improvisation.
-4. \`pb verify <ID>\` then set \`status: done\`
-5. \`pb lint\` must exit 0. \`pb board\` refreshes the generated board.
+Follow that router. Linked business rules and accepted ADRs are binding. \`pb lint\` must exit 0 before you finish.
 `;
 
 const AGENTS_SNIPPET = `
@@ -76,28 +88,19 @@ const AGENTS_SNIPPET = `
 
 This repo uses [Pilotbook](https://github.com/SailerAI/pilotbook).
 
-If the user describes a new feature, idea, or vague demand, follow the **discover** skill then the **shape** skill. Do not jump to \`pb next\`.
-
-Load one workflow at a time instead of inlining every skill:
+Load the explore/ship router, then one skill:
 
 \`\`\`bash
 pb instructions overview
-pb skill implement
+pb skill discover
 \`\`\`
 
-If they are implementing existing work:
-
-\`\`\`bash
-pb next
-pb brief TASK-NNN
-\`\`\`
-
-Treat linked business rules and accepted ADRs as binding. Run \`pb lint\` before you finish. Never invent IDs.
+Follow that router. Treat linked business rules and accepted ADRs as binding. Run \`pb lint\` before you finish. Never invent IDs.
 `;
 
 export function initProject(
   cwd: string,
-  opts: { ai?: boolean } = {},
+  opts: { ai?: boolean; refreshSkills?: boolean } = {},
   fs: FileSystem = new NodeFileSystem(cwd),
 ): InitResult {
   const root = cwd;
@@ -144,12 +147,27 @@ export function initProject(
 
   if (opts.ai !== false) {
     const detected = detectAgents(fs, root);
+    const refresh = Boolean(opts.refreshSkills);
     if (detected.cursor || opts.ai) {
       write(".cursor/rules/pilotbook.mdc", CURSOR_RULE);
-      copyShippedSkills(write, (name) => `.cursor/skills/${name}/SKILL.md`);
+      copyShippedSkills(
+        fs,
+        root,
+        (name) => `.cursor/skills/${name}/SKILL.md`,
+        refresh,
+        wrote,
+        skipped,
+      );
     }
     if (detected.claude || opts.ai) {
-      copyShippedSkills(write, (name) => `.claude/skills/pilotbook-${name}.md`);
+      copyShippedSkills(
+        fs,
+        root,
+        (name) => `.claude/skills/pilotbook-${name}.md`,
+        refresh,
+        wrote,
+        skipped,
+      );
     }
     if (detected.agentsMd) {
       const abs = hostJoin(root, "AGENTS.md");

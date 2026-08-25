@@ -48,6 +48,32 @@ export function listSkills(): SkillSummary[] {
   });
 }
 
+export interface AgentRouter {
+  explore: string[];
+  ship: string[];
+}
+
+/** Single explore/ship router. Init files must point here instead of inlining a third copy. */
+export const AGENT_ROUTER: AgentRouter = {
+  explore: [
+    "Vague demand, new feature, idea, or epic → follow **discover**, then **shape**. Do not jump to pb next.",
+    "Load `pb skill discover`, then `pb skill shape`.",
+  ],
+  ship: [
+    "Existing work or `pb next` → follow **implement**: next → brief → verify → lint.",
+    "Load `pb skill implement`.",
+  ],
+};
+
+export interface InstructionsOverview {
+  router: AgentRouter;
+  skills: SkillSummary[];
+}
+
+export function instructionsOverview(): InstructionsOverview {
+  return { router: AGENT_ROUTER, skills: listSkills() };
+}
+
 export function skillOf(name: string): SkillDoc {
   const normalized = name.trim().toLowerCase();
   if (!(SHIPPED_SKILLS as readonly string[]).includes(normalized)) {

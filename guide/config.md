@@ -58,7 +58,7 @@ code_map:
   frontend: [ui]
 ```
 
-If a task `area` or tag matches a key, those paths are added to the brief as a `code-map` section.
+If a task `area` or tag matches a key, those paths are added to the brief as a `code-map` section. `pb ground` uses the same map to rank which areas a demand likely touches. An empty map is valid: grounding still ranks live graph items and returns `unmapped: true`.
 
 ## Cache (`.pb/`)
 
@@ -70,4 +70,4 @@ Gitignored. Typical files:
 | `notion-map.json` | `pb sync` (page ids + push hashes) |
 | `junit.xml` | Your test runner, if `checks.report` points here |
 
-Do not store secrets here. Notion tokens stay in the environment (`NOTION_TOKEN` by default).
+Do not store secrets here. Notion tokens stay in the environment (`NOTION_TOKEN` by default). Optional `pb generate discover` uses `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` (optional `PILOTBOOK_LLM_MODEL`). Graph commands never read those keys.

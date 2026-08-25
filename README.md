@@ -7,7 +7,7 @@
 [![node](https://img.shields.io/node/v/pilotbook.svg)](https://nodejs.org)
 [![license](https://img.shields.io/npm/l/pilotbook.svg)](./LICENSE)
 
-Compile what an agent must know before it writes code — from a lint-gated graph of work, decisions, and rules that lives in git.
+Compile what an agent must know before it writes code — from a lint-gated graph of work, decisions, and rules that lives in git. Shipped skills calibrate from `pb profile`, search this graph and this code, then hand off. Cursor and Claude Code are the primary interface.
 
 ![pb brief TASK-001](docs/demo.svg)
 
@@ -53,10 +53,12 @@ pnpm build && pnpm pb next
 
 ### Explore
 
-Say "I want a dashboard" in Cursor or Claude Code. The **discover** skill should attach, then **shape**.
+Say "I want a dashboard" in Cursor or Claude Code. Load `pb instructions overview`, then **discover**, then **shape**. Do not jump to `pb next`.
 
 ```bash
-pb search dashboard
+pb profile --json
+pb similar "ops dashboard" --type idea,epic,story
+pb ground "ops dashboard"
 pb new idea --title "Ops dashboard"
 pb clarify IDEA-001
 pb promote IDEA-001 --to epic --title "Ops dashboard"
@@ -64,7 +66,7 @@ pb new story --epic EPIC-001 --title "View live service health"
 pb lint && pb board
 ```
 
-Worked session: [guide/explore.md](guide/explore.md).
+The agent calibrates from `pb profile`, searches the graph and the code, cites prior art, then writes shippable stories. Worked session: [guide/explore.md](guide/explore.md).
 
 ### Ship
 
@@ -95,6 +97,7 @@ pb brief TA<TAB>    # TASK-001  Transaction API
 | Markdown tasks in git | yes | derived from an event log | specs | **yes — only source of truth** |
 | Business rules as typed entities | no | no | no | **yes, with edges from stories** |
 | Compiled brief for an ID | no | stats + one task | constitution dump | **`pb brief`, authority-ordered** |
+| Maturity-calibrated skills | instruction dump | `get_project_context` stats | phase slash-commands | **`pb profile` + protocols with interview, research, handoff** |
 | Referential-integrity lint | weak | cycles only | no | **dangling / wrong-type / cycles / unknown fields, with file:line:col** |
 | Verification of “done” | no | event-log gate | no | **content-hash in frontmatter, visible in the PR** |
 
@@ -109,11 +112,15 @@ Every command accepts `--json` except `ui`, `mcp`, and `completions`. Operations
 
 | Command | What it does |
 | --- | --- |
+| `pb profile` | Derived maturity + calibration hints |
+| `pb similar <q>` | Rank items by title-then-body token overlap |
+| `pb ground <q>` | Map a demand onto `code_map` and live items |
 | `pb new idea --title "…"` | Capture a demand |
 | `pb clarify <ID>` | Bounded questions; `--answers` writes back |
 | `pb promote <ID> --to epic\|story` | Turn an idea into a work item |
 | `pb reject <ID> --reason "…"` | Record a kill verdict |
-| `pb search <q>` | Substring search over ids, titles, and bodies |
+| `pb search <q>` | Substring search; `--type idea,epic` to filter |
+| `pb generate discover` | Optional LLM fallback (`ANTHROPIC_API_KEY` / `OPENAI_API_KEY`) |
 
 </details>
 
@@ -126,7 +133,7 @@ Every command accepts `--json` except `ui`, `mcp`, and `completions`. Operations
 | `pb brief <ID>` | Context pack (`--budget`, `--format json`) |
 | `pb next` | Unblocked work, phase then priority |
 | `pb status [ID]` | Ready/blocked with requires, missingDeps, unlocks |
-| `pb instructions [overview]` | List shipped skills (name + description) |
+| `pb instructions [overview]` | Explore/ship router + skill list |
 | `pb skill <name>` | Print one skill body |
 
 </details>
@@ -150,7 +157,7 @@ Every command accepts `--json` except `ui`, `mcp`, and `completions`. Operations
 
 | Command | What it does |
 | --- | --- |
-| `pb init` | Config, directories, templates, agent skills |
+| `pb init` | Config, directories, templates, agent skills (`--refresh-skills` upgrades unedited copies) |
 | `pb ui` | Kanban + graph + brief preview (`127.0.0.1`) |
 | `pb mcp` | MCP server on stdio |
 | `pb graph --dot` | Graphviz |
@@ -164,8 +171,11 @@ Full reference: [guide/cli.md](guide/cli.md).
 ## Docs
 
 - [Getting started](guide/getting-started.md)
+- [Explore](guide/explore.md)
+- [Ship](guide/ship.md)
 - [Concepts](guide/concepts.md)
 - [Agents, skills, and MCP](guide/agents.md)
+- [Comparison](guide/comparison.md)
 - [Config](guide/config.md)
 - [Set up Notion](guide/notion.md)
 - [Sync with Notion](guide/notion-sync.md)

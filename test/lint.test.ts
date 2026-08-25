@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { builtinTypes } from "../src/core/defaults.ts";
 import { parseFrontmatter, serializeItem } from "../src/core/frontmatter.ts";
 import { lint } from "../src/ops/query.ts";
-import { adr, epic, makeProject, rule, story, task } from "./helpers.ts";
+import { adr, epic, idea, makeProject, rule, story, task } from "./helpers.ts";
 
 function healthy(): ReturnType<typeof makeProject> {
   return makeProject({
@@ -35,6 +35,19 @@ describe("lint", () => {
     const ctx = healthy();
     const r = lint(ctx);
     expect(r.errors).toEqual([]);
+  });
+
+  it("missing-evidence warns on a promoted idea without a URL or ID", () => {
+    const ctx = makeProject({
+      "docs/ideas/IDEA-001-raw.md": idea(
+        "IDEA-001",
+        { status: "promoted" },
+        "## Why\n\nFilled why.\n\n## Evidence\n\nNone yet.\n",
+      ),
+    });
+    const warnings = lint(ctx).warnings.filter((w) => w.code === "missing-evidence");
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0]?.file).toContain("IDEA-001");
   });
 
   it("missing-field", () => {

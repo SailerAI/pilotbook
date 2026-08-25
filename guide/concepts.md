@@ -70,7 +70,9 @@ Discovery walks up from `cwd` for `pilotbook.config.yml` or `pilotbook.config.ya
 
 ## Two loops
 
-1. **Explore** — a vague demand becomes an idea, then an epic, then shippable stories. [Explore](./explore.md).
+1. **Explore** — `pb profile` calibrates the agent; a vague demand becomes a researched idea (prior art + evidence), then an epic, then shippable stories. [Explore](./explore.md).
 2. **Ship** — `pb next` picks unblocked work, `pb brief` loads governing rules, you implement, `pb verify` stamps evidence. [Ship](./ship.md).
 
-Agents load one skill at a time (`pb skill implement`) instead of inlining every workflow. [Agents](./agents.md).
+Agents load `pb instructions overview` (the only explore/ship router), then one skill (`pb skill discover` or `pb skill implement`). [Agents](./agents.md).
+
+Repo maturity is derived at read time (`pb profile`). It is never a frontmatter field.

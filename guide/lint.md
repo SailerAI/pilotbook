@@ -50,6 +50,7 @@ Every diagnostic has `file:line:col` (and often `suggestion` / `fix`).
 | `deprecated-rule` | Rule `status: deprecated` |
 | `parentless-task` | Task has no story and is P0 or estimate ≥ 3 |
 | `unbound-criterion` | `covers` is not `ID#N` or `N` is out of range |
+| `missing-evidence` | Idea is `promoted` but has no URL or internal ID under `## Evidence` |
 
 Fix IDs and edges; do not delete diagnostics by moving files. After a body edit on an accepted ADR or active rule:
 

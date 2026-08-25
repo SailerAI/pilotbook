@@ -22,7 +22,7 @@ _Last generated: 2026-08-25_
 | [US-028](backlog/stories/US-028-measure-brief-vs-no-brief-on-a-fixed-task-set.md) | Measure brief vs no brief on a fixed task set | story | P1 |
 | [US-029](backlog/stories/US-029-publish-the-number-and-correct-br-003-if-contradicted.md) | Publish the number and correct BR-003 if contradicted | story | P2 |
 
-### done (112)
+### done (146)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -31,6 +31,7 @@ _Last generated: 2026-08-25_
 | [EPIC-003](backlog/epics/EPIC-003-when-to-build.md) | When to build | epic | P1 |
 | [EPIC-007](backlog/epics/EPIC-007-upstream-discovery-that-agents-can-run.md) | Upstream discovery that agents can run | epic | P1 |
 | [EPIC-008](backlog/epics/EPIC-008-two-way-notion-sync.md) | Two-way Notion sync | epic | P1 |
+| [EPIC-009](backlog/epics/EPIC-009-best-in-class-agent-experience.md) | Best-in-class agent experience | epic | P1 |
 | [TASK-001](backlog/tasks/TASK-001-document-the-dogfood-loop-in-contributing.md) | Document the dogfood loop in CONTRIBUTING | task | P1 |
 | [TASK-002](backlog/tasks/TASK-002-widen-default-cursor-rule-beyond-docs-glob.md) | Widen default Cursor rule beyond docs glob | task | P1 |
 | [TASK-003](backlog/tasks/TASK-003-show-peek-children-and-follow-internal-links.md) | Show peek children and follow internal links | task | P2 |
@@ -103,6 +104,32 @@ _Last generated: 2026-08-25_
 | [TASK-077](backlog/tasks/TASK-077-warn-when-a-bound-database-lacks-pilotbook-id.md) | Warn when a bound database lacks Pilotbook ID | task | P1 |
 | [TASK-078](backlog/tasks/TASK-078-wire-catalog-and-bind-through-cli-mcp-and-the-board.md) | Wire catalog and bind through CLI MCP and the board | task | P1 |
 | [TASK-079](backlog/tasks/TASK-079-refresh-bound-notion-ids-without-creating-databases.md) | Refresh bound Notion ids without creating databases | task | P1 |
+| [TASK-080](backlog/tasks/TASK-080-find-similar-items-and-filter-search-by-type-14.md) | Find similar items and filter search by type (1/4) | task | P1 |
+| [TASK-081](backlog/tasks/TASK-081-find-similar-items-and-filter-search-by-type-24.md) | Find similar items and filter search by type (2/4) | task | P1 |
+| [TASK-082](backlog/tasks/TASK-082-find-similar-items-and-filter-search-by-type-34.md) | Find similar items and filter search by type (3/4) | task | P1 |
+| [TASK-083](backlog/tasks/TASK-083-find-similar-items-and-filter-search-by-type-44.md) | Find similar items and filter search by type (4/4) | task | P1 |
+| [TASK-084](backlog/tasks/TASK-084-calibrate-an-agent-from-a-derived-repo-profile-13.md) | Calibrate an agent from a derived repo profile (1/3) | task | P1 |
+| [TASK-085](backlog/tasks/TASK-085-calibrate-an-agent-from-a-derived-repo-profile-23.md) | Calibrate an agent from a derived repo profile (2/3) | task | P1 |
+| [TASK-086](backlog/tasks/TASK-086-calibrate-an-agent-from-a-derived-repo-profile-33.md) | Calibrate an agent from a derived repo profile (3/3) | task | P1 |
+| [TASK-087](backlog/tasks/TASK-087-ground-a-demand-in-existing-code-13.md) | Ground a demand in existing code (1/3) | task | P1 |
+| [TASK-088](backlog/tasks/TASK-088-ground-a-demand-in-existing-code-23.md) | Ground a demand in existing code (2/3) | task | P1 |
+| [TASK-089](backlog/tasks/TASK-089-ground-a-demand-in-existing-code-33.md) | Ground a demand in existing code (3/3) | task | P1 |
+| [TASK-090](backlog/tasks/TASK-090-capture-prior-art-and-evidence-on-an-idea-13.md) | Capture prior art and evidence on an idea (1/3) | task | P1 |
+| [TASK-091](backlog/tasks/TASK-091-capture-prior-art-and-evidence-on-an-idea-23.md) | Capture prior art and evidence on an idea (2/3) | task | P1 |
+| [TASK-092](backlog/tasks/TASK-092-capture-prior-art-and-evidence-on-an-idea-33.md) | Capture prior art and evidence on an idea (3/3) | task | P1 |
+| [TASK-093](backlog/tasks/TASK-093-rewrite-shipped-skills-as-calibrated-protocols-13.md) | Rewrite shipped skills as calibrated protocols (1/3) | task | P1 |
+| [TASK-094](backlog/tasks/TASK-094-rewrite-shipped-skills-as-calibrated-protocols-23.md) | Rewrite shipped skills as calibrated protocols (2/3) | task | P1 |
+| [TASK-095](backlog/tasks/TASK-095-rewrite-shipped-skills-as-calibrated-protocols-33.md) | Rewrite shipped skills as calibrated protocols (3/3) | task | P1 |
+| [TASK-096](backlog/tasks/TASK-096-route-explore-and-ship-from-one-instruction-source-13.md) | Route explore and ship from one instruction source (1/3) | task | P1 |
+| [TASK-097](backlog/tasks/TASK-097-route-explore-and-ship-from-one-instruction-source-23.md) | Route explore and ship from one instruction source (2/3) | task | P1 |
+| [TASK-098](backlog/tasks/TASK-098-route-explore-and-ship-from-one-instruction-source-33.md) | Route explore and ship from one instruction source (3/3) | task | P1 |
+| [TASK-099](backlog/tasks/TASK-099-upgrade-shipped-skills-on-existing-installs-13.md) | Upgrade shipped skills on existing installs (1/3) | task | P1 |
+| [TASK-100](backlog/tasks/TASK-100-upgrade-shipped-skills-on-existing-installs-23.md) | Upgrade shipped skills on existing installs (2/3) | task | P1 |
+| [TASK-101](backlog/tasks/TASK-101-upgrade-shipped-skills-on-existing-installs-33.md) | Upgrade shipped skills on existing installs (3/3) | task | P1 |
+| [TASK-102](backlog/tasks/TASK-102-run-selected-operations-with-an-exported-llm-token-14.md) | Run selected operations with an exported LLM token (1/4) | task | P1 |
+| [TASK-103](backlog/tasks/TASK-103-run-selected-operations-with-an-exported-llm-token-24.md) | Run selected operations with an exported LLM token (2/4) | task | P1 |
+| [TASK-104](backlog/tasks/TASK-104-run-selected-operations-with-an-exported-llm-token-34.md) | Run selected operations with an exported LLM token (3/4) | task | P1 |
+| [TASK-105](backlog/tasks/TASK-105-run-selected-operations-with-an-exported-llm-token-44.md) | Run selected operations with an exported LLM token (4/4) | task | P1 |
 | [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
 | [US-002](backlog/stories/US-002-clarify-an-item-into-a-bounded-question-set.md) | Clarify an item into a bounded question set | story | P1 |
 | [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
@@ -138,6 +165,13 @@ _Last generated: 2026-08-25_
 | [US-041](backlog/stories/US-041-pull-notion-property-edits-into-markdown.md) | Pull Notion property edits into markdown | story | P1 |
 | [US-042](backlog/stories/US-042-turn-a-notion-only-row-into-a-pilotbook-item.md) | Turn a Notion-only row into a Pilotbook item | story | P1 |
 | [US-043](backlog/stories/US-043-bind-existing-notion-databases-from-the-board.md) | Bind existing Notion databases from the board | story | P1 |
+| [US-044](backlog/stories/US-044-calibrate-an-agent-from-a-derived-repo-profile.md) | Calibrate an agent from a derived repo profile | story | P1 |
+| [US-045](backlog/stories/US-045-ground-a-demand-in-existing-code.md) | Ground a demand in existing code | story | P1 |
+| [US-046](backlog/stories/US-046-capture-prior-art-and-evidence-on-an-idea.md) | Capture prior art and evidence on an idea | story | P1 |
+| [US-047](backlog/stories/US-047-rewrite-shipped-skills-as-calibrated-protocols.md) | Rewrite shipped skills as calibrated protocols | story | P1 |
+| [US-048](backlog/stories/US-048-route-explore-and-ship-from-one-instruction-source.md) | Route explore and ship from one instruction source | story | P1 |
+| [US-049](backlog/stories/US-049-upgrade-shipped-skills-on-existing-installs.md) | Upgrade shipped skills on existing installs | story | P1 |
+| [US-050](backlog/stories/US-050-run-selected-operations-with-an-exported-llm-token.md) | Run selected operations with an exported LLM token | story | P1 |
 
 ### cancelled (7)
 
@@ -173,7 +207,7 @@ _Last generated: 2026-08-25_
 | [TASK-052](backlog/tasks/TASK-052-add-proved-and-test-columns-to-pb-analyze-table-and-readme.md) | Add Proved and Test columns to pb analyze table and README | task | P2 |
 | [US-001](backlog/stories/US-001-run-pilotbook-on-the-pilotbook-repo.md) | Run Pilotbook on the Pilotbook repo | story | P1 |
 
-### 2 (73)
+### 2 (107)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -182,6 +216,7 @@ _Last generated: 2026-08-25_
 | [EPIC-004](backlog/epics/EPIC-004-how-to-build.md) | How to build | epic | P1 |
 | [EPIC-005](backlog/epics/EPIC-005-actually-build-it.md) | Actually build it | epic | P1 |
 | [EPIC-007](backlog/epics/EPIC-007-upstream-discovery-that-agents-can-run.md) | Upstream discovery that agents can run | epic | P1 |
+| [EPIC-009](backlog/epics/EPIC-009-best-in-class-agent-experience.md) | Best-in-class agent experience | epic | P1 |
 | [TASK-003](backlog/tasks/TASK-003-show-peek-children-and-follow-internal-links.md) | Show peek children and follow internal links | task | P2 |
 | [TASK-004](backlog/tasks/TASK-004-promote-an-idea-via-ops-cli-and-mcp.md) | Promote an idea via ops CLI and MCP | task | P1 |
 | [TASK-005](backlog/tasks/TASK-005-point-discover-skill-at-pb-promote.md) | Point discover skill at pb promote | task | P1 |
@@ -221,6 +256,32 @@ _Last generated: 2026-08-25_
 | [TASK-041](backlog/tasks/TASK-041-add-boardplan-and-pb-board-dry-run.md) | Add boardPlan and pb board --dry-run | task | P1 |
 | [TASK-044](backlog/tasks/TASK-044-implement-convergeitem-appending-covers-carrying-tasks.md) | Implement convergeItem appending covers-carrying tasks | task | P1 |
 | [TASK-045](backlog/tasks/TASK-045-wire-pb-converge-through-cli-and-mcp.md) | Wire pb converge through CLI and MCP | task | P1 |
+| [TASK-080](backlog/tasks/TASK-080-find-similar-items-and-filter-search-by-type-14.md) | Find similar items and filter search by type (1/4) | task | P1 |
+| [TASK-081](backlog/tasks/TASK-081-find-similar-items-and-filter-search-by-type-24.md) | Find similar items and filter search by type (2/4) | task | P1 |
+| [TASK-082](backlog/tasks/TASK-082-find-similar-items-and-filter-search-by-type-34.md) | Find similar items and filter search by type (3/4) | task | P1 |
+| [TASK-083](backlog/tasks/TASK-083-find-similar-items-and-filter-search-by-type-44.md) | Find similar items and filter search by type (4/4) | task | P1 |
+| [TASK-084](backlog/tasks/TASK-084-calibrate-an-agent-from-a-derived-repo-profile-13.md) | Calibrate an agent from a derived repo profile (1/3) | task | P1 |
+| [TASK-085](backlog/tasks/TASK-085-calibrate-an-agent-from-a-derived-repo-profile-23.md) | Calibrate an agent from a derived repo profile (2/3) | task | P1 |
+| [TASK-086](backlog/tasks/TASK-086-calibrate-an-agent-from-a-derived-repo-profile-33.md) | Calibrate an agent from a derived repo profile (3/3) | task | P1 |
+| [TASK-087](backlog/tasks/TASK-087-ground-a-demand-in-existing-code-13.md) | Ground a demand in existing code (1/3) | task | P1 |
+| [TASK-088](backlog/tasks/TASK-088-ground-a-demand-in-existing-code-23.md) | Ground a demand in existing code (2/3) | task | P1 |
+| [TASK-089](backlog/tasks/TASK-089-ground-a-demand-in-existing-code-33.md) | Ground a demand in existing code (3/3) | task | P1 |
+| [TASK-090](backlog/tasks/TASK-090-capture-prior-art-and-evidence-on-an-idea-13.md) | Capture prior art and evidence on an idea (1/3) | task | P1 |
+| [TASK-091](backlog/tasks/TASK-091-capture-prior-art-and-evidence-on-an-idea-23.md) | Capture prior art and evidence on an idea (2/3) | task | P1 |
+| [TASK-092](backlog/tasks/TASK-092-capture-prior-art-and-evidence-on-an-idea-33.md) | Capture prior art and evidence on an idea (3/3) | task | P1 |
+| [TASK-093](backlog/tasks/TASK-093-rewrite-shipped-skills-as-calibrated-protocols-13.md) | Rewrite shipped skills as calibrated protocols (1/3) | task | P1 |
+| [TASK-094](backlog/tasks/TASK-094-rewrite-shipped-skills-as-calibrated-protocols-23.md) | Rewrite shipped skills as calibrated protocols (2/3) | task | P1 |
+| [TASK-095](backlog/tasks/TASK-095-rewrite-shipped-skills-as-calibrated-protocols-33.md) | Rewrite shipped skills as calibrated protocols (3/3) | task | P1 |
+| [TASK-096](backlog/tasks/TASK-096-route-explore-and-ship-from-one-instruction-source-13.md) | Route explore and ship from one instruction source (1/3) | task | P1 |
+| [TASK-097](backlog/tasks/TASK-097-route-explore-and-ship-from-one-instruction-source-23.md) | Route explore and ship from one instruction source (2/3) | task | P1 |
+| [TASK-098](backlog/tasks/TASK-098-route-explore-and-ship-from-one-instruction-source-33.md) | Route explore and ship from one instruction source (3/3) | task | P1 |
+| [TASK-099](backlog/tasks/TASK-099-upgrade-shipped-skills-on-existing-installs-13.md) | Upgrade shipped skills on existing installs (1/3) | task | P1 |
+| [TASK-100](backlog/tasks/TASK-100-upgrade-shipped-skills-on-existing-installs-23.md) | Upgrade shipped skills on existing installs (2/3) | task | P1 |
+| [TASK-101](backlog/tasks/TASK-101-upgrade-shipped-skills-on-existing-installs-33.md) | Upgrade shipped skills on existing installs (3/3) | task | P1 |
+| [TASK-102](backlog/tasks/TASK-102-run-selected-operations-with-an-exported-llm-token-14.md) | Run selected operations with an exported LLM token (1/4) | task | P1 |
+| [TASK-103](backlog/tasks/TASK-103-run-selected-operations-with-an-exported-llm-token-24.md) | Run selected operations with an exported LLM token (2/4) | task | P1 |
+| [TASK-104](backlog/tasks/TASK-104-run-selected-operations-with-an-exported-llm-token-34.md) | Run selected operations with an exported LLM token (3/4) | task | P1 |
+| [TASK-105](backlog/tasks/TASK-105-run-selected-operations-with-an-exported-llm-token-44.md) | Run selected operations with an exported LLM token (4/4) | task | P1 |
 | [US-002](backlog/stories/US-002-clarify-an-item-into-a-bounded-question-set.md) | Clarify an item into a bounded question set | story | P1 |
 | [US-003](backlog/stories/US-003-promote-an-idea-along-promoted-to.md) | Promote an idea along promoted_to | story | P1 |
 | [US-004](backlog/stories/US-004-record-a-kill-verdict-on-an-idea.md) | Record a kill verdict on an idea | story | P2 |
@@ -250,6 +311,13 @@ _Last generated: 2026-08-25_
 | [US-035](backlog/stories/US-035-shape-an-epic-into-shippable-stories.md) | Shape an epic into shippable stories | story | P1 |
 | [US-036](backlog/stories/US-036-install-the-shape-skill-from-pb-init.md) | Install the shape skill from pb init | story | P1 |
 | [US-037](backlog/stories/US-037-teach-explore-and-ship-loops-in-the-docs.md) | Teach explore and ship loops in the docs | story | P1 |
+| [US-044](backlog/stories/US-044-calibrate-an-agent-from-a-derived-repo-profile.md) | Calibrate an agent from a derived repo profile | story | P1 |
+| [US-045](backlog/stories/US-045-ground-a-demand-in-existing-code.md) | Ground a demand in existing code | story | P1 |
+| [US-046](backlog/stories/US-046-capture-prior-art-and-evidence-on-an-idea.md) | Capture prior art and evidence on an idea | story | P1 |
+| [US-047](backlog/stories/US-047-rewrite-shipped-skills-as-calibrated-protocols.md) | Rewrite shipped skills as calibrated protocols | story | P1 |
+| [US-048](backlog/stories/US-048-route-explore-and-ship-from-one-instruction-source.md) | Route explore and ship from one instruction source | story | P1 |
+| [US-049](backlog/stories/US-049-upgrade-shipped-skills-on-existing-installs.md) | Upgrade shipped skills on existing installs | story | P1 |
+| [US-050](backlog/stories/US-050-run-selected-operations-with-an-exported-llm-token.md) | Run selected operations with an exported LLM token | story | P1 |
 
 ### 3 (42)
 
@@ -461,6 +529,15 @@ _Empty._
 | --- | --- | --- | --- |
 | [TASK-003](backlog/tasks/TASK-003-show-peek-children-and-follow-internal-links.md) | Show peek children and follow internal links | task | P2 |
 
+### US-034 Find similar items and filter search by type (4)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-080](backlog/tasks/TASK-080-find-similar-items-and-filter-search-by-type-14.md) | Find similar items and filter search by type (1/4) | task | P1 |
+| [TASK-081](backlog/tasks/TASK-081-find-similar-items-and-filter-search-by-type-24.md) | Find similar items and filter search by type (2/4) | task | P1 |
+| [TASK-082](backlog/tasks/TASK-082-find-similar-items-and-filter-search-by-type-34.md) | Find similar items and filter search by type (3/4) | task | P1 |
+| [TASK-083](backlog/tasks/TASK-083-find-similar-items-and-filter-search-by-type-44.md) | Find similar items and filter search by type (4/4) | task | P1 |
+
 ### US-038 Provision Notion databases from Pilotbook (4)
 
 | ID | Title | Type | Pri |
@@ -517,4 +594,61 @@ _Empty._
 | [TASK-077](backlog/tasks/TASK-077-warn-when-a-bound-database-lacks-pilotbook-id.md) | Warn when a bound database lacks Pilotbook ID | task | P1 |
 | [TASK-078](backlog/tasks/TASK-078-wire-catalog-and-bind-through-cli-mcp-and-the-board.md) | Wire catalog and bind through CLI MCP and the board | task | P1 |
 | [TASK-079](backlog/tasks/TASK-079-refresh-bound-notion-ids-without-creating-databases.md) | Refresh bound Notion ids without creating databases | task | P1 |
+
+### US-044 Calibrate an agent from a derived repo profile (3)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-084](backlog/tasks/TASK-084-calibrate-an-agent-from-a-derived-repo-profile-13.md) | Calibrate an agent from a derived repo profile (1/3) | task | P1 |
+| [TASK-085](backlog/tasks/TASK-085-calibrate-an-agent-from-a-derived-repo-profile-23.md) | Calibrate an agent from a derived repo profile (2/3) | task | P1 |
+| [TASK-086](backlog/tasks/TASK-086-calibrate-an-agent-from-a-derived-repo-profile-33.md) | Calibrate an agent from a derived repo profile (3/3) | task | P1 |
+
+### US-045 Ground a demand in existing code (3)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-087](backlog/tasks/TASK-087-ground-a-demand-in-existing-code-13.md) | Ground a demand in existing code (1/3) | task | P1 |
+| [TASK-088](backlog/tasks/TASK-088-ground-a-demand-in-existing-code-23.md) | Ground a demand in existing code (2/3) | task | P1 |
+| [TASK-089](backlog/tasks/TASK-089-ground-a-demand-in-existing-code-33.md) | Ground a demand in existing code (3/3) | task | P1 |
+
+### US-046 Capture prior art and evidence on an idea (3)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-090](backlog/tasks/TASK-090-capture-prior-art-and-evidence-on-an-idea-13.md) | Capture prior art and evidence on an idea (1/3) | task | P1 |
+| [TASK-091](backlog/tasks/TASK-091-capture-prior-art-and-evidence-on-an-idea-23.md) | Capture prior art and evidence on an idea (2/3) | task | P1 |
+| [TASK-092](backlog/tasks/TASK-092-capture-prior-art-and-evidence-on-an-idea-33.md) | Capture prior art and evidence on an idea (3/3) | task | P1 |
+
+### US-047 Rewrite shipped skills as calibrated protocols (3)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-093](backlog/tasks/TASK-093-rewrite-shipped-skills-as-calibrated-protocols-13.md) | Rewrite shipped skills as calibrated protocols (1/3) | task | P1 |
+| [TASK-094](backlog/tasks/TASK-094-rewrite-shipped-skills-as-calibrated-protocols-23.md) | Rewrite shipped skills as calibrated protocols (2/3) | task | P1 |
+| [TASK-095](backlog/tasks/TASK-095-rewrite-shipped-skills-as-calibrated-protocols-33.md) | Rewrite shipped skills as calibrated protocols (3/3) | task | P1 |
+
+### US-048 Route explore and ship from one instruction source (3)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-096](backlog/tasks/TASK-096-route-explore-and-ship-from-one-instruction-source-13.md) | Route explore and ship from one instruction source (1/3) | task | P1 |
+| [TASK-097](backlog/tasks/TASK-097-route-explore-and-ship-from-one-instruction-source-23.md) | Route explore and ship from one instruction source (2/3) | task | P1 |
+| [TASK-098](backlog/tasks/TASK-098-route-explore-and-ship-from-one-instruction-source-33.md) | Route explore and ship from one instruction source (3/3) | task | P1 |
+
+### US-049 Upgrade shipped skills on existing installs (3)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-099](backlog/tasks/TASK-099-upgrade-shipped-skills-on-existing-installs-13.md) | Upgrade shipped skills on existing installs (1/3) | task | P1 |
+| [TASK-100](backlog/tasks/TASK-100-upgrade-shipped-skills-on-existing-installs-23.md) | Upgrade shipped skills on existing installs (2/3) | task | P1 |
+| [TASK-101](backlog/tasks/TASK-101-upgrade-shipped-skills-on-existing-installs-33.md) | Upgrade shipped skills on existing installs (3/3) | task | P1 |
+
+### US-050 Run selected operations with an exported LLM token (4)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [TASK-102](backlog/tasks/TASK-102-run-selected-operations-with-an-exported-llm-token-14.md) | Run selected operations with an exported LLM token (1/4) | task | P1 |
+| [TASK-103](backlog/tasks/TASK-103-run-selected-operations-with-an-exported-llm-token-24.md) | Run selected operations with an exported LLM token (2/4) | task | P1 |
+| [TASK-104](backlog/tasks/TASK-104-run-selected-operations-with-an-exported-llm-token-34.md) | Run selected operations with an exported LLM token (3/4) | task | P1 |
+| [TASK-105](backlog/tasks/TASK-105-run-selected-operations-with-an-exported-llm-token-44.md) | Run selected operations with an exported LLM token (4/4) | task | P1 |
 

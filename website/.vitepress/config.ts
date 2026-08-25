@@ -7,7 +7,7 @@ export default defineConfig({
   srcExclude: ["README.md"],
   title: "Pilotbook",
   description:
-    "Repo-native project management for AI agents. Your repo has the chart. Pilotbook has the directions.",
+    "Repo-native project management for AI agents. Calibrated skills and an authority-ordered brief from a lint-gated markdown graph.",
   base,
   lastUpdated: true,
   ignoreDeadLinks: [

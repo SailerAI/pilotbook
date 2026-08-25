@@ -54,12 +54,18 @@ docs/business-rules/
 docs/ideas/
 .gitignore                    # appends .pb
 .cursor/rules/pilotbook.mdc
-.cursor/skills/<name>/SKILL.md
+.cursor/skills/<name>/SKILL.md   # discover, shape, architect, implement, groom, prioritize
 .claude/skills/pilotbook-<name>.md
 AGENTS.md
 ```
 
-`--ai` defaults to true. Pass `--ai=false` to skip agent wiring.
+`--ai` defaults to true. Pass `--ai=false` to skip agent wiring. Always-apply files tell the agent to run `pb instructions overview` and follow that router — they do not inline the skill bodies.
+
+On an existing install, upgrade unedited shipped skills without clobbering local edits:
+
+```bash
+pb init --refresh-skills
+```
 
 You should see:
 
@@ -95,6 +101,27 @@ pb lint
 
 `lint` should print `lint ok: N items, 0 warning(s)` on a fresh graph. Warnings are allowed; errors exit 1.
 
+## First explore
+
+If the demand is a sentence, not a task, do not start with `pb next`. Calibrate, search, then capture:
+
+```bash
+pb instructions overview
+pb profile --json
+pb similar "ops dashboard" --type idea,epic,story
+pb ground "ops dashboard"
+pb new idea --title "Ops dashboard"
+pb clarify IDEA-001
+```
+
+You should see `docs/ideas/IDEA-001-ops-dashboard.md` with Why, JTBD, Personas, Prior art, and Evidence sections. Fill those, then:
+
+```bash
+pb promote IDEA-001 --to epic --title "Ops dashboard"
+```
+
+You should see `promoted IDEA-001 → EPIC-00N`. Load **shape** next and write user stories — full session: [Explore](./explore.md).
+
 ## Look at the board
 
 ```bash
@@ -116,7 +143,7 @@ Add to GitHub Actions (or any runner with Node 20+):
 ## Next
 
 - [Concepts](./concepts.md) — types, status, why files do not move
-- [Explore](./explore.md) — turn a vague demand into stories
+- [Explore](./explore.md) — calibrate, research, idea → epic → stories
 - [Ship](./ship.md) — pick unblocked work and verify it
 - [Set up Notion](./notion.md) — bind existing databases as a human board
 - [Agents](./agents.md) — Cursor, Claude Code, MCP

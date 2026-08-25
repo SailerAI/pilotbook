@@ -1,17 +1,55 @@
 ---
 name: discover
-description: Research a raw idea into a filled idea doc with evidence links.
-commands: [pb new, pb clarify, pb promote, pb reject, pb lint]
+description: >-
+  Research a raw idea into a filled idea doc with evidence links.
+  Use when the user says they want a feature, idea, epic, dashboard, or
+  "explore…". Not for implementing an existing TASK- ID.
+commands: [pb profile, pb similar, pb ground, pb search, pb new, pb clarify, pb promote, pb reject, pb lint]
 writes: [docs/ideas/*.md]
-done: The idea file has Why, Sketch, Open questions, Why not now, and at least one evidence link. Promotion and rejection go through pb promote / pb reject.
+done: The idea has Why, JTBD, Personas, Sketch, Prior art, Evidence, Open questions, Why not now, and at least one evidence link. Promotion and rejection go through pb promote / pb reject.
 ---
 
 # discover
 
-1. `pb new idea --title "..."` if the file does not exist.
-2. Search the web, similar products, and this repo for prior art.
-3. Fill `## Why`, `## Sketch`, `## Open questions`, `## Why not now`.
-4. Cite URLs and internal IDs (`ADR-`, `BR-`, `US-`).
-5. Run `pb clarify <ID>` and answer the bounded question set (`pb clarify <ID> --answers '...'`) so gaps land as criteria, a business-rule, or an open question.
-6. When impact, effort, and Why are clear (or `status: exploring`), promote with `pb promote <ID> --to epic --title "..."` (or `--to story --epic EPIC-NNN`). Do not hand-edit `promoted_to`.
-7. If it should not be built, `pb reject <ID> --reason "..."` so the kill is recorded as `## Verdict`.
+## Calibrate
+
+Run `pb profile --json`. Follow `calibration`. Greenfield: ask more, invent less stack. Mature: reuse accepted ADRs; interview only what is still open.
+
+## Interview
+
+Restate the demand in one sentence. Ask only missing facts — **2–5 questions**, then stop.
+
+Stop when you can fill Why, the job, who it is for, and what "done" looks like — or the user says to proceed.
+
+Do not interview implementation layers (`backend` / `frontend`).
+
+## Research (fan out)
+
+Before creating anything:
+
+1. `pb similar "<demand>" --type idea,epic,story` and `pb search "<keywords>"`. If a live item covers it, `related:` it and resume — do not clone.
+2. `pb ground "<demand>"` — reuse existing `codeMap` areas.
+3. Search the web and similar products. Cite URLs under `## Evidence`. Compare under `## Prior art` (product, link, what they do, what we would do differently).
+
+## Capture
+
+`pb new idea --title "..."` if none exists. Fill every template section. Never invent IDs.
+
+`pb clarify <ID>` and apply `--answers` so gaps land as a criterion, a business-rule, or an open question.
+
+## Promote or reject
+
+Ready (or `status: exploring`): `pb promote <ID> --to epic --title "..."` (or `--to story --epic EPIC-NNN`). Do not hand-edit `promoted_to`.
+
+Kill: `pb reject <ID> --reason "..."`.
+
+## Handoff
+
+After promote to an epic, load **shape** in the same turn. Do not ask "should I split?"
+
+## Do not
+
+- Jump to `pb next` or implement.
+- Run `pb generate` when you are already a coding agent — you are the primary interface.
+- Skip `pb similar` / `pb ground`.
+- Promote an empty Sketch or an idea with zero evidence.

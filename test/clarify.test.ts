@@ -41,7 +41,15 @@ describe("clarifyItem", () => {
     });
     const result = clarifyItem(ctx, "IDEA-001");
     expect(result.ready).toBe(false);
-    expect(result.questions.map((q) => q.id)).toEqual(["why", "sketch", "open-questions"]);
+    expect(result.questions.map((q) => q.id)).toEqual([
+      "why",
+      "sketch",
+      "jtbd",
+      "personas",
+      "prior-art",
+      "evidence",
+      "open-questions",
+    ]);
     expect(result.questions[0]?.options.map((o) => o.id)).toEqual([
       "criterion",
       "business-rule",

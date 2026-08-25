@@ -16,9 +16,10 @@ Discovery: walk up from `cwd` for `pilotbook.config.yml` / `.yaml`, else the git
 ```bash
 pb init
 pb init --ai=false
+pb init --refresh-skills
 ```
 
-Scaffold config, type directories, templates, `.gitignore` (`.pb`), and agent wiring. Skips files that already exist. `--ai` defaults to true.
+Scaffold config, type directories, templates, `.gitignore` (`.pb`), and agent wiring. Skips files that already exist. `--ai` defaults to true. `--refresh-skills` overwrites shipped skills whose content still matches a previously shipped body; locally edited skills are skipped.
 
 ## new
 
@@ -48,9 +49,45 @@ No id → ready list (`state` + title). With id → `requires`, `missing`, `unlo
 
 ```bash
 pb search <q>
+pb search <q> --type idea,epic,story
 ```
 
-Substring over ids, titles, and bodies.
+Substring over ids, titles, and bodies. `--type` is a comma-separated allow-list; unknown types refuse with a `fix`.
+
+## similar
+
+```bash
+pb similar <q>
+pb similar <q> --type story
+```
+
+Title-then-body token overlap over the markdown index. Empty query → `[]`. No embeddings.
+
+## profile
+
+```bash
+pb profile
+pb profile --json
+```
+
+Derived maturity (`greenfield | shaping | operating | mature`) plus calibration hints. Never writes frontmatter. Git is optional; missing git → `git: null`.
+
+## ground
+
+```bash
+pb ground <q>
+```
+
+Map a demand onto `code_map` keys and live graph items. Empty `code_map` is not an error (`unmapped: true`).
+
+## generate
+
+```bash
+export ANTHROPIC_API_KEY=…
+pb generate discover --title "…" --demand "…"
+```
+
+Optional CLI fallback: run the **discover** skill with an exported provider token (`ANTHROPIC_API_KEY` or `OPENAI_API_KEY`). Optional `PILOTBOOK_LLM_MODEL` overrides the default model. Only `discover` is supported. Missing keys fail with a `fix` that points at `pb skill discover`. Graph commands (`brief`, `lint`, `next`, `profile`, `similar`, `search`, `verify`, `analyze`) never call an LLM. Coding agents remain the primary interface.
 
 ## brief
 
@@ -71,7 +108,7 @@ pb skill implement
 pb skill implement --json
 ```
 
-List shipped skills, or print one body. `--json` on `skill` includes `commands`, `writes`, `done`. Unknown instruction topics fail.
+`pb instructions overview --json` is `{ router: { explore, ship }, skills }` — the only explore/ship router. `pb instructions` without `overview` lists skills. `--json` on `skill` includes `commands`, `writes`, `done`. Unknown instruction topics fail.
 
 ## lint
 

@@ -13,7 +13,7 @@ depends_on: []
 business_rules: [BR-002]
 adrs: [ADR-0001, ADR-0002]
 created: 2026-08-23
-updated: 2026-08-23
+updated: 2026-08-25
 ---
 ## Story
 
@@ -30,7 +30,7 @@ updated: 2026-08-23
 
 ## Notes
 
-Tokenize on non-alphanumerics, drop short tokens and a small stopword list. Score title overlap higher than body. `related:` is already a non-blocking edge — discover/shape write it; this story does not add a new edge kind.
+Reopened 2026-08-25: marked `done` but `src/` has no `similar` function and `searchGraph` has no `--type`. Tokenize on non-alphanumerics, drop short tokens and a small stopword list. Score title overlap higher than body. `related:` is already a non-blocking edge — discover/shape write it; this story does not add a new edge kind. Related: EPIC-009.
 
 ## Out of scope
 

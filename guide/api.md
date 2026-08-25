@@ -17,7 +17,7 @@ const ready = nextReady(ctx);
 
 `withProject(cwd?)` loads config + the markdown index. Types ship next to the JS (`dist/ops/index.d.ts`). Prefer the CLI in agents; use the library when you are embedding Pilotbook in another tool.
 
-Useful names: `createItem`, `updateItem`, `verifyItem`, `analyzeGraph`, `syncNotion`, `notionCatalog`, `bindNotion`, `listSkills`, `skillOf`. Errors are `PilotbookError` with `code`, optional `fix`, and `status` (404 → CLI exit 2).
+Useful names: `createItem`, `updateItem`, `verifyItem`, `analyzeGraph`, `profileOf`, `similarItems`, `groundDemand`, `generateSkill`, `parseTypeFilter`, `instructionsOverview`, `syncNotion`, `notionCatalog`, `bindNotion`, `listSkills`, `skillOf`. Errors are `PilotbookError` with `code`, optional `fix`, and `status` (404 → CLI exit 2). `generateSkill` is the only op that may call an LLM; inject `fetch` in tests.
 
 ## MCP tools
 
@@ -29,7 +29,11 @@ Useful names: `createItem`, `updateItem`, `verifyItem`, `analyzeGraph`, `syncNot
 | `brief` | `id`, `budget?` |
 | `next` | — |
 | `status` | `id?` |
-| `search` | `q` |
+| `search` | `q`, `type?` (comma-separated) |
+| `similar` | `q`, `type?` |
+| `profile` | — |
+| `ground` | `q` |
+| `generate` | `skill`, `title`, `demand` |
 | `list_items` | — |
 | `get_item` | `id` |
 | `create_item` | `type`, `title`, `epic?`, `story?` |
@@ -46,7 +50,7 @@ Useful names: `createItem`, `updateItem`, `verifyItem`, `analyzeGraph`, `syncNot
 | `split` | `id`, `dryRun?`, `epic?` |
 | `reject` | `id`, `reason` |
 | `clarify` | `id`, `answers?` |
-| `instructions` | — |
+| `instructions` | — (returns `{ router, skills }`) |
 | `skill` | `name` |
 | `sync` | `catalog?`, `bind?`, `init?`, `to?`, `from?`, `dryRun?` |
 
@@ -64,7 +68,7 @@ Results are text (JSON-stringified objects). See [Agents](./agents.md) for Curso
 | GET | `/api/next` | `nextReady` |
 | GET | `/api/status` | `listReady` |
 | GET | `/api/status/:id` | `statusOf` |
-| GET | `/api/search?q=` | `searchGraph` |
+| GET | `/api/search?q=&type=` | `searchGraph` (`type` is optional, comma-separated) |
 | GET | `/api/brief/:id` | `briefOf` (includes `markdown`) |
 | GET | `/api/graph.dot` | `graphDot` |
 | GET | `/api/notion` | `notionCatalog` |
@@ -86,6 +90,7 @@ Errors: `{ error, code?, fix? }` with HTTP 400 or 404.
 | --- | --- | --- | --- |
 | init, board, graph, ui, export, seed, manifest, hook, completions | yes | no | board + graph.dot only |
 | list/get/update/delete item, schema | no* | yes | yes |
+| similar, profile, ground, generate | yes | yes | no |
 | brief, lint, next, search, verify, … | yes | yes | most reads + create/clarify |
 
 \*CLI has `pb new` / `pb verify` rather than generic get/update. Edit markdown in git or use MCP/UI to patch frontmatter.

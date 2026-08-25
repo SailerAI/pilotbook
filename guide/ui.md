@@ -19,7 +19,7 @@ Tabs:
 - **Rules**
 - **Ideas** — including an intake form that creates an idea and runs clarify
 
-Views (except roadmap): **Board** (kanban), **List**, **Graph**. Filters for type, epic, phase, and priority. Search is the same substring index as `pb search`.
+Views (except roadmap): **Board** (kanban), **List**, **Graph**. Filters for type, epic, phase, and priority. Search is the same substring index as `pb search`. Type-filtered search, `pb similar`, and `pb ground` are CLI and MCP.
 
 Click an item for a peek: frontmatter, body (rendered or source), brief preview, blockers. Create from **New**. **Notion** opens a wizard that lists databases the integration can see (or accepts a pasted URL) and writes bindings to `pilotbook.config.yml`. The token stays in the environment — there is no token field. How-to: [Set up Notion](./notion.md). Drag on the kanban to change `status` — that patches YAML; the file does not move.
 

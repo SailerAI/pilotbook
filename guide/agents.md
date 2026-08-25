@@ -1,6 +1,6 @@
 # Agents, skills, and MCP
 
-Pilotbook is built for agents that already live in the repo. Skills are short markdown protocols. Transports (CLI, MCP, hooks) never own behaviour.
+Pilotbook is built for agents that already live in the repo. Skills are markdown protocols. Transports (CLI, MCP, hooks) never own behaviour.
 
 ## Init wiring
 
@@ -15,7 +15,15 @@ Pilotbook is built for agents that already live in the repo. Skills are short ma
 
 It also appends `.pb` to `.gitignore`. If `.cursor` or `.claude` already exist, those trees are filled; if not, init still writes them when `--ai` is on.
 
-The Cursor rule splits **Explore** (vague demand → discover → shape) from **Ship** (`pb next` → brief → verify).
+The Cursor rule and `AGENTS.md` snippet tell the agent to load `pb instructions overview` and follow that router. They do not inline a third copy of the numbered lists. `--json` returns `{ router: { explore, ship }, skills }`.
+
+On an existing install, upgrade unedited shipped skills:
+
+```bash
+pb init --refresh-skills
+```
+
+Locally edited skill files are skipped. In this repository, `pnpm sync:skills` copies `skills/*.md` into `.cursor/skills/` and `.claude/skills/`; a drift test fails if those copies diverge.
 
 ## Shipped skills
 
@@ -28,14 +36,18 @@ pb skill implement
 
 | Skill | When | Commands |
 | --- | --- | --- |
-| **discover** | Vague demand, new idea | `new`, `clarify`, `promote`, `reject`, `lint` |
-| **shape** | Fresh epic → user stories | `brief`, `explain`, `new`, `lint`, `board` |
-| **architect** | Story → tasks | `brief`, `split`, `new`, `lint` |
-| **implement** | Unblocked work | `next`, `brief`, `verify`, `lint`, `board` |
+| **discover** | Vague demand, new idea | `profile`, `similar`, `ground`, `new`, `clarify`, `promote`, `reject`, `lint` |
+| **shape** | Fresh epic → user stories | `profile`, `brief`, `explain`, `similar`, `new`, `lint`, `board` |
+| **architect** | Story → tasks | `profile`, `brief`, `ground`, `split`, `new`, `lint` |
+| **implement** | Unblocked work | `profile`, `next`, `brief`, `verify`, `lint`, `board` |
 | **groom** | Graph not agent-ready | `lint`, `explain` |
 | **prioritize** | Phase / priority proposals | `next`, `lint` |
 
-Canonical copies ship in the npm package under `skills/`. Do not invent IDs. Discover/shape should **search the graph** (`pb search`) before creating a duplicate item.
+Canonical copies ship in the npm package under `skills/`. Each skill is a protocol: calibrate (`pb profile`), a question budget, parallel research (web + graph + code), a handoff to the next skill, and a `Do not` section. Every line must change the next action. Do not invent IDs.
+
+Discover/shape **search the graph** (`pb similar`, `pb search`) and **ground in code** (`pb ground`) before creating a duplicate item. Architect grounds before `pb split`.
+
+`pb generate discover` is an optional CLI fallback when `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is exported (optional `PILOTBOOK_LLM_MODEL`). Graph commands never call an LLM. Coding agents remain the primary interface — load `pb skill discover` in Cursor or Claude Code.
 
 `commit` under `.cursor/skills/` in this repo is **not** a shipped Pilotbook skill.
 
@@ -64,7 +76,7 @@ MCP-only tools (no CLI equivalent): `list_items`, `get_item`, `update_item`, `de
 
 CLI-only: `init`, `board`, `graph`, `ui`, `export`, `seed`, `manifest`, `hook`, `completions`.
 
-Shared tools: `lint`, `brief`, `next`, `status`, `search`, `explain`, `verify`, `promote`, `bump`, `impact`, `analyze`, `converge`, `split`, `reject`, `clarify`, `instructions`, `skill`, `sync`, plus `create_item`.
+Shared tools: `lint`, `brief`, `next`, `status`, `search`, `similar`, `profile`, `ground`, `generate`, `explain`, `verify`, `promote`, `bump`, `impact`, `analyze`, `converge`, `split`, `reject`, `clarify`, `instructions`, `skill`, `sync`, plus `create_item`.
 
 Full schemas: [API](./api.md).
 

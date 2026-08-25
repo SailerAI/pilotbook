@@ -10,20 +10,25 @@ import {
   createItem,
   deleteItem,
   explain,
+  generateSkill,
   getItem,
+  groundDemand,
   impactOf,
+  instructionsOverview,
   lint,
   listItems,
   listReady,
-  listSkills,
   nextReady,
   notionCatalog,
   type OpContext,
   PilotbookError,
+  parseTypeFilter,
+  profileOf,
   promoteIdea,
   rejectIdea,
   schemaOf,
   searchGraph,
+  similarItems,
   skillOf,
   splitItem,
   statusOf,
@@ -81,8 +86,50 @@ const TOOLS = [
     description: "Search item ids, titles, and bodies",
     inputSchema: {
       type: "object",
+      properties: {
+        q: { type: "string" },
+        type: { type: "string", description: "Comma-separated types" },
+      },
+      required: ["q"],
+    },
+  },
+  {
+    name: "similar",
+    description: "Rank items by title-then-body token overlap",
+    inputSchema: {
+      type: "object",
+      properties: {
+        q: { type: "string" },
+        type: { type: "string", description: "Comma-separated types" },
+      },
+      required: ["q"],
+    },
+  },
+  {
+    name: "profile",
+    description: "Derived repo maturity and calibration hints",
+    inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "ground",
+    description: "Map a demand onto codeMap paths and live items",
+    inputSchema: {
+      type: "object",
       properties: { q: { type: "string" } },
       required: ["q"],
+    },
+  },
+  {
+    name: "generate",
+    description: "Run a shipped skill with an exported LLM token (optional fallback)",
+    inputSchema: {
+      type: "object",
+      properties: {
+        skill: { type: "string" },
+        title: { type: "string" },
+        demand: { type: "string" },
+      },
+      required: ["skill", "title", "demand"],
     },
   },
   {
@@ -287,8 +334,31 @@ function callTool(
         return textResult({ items: listReady(ctx) });
       }
       return textResult(statusOf(ctx, String(params.id)));
-    case "search":
-      return textResult(searchGraph(ctx, String(params.q ?? "")));
+    case "search": {
+      const type = parseTypeFilter(
+        typeof params.type === "string" ? params.type : undefined,
+        Object.keys(ctx.project.config.types),
+      );
+      return textResult(searchGraph(ctx, String(params.q ?? ""), { type }));
+    }
+    case "similar": {
+      const type = parseTypeFilter(
+        typeof params.type === "string" ? params.type : undefined,
+        Object.keys(ctx.project.config.types),
+        "pb similar <q> --type",
+      );
+      return textResult(similarItems(ctx, String(params.q ?? ""), { type }));
+    }
+    case "profile":
+      return textResult(profileOf(ctx));
+    case "ground":
+      return textResult(groundDemand(ctx, String(params.q ?? "")));
+    case "generate":
+      return generateSkill(ctx, {
+        skill: String(params.skill ?? ""),
+        title: String(params.title ?? ""),
+        demand: String(params.demand ?? ""),
+      }).then((result) => textResult(result));
     case "list_items":
       return textResult(listItems(ctx));
     case "get_item":
@@ -349,7 +419,7 @@ function callTool(
       }
       return textResult(clarifyItem(ctx, String(params.id)));
     case "instructions":
-      return textResult(listSkills());
+      return textResult(instructionsOverview());
     case "skill":
       return textResult(skillOf(String(params.name ?? "")));
     case "sync": {

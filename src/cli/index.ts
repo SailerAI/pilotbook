@@ -19,22 +19,27 @@ import {
   createItem,
   explain,
   exportItems,
+  generateSkill,
   graphDot,
+  groundDemand,
   hookStop,
   impactOf,
   initProject,
   installHooks,
+  instructionsOverview,
   lintText,
   listReady,
-  listSkills,
   nextReady,
   notionCatalog,
   PilotbookError,
+  parseTypeFilter,
+  profileOf,
   promoteIdea,
   rejectIdea,
   searchGraph,
   seedFromBrief,
   sessionStart,
+  similarItems,
   skillOf,
   splitItem,
   startUi,
@@ -102,11 +107,16 @@ const main = defineCommand({
         ...cwdArg,
         json: jsonArg.json,
         ai: { type: "boolean", description: "Install agent skills/rules", default: true },
+        "refresh-skills": {
+          type: "boolean",
+          description: "Overwrite shipped skills that were not locally edited",
+          default: false,
+        },
       },
       run({ args }) {
         const result = initProject(
           path.resolve(typeof args.cwd === "string" ? args.cwd : process.cwd()),
-          { ai: args.ai !== false },
+          { ai: args.ai !== false, refreshSkills: Boolean(args["refresh-skills"]) },
         );
         emit(
           Boolean(args.json),
@@ -227,11 +237,16 @@ const main = defineCommand({
         ...cwdArg,
         json: jsonArg.json,
         q: { type: "positional", required: true, description: "Query" },
+        type: { type: "string", description: "Comma-separated types (idea,epic,story,…)" },
       },
       run({ args }) {
         try {
           const ctx = ctxFrom(args);
-          const items = searchGraph(ctx, String(args.q ?? ""));
+          const type = parseTypeFilter(
+            typeof args.type === "string" ? args.type : undefined,
+            Object.keys(ctx.project.config.types),
+          );
+          const items = searchGraph(ctx, String(args.q ?? ""), { type });
           emit(
             Boolean(args.json),
             { items },
@@ -241,6 +256,121 @@ const main = defineCommand({
                   items.map((i) => [i.id, i.type, i.title, i.snippet]),
                 )
               : "No matches.\n",
+          );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    similar: defineCommand({
+      meta: { description: "Rank items by title-then-body token overlap" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        q: { type: "positional", required: true, description: "Query" },
+        type: { type: "string", description: "Comma-separated types" },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          const type = parseTypeFilter(
+            typeof args.type === "string" ? args.type : undefined,
+            Object.keys(ctx.project.config.types),
+            "pb similar <q> --type",
+          );
+          const items = similarItems(ctx, String(args.q ?? ""), { type });
+          emit(
+            Boolean(args.json),
+            { items },
+            items.length
+              ? printTable(
+                  ["ID", "Type", "Title", "Score", "Snippet"],
+                  items.map((i) => [i.id, i.type, i.title, i.score, i.snippet]),
+                )
+              : "No matches.\n",
+          );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    profile: defineCommand({
+      meta: { description: "Derived repo maturity and calibration hints" },
+      args: { ...cwdArg, json: jsonArg.json },
+      run({ args }) {
+        try {
+          const profile = profileOf(ctxFrom(args));
+          emit(
+            Boolean(args.json),
+            profile,
+            `${[
+              `level: ${profile.level}`,
+              `items: ${profile.counts.total}`,
+              `accepted ADRs: ${profile.knowledge.acceptedAdrs}`,
+              `active BRs: ${profile.knowledge.activeBrs}`,
+              `checks: ${profile.checks.configured ? "yes" : "no"}`,
+              `codeMap: ${profile.codeMap.configured ? profile.codeMap.keys.join(",") : "no"}`,
+              ...profile.calibration.map((h) => `- ${h}`),
+            ].join("\n")}\n`,
+          );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    ground: defineCommand({
+      meta: { description: "Map a demand onto codeMap paths and live items" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        q: { type: "positional", required: true, description: "Query" },
+      },
+      run({ args }) {
+        try {
+          const result = groundDemand(ctxFrom(args), String(args.q ?? ""));
+          emit(
+            Boolean(args.json),
+            result,
+            [
+              result.areas.length
+                ? printTable(
+                    ["Area", "Hits", "Paths"],
+                    result.areas.map((a) => [a.key, a.hits, a.paths.join(", ")]),
+                  ).trimEnd()
+                : "No codeMap areas.",
+              result.items.length
+                ? printTable(
+                    ["ID", "Type", "Title", "Score"],
+                    result.items.map((i) => [i.id, i.type, i.title, i.score]),
+                  )
+                : "No graph hits.\n",
+            ].join("\n"),
+          );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    generate: defineCommand({
+      meta: { description: "Run a shipped skill with an exported LLM token (optional fallback)" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        skill: { type: "positional", required: true, description: "discover" },
+        title: { type: "string", required: true, description: "Idea title" },
+        demand: { type: "string", required: true, description: "Raw demand" },
+      },
+      async run({ args }) {
+        try {
+          const result = await generateSkill(ctxFrom(args), {
+            skill: String(args.skill),
+            title: String(args.title),
+            demand: String(args.demand),
+          });
+          emit(
+            Boolean(args.json),
+            result,
+            `generated ${result.item.id} via ${result.provider} (${result.model})\n`,
           );
         } catch (err) {
           fail(err);
@@ -288,14 +418,19 @@ const main = defineCommand({
               ),
             );
           }
-          const skills = listSkills();
+          const overview = instructionsOverview();
           emit(
             Boolean(args.json),
-            skills,
-            printTable(
-              ["Name", "Description"],
-              skills.map((s) => [s.name, s.description]),
-            ),
+            overview,
+            `${[
+              `Explore: ${overview.router.explore[0]}`,
+              `Ship: ${overview.router.ship[0]}`,
+              "",
+              printTable(
+                ["Name", "Description"],
+                overview.skills.map((s) => [s.name, s.description]),
+              ).trimEnd(),
+            ].join("\n")}\n`,
           );
         } catch (err) {
           fail(err);

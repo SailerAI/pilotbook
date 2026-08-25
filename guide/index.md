@@ -3,7 +3,7 @@ layout: home
 hero:
   name: Pilotbook
   text: Your repo has the chart. Pilotbook has the directions.
-  tagline: Compile what an agent must know before it writes code — from a lint-gated markdown graph in git.
+  tagline: Calibrated skills and an authority-ordered brief — from a lint-gated markdown graph in git.
   actions:
     - theme: brand
       text: Get started
@@ -22,5 +22,5 @@ features:
   - title: Lint that bites
     details: Dangling refs, wrong types, cycles, unknown fields, unverified done — with file:line:col and GitHub annotations.
   - title: Built for agents
-    details: Skills, MCP, Cursor and Claude hooks, tab-complete IDs. The CLI, MCP server, and UI are the same operations.
+    details: Skills calibrate from pb profile, search the graph and the code, then hand off. Cursor and Claude Code are the primary interface; MCP and CLI are the same operations.
 ---

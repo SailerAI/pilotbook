@@ -44,3 +44,10 @@ export function isBlankOrPlaceholder(section: string, placeholders: readonly str
     return got === want || got === `- ${want}` || got === `* ${want}`;
   });
 }
+
+/** A URL or an internal Pilotbook ID counts as evidence. */
+export const EVIDENCE_RE: RegExp = /https?:\/\/[^\s)]+|\b(?:ADR|BR|US|EPIC|IDEA|TASK)-\d+\b/i;
+
+export function hasEvidence(text: string): boolean {
+  return EVIDENCE_RE.test(String(text ?? ""));
+}

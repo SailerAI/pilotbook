@@ -6,6 +6,7 @@ This repository is itself a Pilotbook project. Use the local CLI (`pnpm pb`), no
 
 ```bash
 pnpm build
+pnpm pb instructions overview
 pnpm pb next
 pnpm pb brief TASK-NNN
 pnpm pb lint
@@ -14,6 +15,14 @@ pnpm pb lint
 `pnpm lint` is Biome (source style). `pnpm pb lint` is graph integrity over `docs/backlog`, `docs/adr`, and `docs/business-rules`. Both must stay green.
 
 User-facing docs live in `guide/` (GitHub-readable) and publish via VitePress (`pnpm docs:dev`, `pnpm docs:build`). Do not put product docs in `docs/` — that tree is the work-item graph.
+
+Shipped skills live in `skills/*.md`. After editing them, copy into this repo's agent trees:
+
+```bash
+pnpm sync:skills
+```
+
+A drift test fails if `.cursor/skills/<name>/SKILL.md` or `.claude/skills/pilotbook-<name>.md` diverge from `skills/<name>.md`. `commit` under `.cursor/skills/` is not a shipped skill.
 
 ## Setup
 

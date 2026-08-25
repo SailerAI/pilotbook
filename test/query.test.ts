@@ -2,7 +2,15 @@ import { describe, expect, it } from "vitest";
 import { hostJoin } from "../src/core/config.ts";
 import { complete } from "../src/ops/complete.ts";
 import { writeBoard } from "../src/ops/items.ts";
-import { itemState, listReady, nextReady, searchGraph, statusOf } from "../src/ops/query.ts";
+import {
+  itemState,
+  listReady,
+  nextReady,
+  parseTypeFilter,
+  searchGraph,
+  similarItems,
+  statusOf,
+} from "../src/ops/query.ts";
 import { epic, makeProject, story, task } from "./helpers.ts";
 
 function sample() {
@@ -192,6 +200,42 @@ describe("searchGraph", () => {
     expect(bodyHits).toHaveLength(1);
     expect(bodyHits[0]?.id).toBe("TASK-001");
     expect(bodyHits[0]?.snippet).toContain("unique-body-token");
+  });
+
+  it("US-034#3 filters by --type and refuses unknown types", () => {
+    const ctx = makeProject({
+      "docs/backlog/epics/EPIC-001-a.md": epic("EPIC-001", { title: "Ledger" }),
+      "docs/backlog/stories/US-001-s.md": story("US-001", "EPIC-001", { title: "Ledger posting" }),
+    });
+    const hits = searchGraph(ctx, "Ledger", { type: ["story"] });
+    expect(hits.map((h) => h.id)).toEqual(["US-001"]);
+    expect(() => parseTypeFilter("widget", Object.keys(ctx.project.config.types))).toThrow(
+      /unknown type/,
+    );
+  });
+});
+
+describe("similarItems", () => {
+  it("US-034#1 ranks title overlap above body and US-034#2 returns [] for empty query", () => {
+    const ctx = makeProject({
+      "docs/backlog/epics/EPIC-001-a.md": epic("EPIC-001", { title: "Search dashboard" }),
+      "docs/backlog/stories/US-001-s.md": story(
+        "US-001",
+        "EPIC-001",
+        { title: "Unrelated" },
+        "## Story\n\nMentions dashboard once in the body only.\n",
+      ),
+      "docs/backlog/stories/US-002-s.md": story("US-002", "EPIC-001", {
+        title: "Ops dashboard widget",
+      }),
+    });
+    expect(similarItems(ctx, "")).toEqual([]);
+    expect(similarItems(ctx, "   ")).toEqual([]);
+    const hits = similarItems(ctx, "dashboard widget");
+    expect(hits[0]).toMatchObject({ id: "US-002", type: "story" });
+    expect(hits[0]?.score).toBeGreaterThan(hits.find((h) => h.id === "US-001")?.score ?? 0);
+    const stories = similarItems(ctx, "dashboard", { type: ["story"] });
+    expect(stories.every((h) => h.type === "story")).toBe(true);
   });
 });
 

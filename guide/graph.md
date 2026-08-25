@@ -9,7 +9,7 @@ Items are nodes. Frontmatter arrays (and a few scalars) are edges. `pb lint` che
 | `depends_on` | epic, story, task | yes | yes | Unresolved deps block `pb next` |
 | `business_rules` | business-rule | no | no | Inherited into the brief |
 | `adrs` | adr | no | no | Inherited into the brief |
-| `related` | any type | no | no | |
+| `related` | any type | no | no | Discover/shape write this when a live item already covers the demand |
 | `promoted_to` | epic, story, task, BR, ADR | no | no | Written by `pb promote` |
 | `supersedes` | adr | no | yes | |
 | `superseded_by` | adr | no | no | |

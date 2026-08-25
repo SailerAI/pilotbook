@@ -1,14 +1,19 @@
 # Ship
 
-Turn an unblocked task into verified code. The **implement** skill owns this loop.
+Turn an unblocked task into verified code. The **implement** skill owns this loop. Load the router first if the session just started:
 
 ```bash
+pb instructions overview
+pb skill implement
+pb profile --json
 pb next
 pb brief TASK-001
 pb verify TASK-001
 pb lint
 pb board
 ```
+
+`pb profile` calibrates: in a mature repo, linked BR-/ADR- files win over improvisation. If the user describes a **new** demand mid-session, stop implementing and load **discover** ([Explore](./explore.md)).
 
 ## 1. Pick work
 
@@ -57,7 +62,7 @@ Details: [The brief](./brief.md).
 
 Work against the acceptance criteria. Do not invent IDs. Do not contradict an accepted ADR. One area of change per task (`backend`, `frontend`, `db`, `infra`, `docs`).
 
-If the story is too large, **architect** runs `pb split US-NNN --dry-run`, then `pb split US-NNN`. That is not the ship loop's first move.
+If the story is too large, **architect** runs `pb ground "<story title>"`, then `pb split US-NNN --dry-run`, then `pb split US-NNN`. That is not the ship loop's first move.
 
 ## 4. Verify
 

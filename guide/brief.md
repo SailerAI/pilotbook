@@ -34,6 +34,8 @@ Starting at the target:
 - Done siblings that share a parent, title only
 - `code_map` paths whose key matches the task `area` or a tag
 
+Repo maturity is **not** in the brief. Skills call `pb profile` separately; the level is derived at read time and never stored.
+
 ## Depths
 
 | Depth | Body included |

@@ -20,6 +20,10 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
     "board",
     "explain",
     "search",
+    "similar",
+    "profile",
+    "ground",
+    "generate",
     "graph",
     "verify",
     "ui",
@@ -98,6 +102,12 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
       last,
     );
   }
+  if (cmd === "generate") {
+    return filter(
+      [{ value: "discover", description: "Fill an idea via exported LLM token" }],
+      last,
+    );
+  }
   if (cmd === "promote" || cmd === "reject") {
     return filter(
       ctx.project.index.items
@@ -117,6 +127,9 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
       "impact",
       "split",
       "converge",
+      "similar",
+      "ground",
+      "generate",
     ].includes(cmd) ||
     prev === "<ID>"
   ) {

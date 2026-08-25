@@ -14,7 +14,16 @@ import {
   writeBoard,
 } from "./items.ts";
 import { bindNotion, notionCatalog } from "./notion.ts";
-import { briefOf, graphDot, lint, listReady, nextReady, searchGraph, statusOf } from "./query.ts";
+import {
+  briefOf,
+  graphDot,
+  lint,
+  listReady,
+  nextReady,
+  parseTypeFilter,
+  searchGraph,
+  statusOf,
+} from "./query.ts";
 import { watchProject } from "./watch.ts";
 
 const MIME: Record<string, string> = {
@@ -164,7 +173,11 @@ async function handleApi(
       return;
     }
     if (req.method === "GET" && route === "/api/search") {
-      send(res, 200, { items: searchGraph(ctx, url.searchParams.get("q") ?? "") });
+      const type = parseTypeFilter(
+        url.searchParams.get("type") ?? undefined,
+        Object.keys(ctx.project.config.types),
+      );
+      send(res, 200, { items: searchGraph(ctx, url.searchParams.get("q") ?? "", { type }) });
       return;
     }
     if (req.method === "GET" && route === "/api/graph.dot") {

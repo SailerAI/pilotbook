@@ -7,12 +7,11 @@ alwaysApply: true
 
 This is the Pilotbook source tree. Use `pnpm pb`, not `npx pilotbook`. Work items live as markdown with YAML frontmatter. Do not move files to change status.
 
-Follow [skills/implement.md](skills/implement.md), [skills/architect.md](skills/architect.md), [skills/groom.md](skills/groom.md), [skills/prioritize.md](skills/prioritize.md), and [skills/discover.md](skills/discover.md).
+Load the explore/ship router, then one skill:
 
-1. `pnpm pb next` — pick unblocked work
-2. `pnpm pb brief <ID>` — load governing rules, ADRs, and parent stories before editing code
-3. Implement against the brief. Linked BR-/ADR- files win over improvisation.
-4. `pnpm pb verify <ID>` then set `status: done`
-5. `pnpm pb lint` must exit 0. `pnpm pb board` refreshes the generated board.
+```bash
+pnpm pb instructions overview
+pnpm pb skill discover
+```
 
-Create items with `pnpm pb new <type> --title "..."`. Never invent IDs.
+Follow that router. Linked BR-/ADR- files win over improvisation. `pnpm pb lint` must exit 0. Never invent IDs — use `pnpm pb new`.

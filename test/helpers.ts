@@ -147,7 +147,7 @@ export function idea(id: string, extra: Record<string, unknown> = {}, body?: str
       ...DATES,
     },
     body ??
-      "## Why\n\nWho benefits and why this is worth capturing.\n\n## Jobs to be done\n\nThe job the user is hiring this for.\n\n## Personas\n\nWho this is for, in one or two named roles.\n\n## Sketch\n\nA rough shape of the solution. Not a spec.\n\n## Evidence\n\nAt least one URL or internal ID (ADR-, BR-, US-).\n\n## Open questions\n\n- Question 1\n\n## Why not now\n\nWhat would have to be true before this is promoted to an epic or story.\n",
+      "## Why\n\nWho benefits and why this is worth capturing.\n\n## Jobs to be done\n\nThe job the user is hiring this for.\n\n## Personas\n\nWho this is for, in one or two named roles.\n\n## Sketch\n\nA rough shape of the solution. Not a spec.\n\n## Prior art\n\nProduct, link, what they do, what we would do differently.\n\n## Evidence\n\nAt least one URL or internal ID (ADR-, BR-, US-).\n\n## Open questions\n\n- Question 1\n\n## Why not now\n\nWhat would have to be true before this is promoted to an epic or story.\n",
   );
 }
 

@@ -3,7 +3,7 @@ import { parseChecklist } from "./checklist.ts";
 import { findCycle } from "./cycles.ts";
 import { bodyHash, contentHash } from "./hash.ts";
 import { splitRemoteId } from "./ids.ts";
-import { extractSection } from "./markdown.ts";
+import { extractSection, hasEvidence } from "./markdown.ts";
 import {
   DATE_RE,
   type Diagnostic,
@@ -474,6 +474,24 @@ export function lintGraph(
     if (item.type !== "business-rule") continue;
     if (item.data.status === "deprecated") {
       warnings.push(warn(item, "deprecated-rule", `${item.data.id} is deprecated`, "status"));
+    }
+  }
+
+  for (const item of items) {
+    if (item.type !== "idea") continue;
+    if (item.data.status !== "promoted") continue;
+    const evidence = extractSection(item.body, "Evidence");
+    const blob = evidence || item.body;
+    if (!hasEvidence(blob)) {
+      warnings.push(
+        warn(
+          item,
+          "missing-evidence",
+          `${item.data.id} is promoted but has no evidence URL or internal ID`,
+          "status",
+          "Add a link or ADR-/BR-/US- id under ## Evidence.",
+        ),
+      );
     }
   }
 

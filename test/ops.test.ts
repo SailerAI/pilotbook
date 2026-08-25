@@ -119,12 +119,28 @@ describe("init", () => {
     expect(fs.readFile("/app/.cursor/skills/implement/SKILL.md")).toBe("stale cursor implement\n");
   });
 
+  it("refreshes a legacy shipped skill and skips an edited one", () => {
+    const fs = seedInitFs();
+    initProject("/app", { ai: true }, fs);
+    const bundled = fs.readFile("/app/.claude/skills/pilotbook-discover.md");
+    const legacy = loadTemplate("../test/fixtures/legacy-discover.md");
+    fs.writeFile("/app/.claude/skills/pilotbook-discover.md", legacy);
+    fs.writeFile("/app/.claude/skills/pilotbook-implement.md", "user rewrote this skill\n");
+    const second = initProject("/app", { ai: true, refreshSkills: true }, fs);
+    expect(second.wrote).toContain(".claude/skills/pilotbook-discover.md");
+    expect(fs.readFile("/app/.claude/skills/pilotbook-discover.md")).toBe(bundled);
+    expect(second.skipped).toContain(".claude/skills/pilotbook-implement.md");
+    expect(fs.readFile("/app/.claude/skills/pilotbook-implement.md")).toBe(
+      "user rewrote this skill\n",
+    );
+  });
+
   it("points a fresh AGENTS.md at pb instructions overview", () => {
     const fs = seedInitFs();
     initProject("/app", { ai: true }, fs);
     const agents = fs.readFile("/app/AGENTS.md");
     expect(agents).toContain("pb instructions overview");
-    expect(agents).toContain("pb skill implement");
+    expect(agents).toContain("pb skill discover");
     expect(agents).not.toContain("skills/implement.md");
     expect(agents).not.toContain(".cursor/skills/groom");
   });
