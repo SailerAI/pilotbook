@@ -25,6 +25,7 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
     "ui",
     "mcp",
     "export",
+    "sync",
     "promote",
     "bump",
     "impact",
@@ -80,8 +81,9 @@ export function complete(ctx: OpContext, args: string[]): CompletionHit[] {
       last,
     );
   }
-  if (prev === "--to") {
-    const values = cmd === "promote" ? ["epic", "story"] : ["jira", "notion"];
+  if (prev === "--to" || prev === "--from") {
+    const values =
+      cmd === "promote" ? ["epic", "story"] : cmd === "sync" ? ["notion"] : ["jira", "notion"];
     return filter(
       values.map((v) => ({ value: v })),
       last,

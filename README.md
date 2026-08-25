@@ -129,7 +129,8 @@ pb brief TA<TAB>    # TASK-001  Transaction API
 | `pb ui` | Kanban + graph + brief preview (127.0.0.1). Reloads when markdown on disk changes. |
 | `pb mcp` | MCP server on stdio |
 | `pb seed --from brief.md` | Materialize epics/stories/tasks |
-| `pb export --to jira\|notion --dry-run` | One-way export |
+| `pb sync --init --to notion --from notion` | Two-way Notion sync (`--dry-run` default) |
+| `pb export --to jira\|notion --dry-run` | One-way export (Notion uses the same upsert as `pb sync --to notion`) |
 | `pb manifest` | Write `.pb/graph.json` for `repo#ID` refs |
 | `pb hook install` | Claude Code + Cursor session hooks |
 
@@ -158,6 +159,12 @@ checks:
 hooks:
   block_on_unverified: false
   prime_budget: 6000
+# interop:
+#   notion:
+#     token_env: NOTION_TOKEN
+#     parent_page_id: "<page that will hold the six databases>"
+#     version: "2025-09-03"
+#     push_on_write: false
 ```
 
 `checks.report` is an optional repo-relative JUnit XML path read after `checks.commands` run.

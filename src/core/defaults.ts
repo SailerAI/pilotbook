@@ -257,5 +257,6 @@ export function defaultConfig(): PilotbookConfig {
     checks: { commands: [] },
     hooks: { blockOnUnverified: false, primeBudget: DEFAULT_PRIME_BUDGET },
     peers: [],
+    interop: {},
   };
 }

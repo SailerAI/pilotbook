@@ -1,9 +1,9 @@
 import path from "node:path";
-import { parse as parseYaml } from "yaml";
+import { parseDocument, parse as parseYaml } from "yaml";
 import { z } from "zod";
 import { builtinEdges, builtinTypes, defaultConfig } from "./defaults.ts";
 import type { FileSystem } from "./fs.ts";
-import type { EdgeKind, PilotbookConfig, TypeConfig } from "./types.ts";
+import type { EdgeKind, NotionDatabaseRef, PilotbookConfig, TypeConfig } from "./types.ts";
 
 const typeOverlaySchema = z
   .object({
@@ -29,6 +29,14 @@ const edgeSchema = z
     blocking: z.boolean().optional(),
     acyclic: z.boolean().optional(),
     scalar: z.boolean().optional(),
+  })
+  .strict();
+
+const notionDbRefSchema = z
+  .object({
+    id: z.string(),
+    data_source_id: z.string().optional(),
+    dataSourceId: z.string().optional(),
   })
   .strict();
 
@@ -63,6 +71,24 @@ const fileSchema = z
           manifest: z.string(),
         }),
       )
+      .optional(),
+    interop: z
+      .object({
+        notion: z
+          .object({
+            token_env: z.string().optional(),
+            tokenEnv: z.string().optional(),
+            parent_page_id: z.string().optional(),
+            parentPageId: z.string().optional(),
+            version: z.string().optional(),
+            push_on_write: z.boolean().optional(),
+            pushOnWrite: z.boolean().optional(),
+            databases: z.record(notionDbRefSchema).optional(),
+          })
+          .strict()
+          .optional(),
+      })
+      .strict()
       .optional(),
   })
   .strict();
@@ -192,6 +218,28 @@ export function parseConfigFile(text: string): PilotbookConfig {
         parsed.hooks?.primeBudget ?? parsed.hooks?.prime_budget ?? base.hooks.primeBudget,
     },
     peers: parsed.peers ?? [],
+    interop: parsed.interop?.notion
+      ? {
+          notion: {
+            tokenEnv:
+              parsed.interop.notion.tokenEnv ?? parsed.interop.notion.token_env ?? "NOTION_TOKEN",
+            parentPageId:
+              parsed.interop.notion.parentPageId ?? parsed.interop.notion.parent_page_id ?? "",
+            version: parsed.interop.notion.version ?? "2025-09-03",
+            pushOnWrite:
+              parsed.interop.notion.pushOnWrite ?? parsed.interop.notion.push_on_write ?? false,
+            databases: Object.fromEntries(
+              Object.entries(parsed.interop.notion.databases ?? {}).map(([type, ref]) => [
+                type,
+                {
+                  id: ref.id,
+                  dataSourceId: ref.dataSourceId ?? ref.data_source_id ?? ref.id,
+                },
+              ]),
+            ),
+          },
+        }
+      : {},
   };
 }
 
@@ -207,6 +255,20 @@ export function loadConfig(
     const msg = err instanceof Error ? err.message : String(err);
     throw new Error(`${toPosix(path.relative(projectRoot, configPath) || configPath)}: ${msg}`);
   }
+}
+
+export function persistNotionDatabases(
+  yamlText: string,
+  databases: Record<string, NotionDatabaseRef>,
+): string {
+  const doc = parseDocument(yamlText || "{}");
+  const mapped: Record<string, { id: string; data_source_id: string }> = {};
+  for (const [type, ref] of Object.entries(databases)) {
+    mapped[type] = { id: ref.id, data_source_id: ref.dataSourceId };
+  }
+  doc.setIn(["interop", "notion", "databases"], mapped);
+  const out = String(doc);
+  return out.endsWith("\n") ? out : `${out}\n`;
 }
 
 export function dumpDefaultConfig(): string {

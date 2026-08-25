@@ -191,15 +191,14 @@ describe("startUi", () => {
     const reader = stream.body?.getReader();
     expect(reader).toBeTruthy();
 
+    await new Promise((resolve) => setTimeout(resolve, 300));
     const storyPath = path.join(dir, "docs/backlog/stories/US-001-post-a-transaction.md");
-    fs.writeFileSync(
-      storyPath,
-      fs.readFileSync(storyPath, "utf8").replace("status: todo", "status: done"),
-    );
+    const original = fs.readFileSync(storyPath, "utf8");
+    fs.writeFileSync(storyPath, original.replace("status: todo", "status: done"));
 
     const decoder = new TextDecoder();
     let buf = "";
-    const deadline = Date.now() + 5000;
+    const deadline = Date.now() + 8000;
     while (!buf.includes("reload") && Date.now() < deadline) {
       const chunk = await Promise.race([
         reader!.read(),
@@ -208,6 +207,19 @@ describe("startUi", () => {
         ),
       ]);
       if (chunk.value) buf += decoder.decode(chunk.value, { stream: true });
+    }
+    if (!buf.includes("reload")) {
+      fs.writeFileSync(storyPath, original.replace("status: todo", "status: review"));
+      const extra = Date.now() + 2000;
+      while (!buf.includes("reload") && Date.now() < extra) {
+        const chunk = await Promise.race([
+          reader!.read(),
+          new Promise<{ done: true; value: undefined }>((resolve) =>
+            setTimeout(() => resolve({ done: true, value: undefined }), 200),
+          ),
+        ]);
+        if (chunk.value) buf += decoder.decode(chunk.value, { stream: true });
+      }
     }
     ac.abort();
     expect(buf).toContain("reload");

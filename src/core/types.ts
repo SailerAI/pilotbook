@@ -68,6 +68,19 @@ export interface PeerManifestRef {
   manifest: string;
 }
 
+export interface NotionDatabaseRef {
+  id: string;
+  dataSourceId: string;
+}
+
+export interface NotionInteropConfig {
+  tokenEnv: string;
+  parentPageId: string;
+  version: string;
+  pushOnWrite: boolean;
+  databases: Partial<Record<string, NotionDatabaseRef>>;
+}
+
 export interface VerifiedBlock {
   at: string;
   checks: string[];
@@ -87,6 +100,7 @@ export interface PilotbookConfig {
   checks: { commands: string[]; report?: string };
   hooks: { blockOnUnverified: boolean; primeBudget: number };
   peers: PeerManifestRef[];
+  interop: { notion?: NotionInteropConfig };
 }
 
 export interface ParsedItem {

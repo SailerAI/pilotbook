@@ -37,6 +37,7 @@ import {
   splitItem,
   startUi,
   statusOf,
+  syncNotion,
   verifyItem,
   withProject,
   writeManifest,
@@ -492,6 +493,39 @@ const main = defineCommand({
             Boolean(args.json),
             result,
             `${result.dryRun ? "dry-run " : ""}export ${result.target}: ${result.items.length} items\n`,
+          );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    sync: defineCommand({
+      meta: { description: "Two-way Notion sync (provision, push, pull, intake)" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        init: { type: "boolean", default: false, description: "Create Notion databases" },
+        to: { type: "string", description: "notion — push markdown to Notion" },
+        from: { type: "string", description: "notion — pull Notion into markdown" },
+        "dry-run": { type: "boolean", default: true },
+      },
+      async run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          const toNotion = args.to === "notion";
+          const fromNotion = args.from === "notion";
+          const result = await syncNotion(ctx, {
+            init: Boolean(args.init),
+            ...(toNotion || fromNotion ? { to: toNotion, from: fromNotion } : {}),
+            dryRun: args["dry-run"] !== false,
+          });
+          const summary = result.actions.length
+            ? result.actions.map((a) => `${a.action}\t${a.side}\t${a.id}`).join("\n")
+            : "(no actions)";
+          emit(
+            Boolean(args.json),
+            result,
+            `${result.dryRun ? "dry-run " : ""}sync init=${result.init} to=${result.to} from=${result.from}\n${summary}\n`,
           );
         } catch (err) {
           fail(err);

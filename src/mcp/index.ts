@@ -25,6 +25,7 @@ import {
   skillOf,
   splitItem,
   statusOf,
+  syncNotion,
   updateItem,
   verifyItem,
   withProject,
@@ -233,7 +234,23 @@ const TOOLS = [
       required: ["name"],
     },
   },
+  {
+    name: "sync",
+    description: "Two-way Notion sync: provision databases, push, pull, and intake",
+    inputSchema: {
+      type: "object",
+      properties: {
+        init: { type: "boolean" },
+        to: { type: "boolean", description: "Push markdown to Notion" },
+        from: { type: "boolean", description: "Pull Notion into markdown" },
+        dryRun: { type: "boolean" },
+      },
+    },
+  },
 ];
+
+export const MCP_TOOLS: ReadonlyArray<{ name: string; description: string; inputSchema: object }> =
+  TOOLS;
 
 function textResult(obj: unknown): { content: Array<{ type: "text"; text: string }> } {
   return {
@@ -241,7 +258,11 @@ function textResult(obj: unknown): { content: Array<{ type: "text"; text: string
   };
 }
 
-function callTool(ctx: OpContext, name: string, params: Record<string, unknown>): unknown {
+function callTool(
+  ctx: OpContext,
+  name: string,
+  params: Record<string, unknown>,
+): unknown | Promise<unknown> {
   switch (name) {
     case "lint":
       return textResult(lint(ctx));
@@ -323,6 +344,14 @@ function callTool(ctx: OpContext, name: string, params: Record<string, unknown>)
       return textResult(listSkills());
     case "skill":
       return textResult(skillOf(String(params.name ?? "")));
+    case "sync": {
+      const explicit = params.to === true || params.from === true;
+      return syncNotion(ctx, {
+        init: Boolean(params.init),
+        ...(explicit ? { to: Boolean(params.to), from: Boolean(params.from) } : {}),
+        dryRun: params.dryRun !== false,
+      }).then((result) => textResult(result));
+    }
     default:
       throw new Error(`unknown tool: ${name}`);
   }
@@ -332,6 +361,7 @@ export async function runMcp(cwd?: string): Promise<void> {
   const ctx = withProject(cwd);
   input.setEncoding("utf8");
   let buf = "";
+  let chain = Promise.resolve();
   input.on("data", (chunk: string) => {
     buf += chunk;
     const parts = buf.split("\n");
@@ -345,32 +375,35 @@ export async function runMcp(cwd?: string): Promise<void> {
         continue;
       }
       const id = req.id;
-      try {
-        if (req.method === "initialize") {
-          reply(id, {
-            protocolVersion: "2024-11-05",
-            capabilities: { tools: {} },
-            serverInfo: { name: "pilotbook", version: "0.0.0" },
-          });
-        } else if (req.method === "notifications/initialized") {
-          // no-op
-        } else if (req.method === "tools/list") {
-          reply(id, { tools: TOOLS });
-        } else if (req.method === "tools/call") {
-          const name = String(req.params?.name ?? "");
-          const args = (req.params?.arguments as Record<string, unknown>) ?? {};
-          reply(id, callTool(ctx, name, args));
-        } else if (req.method === "ping") {
-          reply(id, {});
-        } else {
-          replyErr(id, `unknown method ${req.method}`, -32601);
+      chain = chain.then(async () => {
+        try {
+          if (req.method === "initialize") {
+            reply(id, {
+              protocolVersion: "2024-11-05",
+              capabilities: { tools: {} },
+              serverInfo: { name: "pilotbook", version: "0.0.0" },
+            });
+          } else if (req.method === "notifications/initialized") {
+            // no-op
+          } else if (req.method === "tools/list") {
+            reply(id, { tools: TOOLS });
+          } else if (req.method === "tools/call") {
+            const name = String(req.params?.name ?? "");
+            const args = (req.params?.arguments as Record<string, unknown>) ?? {};
+            reply(id, await callTool(ctx, name, args));
+          } else if (req.method === "ping") {
+            reply(id, {});
+          } else {
+            replyErr(id, `unknown method ${req.method}`, -32601);
+          }
+        } catch (err) {
+          const msg = err instanceof Error ? err.message : String(err);
+          const fix = err instanceof PilotbookError && err.fix ? `; fix: ${err.fix}` : "";
+          replyErr(id, `${msg}${fix}`);
         }
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
-        const fix = err instanceof PilotbookError && err.fix ? `; fix: ${err.fix}` : "";
-        replyErr(id, `${msg}${fix}`);
-      }
+      });
     }
   });
   await new Promise<void>((resolve) => input.on("end", resolve));
+  await chain;
 }
