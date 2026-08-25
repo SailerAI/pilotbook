@@ -1,6 +1,6 @@
 {
   "name": "pilotbook",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Repo-native project management for AI agents. Your repo has the chart. Pilotbook has the directions.",
   "license": "MIT",
   "type": "module",
