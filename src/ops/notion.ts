@@ -7,11 +7,12 @@ import type {
   PilotbookConfig,
   TypeConfig,
 } from "../core/types.ts";
-import { SIZE } from "../core/types.ts";
 import { type OpContext, PilotbookError, reload } from "./context.ts";
 import { createItem, updateItem } from "./items.ts";
 
 export const NOTION_TYPE_ORDER = ["adr", "business-rule", "idea", "epic", "story", "task"] as const;
+
+export const WIZARD_TYPE_ORDER = ["epic", "story", "task", "idea", "adr", "business-rule"] as const;
 
 export const NOTION_API = "https://api.notion.com/v1";
 
@@ -48,6 +49,26 @@ export interface SyncOpts {
   env?: Record<string, string | undefined>;
 }
 
+export interface NotionCatalogEntry {
+  id: string;
+  title: string;
+  dataSourceId: string;
+  url: string;
+  hasPilotbookId: boolean;
+}
+
+export interface NotionCatalogResult {
+  tokenOk: boolean;
+  tokenEnv: string;
+  databases: NotionCatalogEntry[];
+  bindings: Record<string, NotionDatabaseRef>;
+}
+
+export interface BindNotionResult {
+  databases: Record<string, NotionDatabaseRef>;
+  warnings: string[];
+}
+
 interface PageMapEntry {
   pageId: string;
   pushHash: string;
@@ -74,14 +95,8 @@ interface NotionPage {
 
 const BIDIR = ["title", "status", "owner", "priority", "tags", "estimate", "phase"] as const;
 
-const DB_TITLES: Record<(typeof NOTION_TYPE_ORDER)[number], string> = {
-  epic: "Pilotbook Epics",
-  story: "Pilotbook Stories",
-  task: "Pilotbook Tasks",
-  idea: "Pilotbook Ideas",
-  adr: "Pilotbook ADRs",
-  "business-rule": "Pilotbook Business rules",
-};
+const HEX32 = /[0-9a-f]{32}/i;
+const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 
 function asList(value: unknown): string[] {
   if (Array.isArray(value)) return value.map(String).filter(Boolean);
@@ -143,68 +158,6 @@ function titleProp(content: string): Record<string, unknown> {
 
 function richTextProp(content: string): Record<string, unknown> {
   return { rich_text: [{ type: "text", text: { content: content.slice(0, 2000) } }] };
-}
-
-function selectOptions(names: string[]): { select: { options: Array<{ name: string }> } } {
-  return { select: { options: names.map((name) => ({ name })) } };
-}
-
-function schemaProperties(type: string, cfg: TypeConfig): Record<string, unknown> {
-  const status = cfg.enums.status ?? [];
-  const props: Record<string, unknown> = {
-    Name: { title: {} },
-    "Pilotbook ID": { rich_text: {} },
-    Status: selectOptions(status),
-    Tags: { multi_select: { options: [] } },
-  };
-  if (hasField(cfg, "priority") && cfg.enums.priority) {
-    props.Priority = selectOptions(cfg.enums.priority);
-  }
-  if (hasField(cfg, "estimate")) props.Estimate = { number: {} };
-  if (hasField(cfg, "phase")) props.Phase = { number: {} };
-  if (hasField(cfg, "owner")) props.Owner = { rich_text: {} };
-  if (hasField(cfg, "impact")) props.Impact = selectOptions([...SIZE]);
-  if (hasField(cfg, "effort")) props.Effort = selectOptions([...SIZE]);
-  if (hasField(cfg, "version")) props.Version = { number: {} };
-  if (hasField(cfg, "date")) props.Date = { date: {} };
-  if (hasField(cfg, "deciders")) props.Deciders = { rich_text: {} };
-  if (hasField(cfg, "domain")) props.Domain = { rich_text: {} };
-  if (cfg.parent) props["Parent ID"] = { rich_text: {} };
-  if (type === "story" || type === "task" || type === "epic") {
-    props["Depends on IDs"] = { rich_text: {} };
-  }
-  return props;
-}
-
-function relationPatches(
-  databases: Record<string, NotionDatabaseRef>,
-): Record<string, Record<string, unknown>> {
-  const patch: Record<string, Record<string, unknown>> = {};
-  const ds = (t: string) => databases[t]?.dataSourceId;
-  if (ds("story") && ds("epic")) {
-    patch.story = { Parent: { relation: { data_source_id: ds("epic") } } };
-  }
-  if (ds("task") && ds("story")) {
-    patch.task = { Parent: { relation: { data_source_id: ds("story") } } };
-  }
-  for (const t of ["epic", "story", "task"] as const) {
-    if (ds(t)) {
-      patch[t] = { ...patch[t], "Depends on": { relation: { data_source_id: ds(t) } } };
-    }
-  }
-  if (ds("story") && ds("business-rule")) {
-    patch.story = {
-      ...patch.story,
-      "Business rules": { relation: { data_source_id: ds("business-rule") } },
-    };
-  }
-  if (ds("story") && ds("adr")) {
-    patch.story = { ...patch.story, ADRs: { relation: { data_source_id: ds("adr") } } };
-  }
-  if (ds("adr")) {
-    patch.adr = { ...patch.adr, Supersedes: { relation: { data_source_id: ds("adr") } } };
-  }
-  return patch;
 }
 
 function bodyBlocks(markdown: string): unknown[] {
@@ -325,7 +278,7 @@ class NotionHttp {
 
   private isWrite(method: string, path: string): boolean {
     if (method === "GET") return false;
-    if (method === "POST" && path.includes("/query")) return false;
+    if (method === "POST" && (path.includes("/query") || path.endsWith("/search"))) return false;
     return method === "POST" || method === "PATCH" || method === "DELETE";
   }
 
@@ -350,51 +303,134 @@ class NotionHttp {
   }
 }
 
-function refsFromCreate(json: Record<string, unknown>): NotionDatabaseRef {
+function refsFromRetrieve(json: Record<string, unknown>): NotionDatabaseRef {
   const id = String(json.id ?? "");
   const sources = json.data_sources as Array<{ id?: string }> | undefined;
   const initial = json.initial_data_source as { id?: string } | undefined;
-  const dataSourceId = String(sources?.[0]?.id ?? initial?.id ?? id);
-  if (!id) throw new PilotbookError("Notion database create returned no id");
-  return { id, dataSourceId };
+  const dataSourceId = String(sources?.[0]?.id ?? initial?.id ?? "");
+  if (!id) throw new PilotbookError("Notion database retrieve returned no id");
+  return { id, dataSourceId: dataSourceId || id };
+}
+
+function titleFromNotion(json: Record<string, unknown>): string {
+  const title = json.title as
+    | Array<{ plain_text?: string; text?: { content?: string } }>
+    | undefined;
+  if (!title?.length) return "";
+  return title
+    .map((t) => t.plain_text ?? t.text?.content ?? "")
+    .join("")
+    .trim();
+}
+
+function propertiesHavePilotbookId(props: unknown): boolean {
+  return Boolean(props && typeof props === "object" && "Pilotbook ID" in props);
+}
+
+export function parseNotionDatabaseId(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    throw new PilotbookError("database id is empty", "invalid-database-id", 400);
+  }
+  const fromUrl = /^https?:\/\//i.test(trimmed) || trimmed.includes("notion.so");
+  if (fromUrl) {
+    const uuidIn = trimmed.match(UUID);
+    if (uuidIn) return uuidIn[0].replace(/-/g, "").toLowerCase();
+    const hexIn = trimmed.match(HEX32);
+    if (hexIn) return hexIn[0].toLowerCase();
+    throw new PilotbookError(
+      `could not parse a Notion database id from ${trimmed}`,
+      "invalid-database-id",
+      400,
+      "Paste a database URL or a 32-character id",
+    );
+  }
+  const dashed = trimmed.match(new RegExp(`^${UUID.source}$`, "i"));
+  if (dashed) return dashed[0].replace(/-/g, "").toLowerCase();
+  const hex = trimmed.match(new RegExp(`^${HEX32.source}$`, "i"));
+  if (hex) return hex[0].toLowerCase();
+  return trimmed;
+}
+
+function defaultNotion(): NotionInteropConfig {
+  return {
+    tokenEnv: "NOTION_TOKEN",
+    version: "2025-09-03",
+    pushOnWrite: false,
+    databases: {},
+  };
+}
+
+function tokenEnvName(cfg: NotionInteropConfig | undefined): string {
+  return cfg?.tokenEnv || "NOTION_TOKEN";
 }
 
 function requireToken(
   cfg: NotionInteropConfig | undefined,
   env: Record<string, string | undefined>,
 ): { token: string; notion: NotionInteropConfig } {
-  if (!cfg?.parentPageId) {
-    throw new PilotbookError(
-      "interop.notion.parent_page_id must be set to sync",
-      "missing-config",
-      400,
-      "Set interop.notion.parent_page_id in pilotbook.config.yml",
-    );
-  }
-  const tokenName = cfg.tokenEnv || "NOTION_TOKEN";
-  const token = env[tokenName];
+  const notion = cfg ?? defaultNotion();
+  const name = tokenEnvName(notion);
+  const token = env[name];
   if (!token) {
     throw new PilotbookError(
-      `${tokenName} must be set to sync`,
+      `${name} must be set to sync`,
       "missing-token",
       400,
-      `export ${tokenName}=...`,
+      `export ${name}=... and share the integration with each database`,
     );
   }
-  return { token, notion: cfg };
+  return { token, notion };
+}
+
+function unboundError(): never {
+  throw new PilotbookError(
+    "No Notion databases are bound",
+    "not-bound",
+    400,
+    "Open the Notion wizard or run pb sync --bind",
+  );
 }
 
 function allDatabases(cfg: NotionInteropConfig | undefined): Record<string, NotionDatabaseRef> {
   const out: Record<string, NotionDatabaseRef> = {};
   for (const type of NOTION_TYPE_ORDER) {
     const ref = cfg?.databases[type];
-    if (ref) out[type] = ref;
+    if (ref?.id) out[type] = ref;
   }
   return out;
 }
 
-function provisioned(cfg: NotionInteropConfig | undefined): boolean {
-  return NOTION_TYPE_ORDER.every((t) => cfg?.databases[t]?.id && cfg.databases[t]?.dataSourceId);
+function persistBindings(ctx: OpContext, databases: Record<string, NotionDatabaseRef>): void {
+  const path = ctx.project.configPath;
+  if (!path) throw new PilotbookError("no pilotbook.config.yml to persist database ids");
+  ctx.fs.writeFile(path, persistNotionDatabases(ctx.fs.readFile(path), databases));
+  reload(ctx);
+}
+
+async function retrieveDatabase(
+  http: NotionHttp,
+  idOrUrl: string,
+): Promise<{ ref: NotionDatabaseRef; title: string; url: string; hasPilotbookId: boolean }> {
+  const id = parseNotionDatabaseId(idOrUrl);
+  const json = await http.request("GET", `/databases/${id}`);
+  const ref = refsFromRetrieve(json);
+  let hasPilotbookId = propertiesHavePilotbookId(json.properties);
+  if (!hasPilotbookId && ref.dataSourceId) {
+    try {
+      const ds = await http.request("GET", `/data_sources/${ref.dataSourceId}`);
+      hasPilotbookId = propertiesHavePilotbookId(ds.properties);
+    } catch {
+      hasPilotbookId = false;
+    }
+  }
+  return {
+    ref,
+    title: titleFromNotion(json) || ref.id,
+    url:
+      typeof json.url === "string" ? json.url : `https://www.notion.so/${ref.id.replace(/-/g, "")}`,
+    hasPilotbookId,
+  };
 }
 
 async function queryAll(http: NotionHttp, ds: string): Promise<NotionPage[]> {
@@ -444,47 +480,154 @@ async function runInit(
   dryRun: boolean,
   actions: SyncAction[],
 ): Promise<Record<string, NotionDatabaseRef>> {
-  if (provisioned(notion)) {
-    for (const type of NOTION_TYPE_ORDER) {
-      actions.push({
-        action: "skip",
-        side: "to",
-        id: type,
-        type: "database",
-        detail: "already provisioned",
+  const existing = allDatabases(notion);
+  if (!Object.keys(existing).length) unboundError();
+  const refreshed: Record<string, NotionDatabaseRef> = { ...existing };
+  for (const type of NOTION_TYPE_ORDER) {
+    const ref = existing[type];
+    if (!ref) continue;
+    actions.push({ action: "update", side: "to", id: type, type: "database", detail: "refresh" });
+    if (dryRun) continue;
+    const retrieved = await retrieveDatabase(http, ref.id);
+    refreshed[type] = retrieved.ref;
+  }
+  if (!dryRun) persistBindings(ctx, refreshed);
+  return refreshed;
+}
+
+function httpFrom(
+  ctx: OpContext,
+  opts: { fetch?: FetchLike; env?: Record<string, string | undefined> },
+): NotionHttp {
+  const env = opts.env ?? process.env;
+  const fetchFn = opts.fetch ?? (globalThis.fetch as FetchLike);
+  const { token, notion } = requireToken(notionCfg(ctx.project.config), env);
+  return new NotionHttp(token, notion.version || "2025-09-03", fetchFn);
+}
+
+export async function notionCatalog(
+  ctx: OpContext,
+  opts: { fetch?: FetchLike; env?: Record<string, string | undefined> } = {},
+): Promise<NotionCatalogResult> {
+  const env = opts.env ?? process.env;
+  const cfg = notionCfg(ctx.project.config);
+  const tokenEnv = tokenEnvName(cfg);
+  const bindings = allDatabases(cfg);
+  const token = env[tokenEnv];
+  if (!token) {
+    return { tokenOk: false, tokenEnv, databases: [], bindings };
+  }
+  const fetchFn = opts.fetch ?? (globalThis.fetch as FetchLike);
+  const http = new NotionHttp(token, cfg?.version || "2025-09-03", fetchFn);
+  const found: Array<{ id: string; title: string; url: string }> = [];
+  let cursor: string | undefined;
+  do {
+    const body: Record<string, unknown> = {
+      filter: { value: "database", property: "object" },
+      page_size: 100,
+    };
+    if (cursor) body.start_cursor = cursor;
+    const json = await http.request("POST", "/search", body);
+    const results = (json.results as Array<Record<string, unknown>> | undefined) ?? [];
+    for (const row of results) {
+      if (row.object !== "database" && row.object !== undefined) continue;
+      const id = String(row.id ?? "");
+      if (!id) continue;
+      found.push({
+        id,
+        title: titleFromNotion(row),
+        url: typeof row.url === "string" ? row.url : "",
       });
     }
-    return allDatabases(notion);
-  }
-  const created: Record<string, NotionDatabaseRef> = { ...allDatabases(notion) };
-  for (const type of NOTION_TYPE_ORDER) {
-    if (created[type]) {
-      actions.push({ action: "skip", side: "to", id: type, type: "database" });
-      continue;
+    cursor = json.has_more ? String(json.next_cursor ?? "") : undefined;
+    if (!cursor) break;
+  } while (cursor);
+  const databases: NotionCatalogEntry[] = [];
+  for (const row of found) {
+    try {
+      const retrieved = await retrieveDatabase(http, row.id);
+      databases.push({
+        id: retrieved.ref.id,
+        title: retrieved.title || row.title || retrieved.ref.id,
+        dataSourceId: retrieved.ref.dataSourceId,
+        url: retrieved.url || row.url,
+        hasPilotbookId: retrieved.hasPilotbookId,
+      });
+    } catch {
+      databases.push({
+        id: row.id,
+        title: row.title || row.id,
+        dataSourceId: "",
+        url: row.url,
+        hasPilotbookId: false,
+      });
     }
-    actions.push({ action: "create", side: "to", id: type, type: "database" });
-    if (dryRun) continue;
-    const cfg = ctx.project.config.types[type];
-    if (!cfg) continue;
-    const json = await http.request("POST", "/databases", {
-      parent: { type: "page_id", page_id: notion.parentPageId },
-      title: [{ type: "text", text: { content: DB_TITLES[type] } }],
-      initial_data_source: { properties: schemaProperties(type, cfg) },
-    });
-    created[type] = refsFromCreate(json);
   }
-  if (dryRun) return created;
-  const patches = relationPatches(created);
-  for (const [type, props] of Object.entries(patches)) {
-    const ds = created[type]?.dataSourceId;
-    if (!ds) continue;
-    await http.request("PATCH", `/data_sources/${ds}`, { properties: props });
+  return { tokenOk: true, tokenEnv, databases, bindings };
+}
+
+export function parseBindMap(raw: unknown): Record<string, string> {
+  let value = raw;
+  if (typeof value === "string") {
+    try {
+      value = JSON.parse(value) as unknown;
+    } catch {
+      throw new PilotbookError(
+        "bind payload must be JSON object of type to database id or URL",
+        "invalid-bind",
+        400,
+      );
+    }
   }
-  const path = ctx.project.configPath;
-  if (!path) throw new PilotbookError("no pilotbook.config.yml to persist database ids");
-  ctx.fs.writeFile(path, persistNotionDatabases(ctx.fs.readFile(path), created));
-  reload(ctx);
-  return created;
+  if (value && typeof value === "object" && !Array.isArray(value) && "databases" in value) {
+    value = (value as { databases: unknown }).databases;
+  }
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new PilotbookError(
+      "bind payload must be JSON object of type to database id or URL",
+      "invalid-bind",
+      400,
+    );
+  }
+  const out: Record<string, string> = {};
+  const allowed = new Set<string>(WIZARD_TYPE_ORDER);
+  for (const [type, id] of Object.entries(value as Record<string, unknown>)) {
+    if (!allowed.has(type)) {
+      throw new PilotbookError(`unknown Pilotbook type ${type}`, "invalid-bind", 400);
+    }
+    if (id == null || id === "") continue;
+    if (typeof id !== "string") {
+      throw new PilotbookError(`${type} database id must be a string`, "invalid-bind", 400);
+    }
+    out[type] = id;
+  }
+  return out;
+}
+
+export async function bindNotion(
+  ctx: OpContext,
+  opts: {
+    databases: Record<string, string> | unknown;
+    fetch?: FetchLike;
+    env?: Record<string, string | undefined>;
+  },
+): Promise<BindNotionResult> {
+  const map = parseBindMap(opts.databases);
+  if (!Object.keys(map).length) {
+    throw new PilotbookError("bind at least one database", "invalid-bind", 400);
+  }
+  const http = httpFrom(ctx, opts);
+  const next = allDatabases(notionCfg(ctx.project.config));
+  const warnings: string[] = [];
+  for (const [type, idOrUrl] of Object.entries(map)) {
+    const retrieved = await retrieveDatabase(http, idOrUrl);
+    next[type] = retrieved.ref;
+    if (!retrieved.hasPilotbookId) {
+      warnings.push(`${type}: bound database has no Pilotbook ID property`);
+    }
+  }
+  persistBindings(ctx, next);
+  return { databases: next, warnings };
 }
 
 async function pushItems(
@@ -747,15 +890,8 @@ export async function syncNotion(ctx: OpContext, opts: SyncOpts = {}): Promise<S
     databases = await runInit(ctx, http, notionCfg(ctx.project.config) ?? notion, dryRun, actions);
   }
   const live = allDatabases(notionCfg(ctx.project.config));
-  const refs = Object.keys(live).length >= NOTION_TYPE_ORDER.length ? live : databases;
-  if ((to || from) && Object.keys(refs).length < NOTION_TYPE_ORDER.length && !dryRun) {
-    throw new PilotbookError(
-      "Notion databases are not provisioned",
-      "not-provisioned",
-      400,
-      "pb sync --init",
-    );
-  }
+  const refs = Object.keys(live).length ? live : databases;
+  if ((to || from || init) && !Object.keys(refs).length) unboundError();
   if (from && Object.keys(refs).length) await pullItems(ctx, http, refs, dryRun, actions);
   if (to && Object.keys(refs).length) await pushItems(ctx, http, refs, dryRun, actions);
   return { dryRun, init, to, from, actions, databases: refs };

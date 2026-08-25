@@ -10,13 +10,13 @@ owner: unassigned
 tags: [interop, notion]
 depends_on: []
 related: [IDEA-001, ADR-0001, ADR-0002, ADR-0008, BR-001]
-goal: A builder can provision six Notion databases from Pilotbook and two-way sync properties so Notion stays the human board and markdown stays the source of truth.
+goal: A builder can bind existing Notion databases (they may live separately) and two-way sync properties so Notion stays the human board and markdown stays the source of truth.
 created: 2026-08-24
 updated: 2026-08-24
 ---
 ## Outcome
 
-`pb sync` provisions Epics, Stories, Tasks, Ideas, ADRs, and Business rules under one Notion parent page, upserts by Pilotbook ID without duplicating rows, dry-runs the plan, pulls bidirectional property edits through `updateItem`, and intakes Notion-only rows through `createItem`. Body stays push-only. Conflicts prefer Pilotbook. Jira is unchanged.
+`pb sync` binds each type to an existing Notion database (no shared parent page), upserts by Pilotbook ID without duplicating rows, dry-runs the plan, pulls bidirectional property edits through `updateItem`, and intakes Notion-only rows through `createItem`. Body stays push-only. Conflicts prefer Pilotbook. Jira is unchanged.
 
 ## Stories
 
@@ -25,6 +25,7 @@ updated: 2026-08-24
 - US-040 — Preview a sync before it writes
 - US-041 — Pull Notion property edits into markdown
 - US-042 — Turn a Notion-only row into a Pilotbook item
+- US-043 — Bind existing Notion databases from the board
 
 ## Success metrics
 

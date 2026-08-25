@@ -75,7 +75,7 @@ export interface NotionDatabaseRef {
 
 export interface NotionInteropConfig {
   tokenEnv: string;
-  parentPageId: string;
+  parentPageId?: string;
   version: string;
   pushOnWrite: boolean;
   databases: Partial<Record<string, NotionDatabaseRef>>;

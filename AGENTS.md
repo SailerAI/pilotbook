@@ -17,5 +17,6 @@ Follow the in-repo skills rather than copies:
 - [skills/groom.md](skills/groom.md)
 - [skills/prioritize.md](skills/prioritize.md)
 - [skills/discover.md](skills/discover.md)
+- [skills/shape.md](skills/shape.md)
 
 Treat linked business rules and accepted ADRs as binding. Create items with `pnpm pb new <type> --title "..."`. Never invent IDs.

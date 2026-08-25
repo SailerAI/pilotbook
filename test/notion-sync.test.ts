@@ -3,7 +3,7 @@ import { dumpDefaultConfig, parseConfigFile } from "../src/core/config.ts";
 import { complete } from "../src/ops/complete.ts";
 import { exportItems } from "../src/ops/interop.ts";
 import { updateItem } from "../src/ops/items.ts";
-import { syncNotion } from "../src/ops/notion.ts";
+import { bindNotion, notionCatalog, parseNotionDatabaseId, syncNotion } from "../src/ops/notion.ts";
 import { adr, epic, idea, makeProject, rule, story, task } from "./helpers.ts";
 
 const ENV = { NOTION_TOKEN: "tok" };
@@ -31,6 +31,14 @@ interop:
 ${databases}`;
 }
 
+interface CatalogDb {
+  id: string;
+  title: string;
+  dataSourceId: string;
+  url?: string;
+  hasPilotbookId?: boolean;
+}
+
 interface MockPage {
   id: string;
   ds: string;
@@ -42,7 +50,17 @@ function json(data: unknown, ok = true, status = 200) {
   return { ok, status, json: async () => data };
 }
 
-function makeFetch(pages: MockPage[] = []) {
+function databasePayload(db: CatalogDb) {
+  return {
+    id: db.id,
+    title: [{ plain_text: db.title }],
+    data_sources: [{ id: db.dataSourceId }],
+    properties: db.hasPilotbookId === false ? {} : { "Pilotbook ID": { rich_text: {} } },
+    url: db.url ?? `https://www.notion.so/${db.id.replace(/-/g, "")}`,
+  };
+}
+
+function makeFetch(pages: MockPage[] = [], catalog: CatalogDb[] = []) {
   const mutating: string[] = [];
   let seq = 1;
   const fetch = async (url: string | URL, init?: { method?: string; body?: string }) => {
@@ -50,9 +68,46 @@ function makeFetch(pages: MockPage[] = []) {
     const method = init?.method ?? "GET";
     const body = init?.body ? (JSON.parse(init.body) as Record<string, unknown>) : {};
     const isQuery = u.includes("/query");
-    const isMut = (method === "POST" && !isQuery) || method === "PATCH" || method === "DELETE";
+    const isSearch = u.endsWith("/search");
+    const isMut =
+      (method === "POST" && !isQuery && !isSearch) || method === "PATCH" || method === "DELETE";
     if (isMut) mutating.push(`${method} ${u.replace("https://api.notion.com/v1", "")}`);
 
+    if (method === "POST" && isSearch) {
+      return json({
+        results: catalog.map((db) => ({
+          object: "database",
+          id: db.id,
+          title: [{ plain_text: db.title }],
+          url: db.url ?? `https://www.notion.so/${db.id.replace(/-/g, "")}`,
+        })),
+        has_more: false,
+      });
+    }
+    if (method === "GET" && u.includes("/databases/")) {
+      const id = u.split("/databases/")[1] ?? "";
+      const hit = catalog.find(
+        (db) => db.id === id || db.id.replace(/-/g, "") === id.replace(/-/g, ""),
+      );
+      if (hit) return json(databasePayload(hit));
+      const ds = id.startsWith("db-") ? id.replace(/^db-/, "ds-") : id;
+      return json(
+        databasePayload({
+          id,
+          title: id,
+          dataSourceId: ds,
+          hasPilotbookId: true,
+        }),
+      );
+    }
+    if (method === "GET" && u.includes("/data_sources/") && !isQuery) {
+      const ds = u.split("/data_sources/")[1] ?? "";
+      const hit = catalog.find((db) => db.dataSourceId === ds);
+      return json({
+        id: ds,
+        properties: hit?.hasPilotbookId === false ? {} : { "Pilotbook ID": { rich_text: {} } },
+      });
+    }
     if (method === "POST" && u.endsWith("/databases")) {
       const title =
         (body.title as Array<{ text?: { content?: string } }>)?.[0]?.text?.content ?? "db";
@@ -138,56 +193,156 @@ describe("Notion config", () => {
 });
 
 describe("Notion init", () => {
-  it("US-038#1 creates six databases and persists ids", async () => {
-    const ctx = makeProject({ "pilotbook.config.yml": notionConfig({ databases: false }) });
-    const { fetch, mutating } = makeFetch();
+  it("US-043#5 refreshes bound ids and does not POST /databases", async () => {
+    const ctx = seededProject();
+    const { fetch, mutating } = makeFetch(
+      [],
+      [
+        {
+          id: "db-epic",
+          title: "Epics",
+          dataSourceId: "ds-epic-refreshed",
+          hasPilotbookId: true,
+        },
+      ],
+    );
     const result = await syncNotion(ctx, {
       init: true,
       dryRun: false,
       fetch,
       env: ENV,
     });
-    expect(
-      result.actions.filter((a) => a.action === "create" && a.type === "database"),
-    ).toHaveLength(6);
-    expect(mutating.some((m) => m.startsWith("POST /databases"))).toBe(true);
-    const reloaded = parseConfigFile(ctx.fs.readFile("/project/pilotbook.config.yml"));
-    expect(Object.keys(reloaded.interop.notion?.databases ?? {})).toHaveLength(6);
-    for (const ref of Object.values(reloaded.interop.notion?.databases ?? {})) {
-      expect(ref.id).toBeTruthy();
-      expect(ref.dataSourceId).toBeTruthy();
-    }
-  });
-
-  it("US-038#2 skips duplicate init when all six exist", async () => {
-    const ctx = seededProject();
-    const { fetch, mutating } = makeFetch();
-    const result = await syncNotion(ctx, { init: true, dryRun: false, fetch, env: ENV });
-    expect(result.actions.every((a) => a.action === "skip")).toBe(true);
+    expect(result.actions.some((a) => a.detail === "refresh" && a.id === "epic")).toBe(true);
     expect(mutating.filter((m) => m.startsWith("POST /databases"))).toHaveLength(0);
+    const reloaded = parseConfigFile(ctx.fs.readFile("/project/pilotbook.config.yml"));
+    expect(reloaded.interop.notion?.databases.epic?.dataSourceId).toBe("ds-epic-refreshed");
   });
 
-  it("US-038#3 throws when token or parent page is missing", async () => {
-    const noToken = makeProject({ "pilotbook.config.yml": notionConfig() });
-    await expect(
-      syncNotion(noToken, { init: true, dryRun: false, fetch: makeFetch().fetch, env: {} }),
-    ).rejects.toThrow(/NOTION_TOKEN/);
-    const noParent = makeProject({
+  it("US-043#1 does not require parent_page_id", async () => {
+    const ctx = makeProject({
       "pilotbook.config.yml": `${dumpDefaultConfig()}
 interop:
   notion:
     token_env: NOTION_TOKEN
-    parent_page_id: ""
+`,
+    });
+    const catalog = await notionCatalog(ctx, {
+      fetch: makeFetch(
+        [],
+        [
+          {
+            id: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            title: "Pilotbook Epics",
+            dataSourceId: "ds-1",
+            hasPilotbookId: true,
+          },
+        ],
+      ).fetch,
+      env: ENV,
+    });
+    expect(catalog.tokenOk).toBe(true);
+    expect(catalog.databases).toEqual([
+      expect.objectContaining({
+        title: "Pilotbook Epics",
+        dataSourceId: "ds-1",
+      }),
+    ]);
+  });
+
+  it("throws when the token is missing and when nothing is bound", async () => {
+    const noToken = makeProject({ "pilotbook.config.yml": notionConfig() });
+    await expect(
+      syncNotion(noToken, { init: true, dryRun: false, fetch: makeFetch().fetch, env: {} }),
+    ).rejects.toThrow(/NOTION_TOKEN/);
+    const unbound = makeProject({
+      "pilotbook.config.yml": `${dumpDefaultConfig()}
+interop:
+  notion:
+    token_env: NOTION_TOKEN
 `,
     });
     await expect(
-      syncNotion(noParent, { init: true, dryRun: false, fetch: makeFetch().fetch, env: ENV }),
-    ).rejects.toThrow(/parent_page_id/);
+      syncNotion(unbound, { init: true, dryRun: false, fetch: makeFetch().fetch, env: ENV }),
+    ).rejects.toThrow(/wizard|bound/i);
   });
 
   it("US-038#4 CLI and MCP share the sync command name", () => {
     const ctx = makeProject();
     expect(complete(ctx, [""]).some((h) => h.value === "sync")).toBe(true);
+  });
+});
+
+describe("Notion bind", () => {
+  it("US-043#2 persists ids from a URL and never POSTs /databases", async () => {
+    const hex = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    const ctx = makeProject({
+      "pilotbook.config.yml": `${dumpDefaultConfig()}
+interop:
+  notion:
+    token_env: NOTION_TOKEN
+`,
+    });
+    const { fetch, mutating } = makeFetch(
+      [],
+      [{ id: hex, title: "Epics", dataSourceId: "ds-epic", hasPilotbookId: true }],
+    );
+    const result = await bindNotion(ctx, {
+      databases: { epic: `https://www.notion.so/Acme/Epics-${hex}` },
+      fetch,
+      env: ENV,
+    });
+    expect(result.databases.epic?.id).toBe(hex);
+    expect(result.databases.epic?.dataSourceId).toBe("ds-epic");
+    expect(mutating.some((m) => m.startsWith("POST /databases"))).toBe(false);
+    const reloaded = parseConfigFile(ctx.fs.readFile("/project/pilotbook.config.yml"));
+    expect(reloaded.interop.notion?.databases.epic?.dataSourceId).toBe("ds-epic");
+  });
+
+  it("US-043#3 warns when Pilotbook ID is missing and does not PATCH schema", async () => {
+    const ctx = makeProject({
+      "pilotbook.config.yml": `${dumpDefaultConfig()}
+interop:
+  notion:
+    token_env: NOTION_TOKEN
+`,
+    });
+    const { fetch, mutating } = makeFetch(
+      [],
+      [{ id: "db-story", title: "Stories", dataSourceId: "ds-story", hasPilotbookId: false }],
+    );
+    const result = await bindNotion(ctx, {
+      databases: { story: "db-story" },
+      fetch,
+      env: ENV,
+    });
+    expect(result.warnings.some((w) => /Pilotbook ID/i.test(w))).toBe(true);
+    expect(mutating.filter((m) => m.startsWith("PATCH /data_sources"))).toHaveLength(0);
+    expect(mutating.filter((m) => m.startsWith("PATCH /databases"))).toHaveLength(0);
+    expect(
+      parseConfigFile(ctx.fs.readFile("/project/pilotbook.config.yml")).interop.notion?.databases
+        .story?.id,
+    ).toBe("db-story");
+  });
+
+  it("US-043#1 parses dashed UUIDs and 32-hex URLs", () => {
+    expect(parseNotionDatabaseId("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")).toBe(
+      "aaaaaaaabbbbccccddddeeeeeeeeeeee",
+    );
+    expect(
+      parseNotionDatabaseId("https://www.notion.so/ws/Name-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa?v=1"),
+    ).toBe("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+  });
+
+  it("US-043#4 CLI and MCP share the sync command name", () => {
+    const ctx = makeProject();
+    expect(complete(ctx, [""]).some((h) => h.value === "sync")).toBe(true);
+  });
+
+  it("catalog reports a missing token without throwing", async () => {
+    const ctx = makeProject({ "pilotbook.config.yml": notionConfig({ databases: false }) });
+    const catalog = await notionCatalog(ctx, { fetch: makeFetch().fetch, env: {} });
+    expect(catalog.tokenOk).toBe(false);
+    expect(catalog.databases).toEqual([]);
   });
 });
 

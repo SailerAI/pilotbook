@@ -60,6 +60,7 @@
         </div>
         <span class="lint" :class="lintClass">{{ lintLabel }}</span>
         <button class="btn" @click="refresh">Reload</button>
+        <button class="btn" @click="openNotion">Notion</button>
         <button class="btn primary" @click="openCreate">New</button>
       </header>
 
@@ -458,6 +459,57 @@
         <div class="actions">
           <button class="btn" @click="creating = false">Cancel</button>
           <button class="btn primary" @click="submitCreate">Create</button>
+        </div>
+      </div>
+
+      <div v-if="notionOpen" class="modal-bg" @click="closeNotion"></div>
+      <div v-if="notionOpen" class="modal wide" @click.stop>
+        <h3>Bind Notion databases</h3>
+        <p class="step-label">Step {{ notionStep }} of 3</p>
+        <p v-if="notionError" class="wizard-warn">{{ notionError }}</p>
+        <div v-if="notionStep === 1" class="wizard-pane">
+          <p v-if="notionBusy">Checking token…</p>
+          <template v-else>
+            <p :class="notionCatalog.tokenOk ? 'token-ok' : 'token-bad'">
+              {{ notionCatalog.tokenOk ? `${notionCatalog.tokenEnv} is set` : `${notionCatalog.tokenEnv} is missing` }}
+            </p>
+            <p class="hint">
+              Export the integration token in your shell. Share the integration with each database you bind. The token is never stored in config or this form.
+            </p>
+          </template>
+        </div>
+        <div v-if="notionStep === 2" class="wizard-pane">
+          <div class="bind-row" v-for="type in notionTypes" :key="type">
+            <label>{{ type }}</label>
+            <div class="bind-fields">
+              <input v-model="notionFilter[type]" :placeholder="'Search ' + type + ' databases'" />
+              <select v-model="notionPicks[type]">
+                <option value="">— unbound —</option>
+                <option v-for="db in filteredNotionDbs(type)" :key="db.id" :value="db.id">
+                  {{ db.title || db.id }}
+                </option>
+              </select>
+              <input v-model="notionUrls[type]" placeholder="or paste database URL" />
+            </div>
+          </div>
+        </div>
+        <div v-if="notionStep === 3" class="wizard-pane">
+          <p class="hint">Sync will only use types that are mapped. Missing Pilotbook ID is a warning — we will not change someone else's schema.</p>
+          <ul class="bind-summary">
+            <li v-for="type in notionTypes" :key="type">
+              <strong>{{ type }}</strong>
+              {{ notionBindingLabel(type) }}
+            </li>
+          </ul>
+          <p v-for="warn in notionWarnings" :key="warn" class="wizard-warn">{{ warn }}</p>
+          <p v-if="!notionWarnings.length" class="hint">No schema warnings from the catalog.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" @click="closeNotion">Cancel</button>
+          <div class="grow"></div>
+          <button class="btn" v-if="notionStep > 1" @click="notionStep -= 1">Back</button>
+          <button class="btn primary" v-if="notionStep < 3" :disabled="notionBusy" @click="notionStep += 1">Next</button>
+          <button class="btn primary" v-if="notionStep === 3" :disabled="notionBusy || !notionCatalog.tokenOk" @click="saveNotion">Save</button>
         </div>
       </div>
 

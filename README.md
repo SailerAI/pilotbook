@@ -2,80 +2,93 @@
 
 > Your repo has the chart. Pilotbook has the directions.
 
+[![npm](https://img.shields.io/npm/v/pilotbook.svg)](https://www.npmjs.com/package/pilotbook)
+[![CI](https://github.com/SailerAI/pilotbook/actions/workflows/ci.yml/badge.svg)](https://github.com/SailerAI/pilotbook/actions/workflows/ci.yml)
+[![node](https://img.shields.io/node/v/pilotbook.svg)](https://nodejs.org)
+[![license](https://img.shields.io/npm/l/pilotbook.svg)](./LICENSE)
+
+Compile what an agent must know before it writes code — from a lint-gated graph of work, decisions, and rules that lives in git.
+
 ![pb brief TASK-001](docs/demo.svg)
 
 ```bash
 npx pilotbook brief TASK-001
 ```
 
-```
-# Brief: TASK-001
-
-### BR-001 — Money is a string
-_rule · business-rule · active_
-
-JSON money MUST be a string. MUST NOT be a float.
-
-### ADR-0001 — Numeric money
-_adr · adr · accepted_
-
-Store money as decimal strings.
-
-### TASK-001 — Transaction API
-_target · task · todo_
-…
-```
-
 An agent that reads one task file will improvise the architecture. An agent that reads **the brief** gets the parent story, the epic, every linked business rule and accepted ADR, the `depends_on` chain, and a warning when a decision has been superseded — compiled, ordered by authority, under a token budget.
 
 Plain markdown is the only source of truth. No event log, no SQLite, no server for the core loop. `pb lint` and `pb brief` are pure functions of files on disk.
 
+**[Documentation](https://sailerai.github.io/pilotbook/)** · [Getting started](guide/getting-started.md) · [CLI](guide/cli.md) · [Comparison](guide/comparison.md)
+
+## 60 seconds
+
+Requires Node 20+.
+
 ```bash
-npm i -g pilotbook
-# or
 npx pilotbook init
+npx pilotbook new epic --title "Multi-tenant workspaces"
+npx pilotbook new story --epic EPIC-001 --title "Create a workspace"
+npx pilotbook new task --story US-001 --title "Workspaces schema" --area db
+npx pilotbook brief TASK-001
+npx pilotbook ui
 ```
 
-Daily driver is `pb` (same binary as `pilotbook`).
+Same binary as `pb` after a global or project install:
 
-There are two loops. **Explore** turns a sentence into an epic and stories. **Ship** turns an unblocked task into verified code.
+```bash
+npm i -g pilotbook          # then: pb init
+pnpm add -D pilotbook       # then: pnpm exec pb init
+```
 
-## Explore
+This repository is itself a Pilotbook project. Contributors use the local build, not npm:
+
+```bash
+pnpm build && pnpm pb next
+```
+
+## Two loops
+
+**Explore** turns a sentence into an epic and stories. **Ship** turns an unblocked task into verified code.
+
+### Explore
 
 Say "I want a dashboard" in Cursor or Claude Code. The **discover** skill should attach, then **shape**.
 
-1. `pb similar "ops dashboard"` and `pb search dashboard --type idea,epic,story` — resume a live item instead of duplicating.
-2. `pb new idea --title "Ops dashboard"` — fill Why, Jobs to be done, Personas, Sketch, Evidence, Open questions, Why not now.
-3. `pb clarify IDEA-NNN` then `--answers` — gaps become criteria, a business-rule, or an open question.
-4. `pb promote IDEA-NNN --to epic --title "Ops dashboard"` — never hand-edit `promoted_to`.
-5. Shape creates stories with `pb new story --epic EPIC-NNN --title "..."`.
-6. `pb lint` then `pb board`.
+```bash
+pb search dashboard
+pb new idea --title "Ops dashboard"
+pb clarify IDEA-001
+pb promote IDEA-001 --to epic --title "Ops dashboard"
+pb new story --epic EPIC-001 --title "View live service health"
+pb lint && pb board
+```
 
-Worked session: [docs/explore.md](docs/explore.md). Step-by-step: [docs/getting-started.md](docs/getting-started.md).
+Worked session: [guide/explore.md](guide/explore.md).
 
-## Ship
+### Ship
 
 ```bash
 pb next
 pb brief TASK-001
-pb lint
-pb ui          # loopback board
+pb verify TASK-001
+pb lint && pb board
 ```
 
 1. `pb next` — unblocked work, phase then priority.
-2. `pb brief TASK-NNN` — parent story, epic, linked rules and ADRs.
+2. `pb brief TASK-NNN` — parent story, epic, linked rules and ADRs. Those files are binding.
 3. Implement against the brief.
 4. `pb verify TASK-NNN` then set `status: done`.
 5. `pb lint` must exit 0. `pb board` refreshes `BOARD.md`.
 
-Tab-complete real IDs:
+Step-by-step: [guide/ship.md](guide/ship.md). Tab-complete real IDs:
 
 ```bash
 pb completions zsh >> ~/.zshrc
 pb brief TA<TAB>    # TASK-001  Transaction API
 ```
 
-## Why this, not Backlog.md / AIPIM / Spec Kit
+## Why this
 
 | | Backlog.md | AIPIM | Spec Kit | **Pilotbook** |
 | --- | --- | --- | --- | --- |
@@ -85,9 +98,14 @@ pb brief TA<TAB>    # TASK-001  Transaction API
 | Referential-integrity lint | weak | cycles only | no | **dangling / wrong-type / cycles / unknown fields, with file:line:col** |
 | Verification of “done” | no | event-log gate | no | **content-hash in frontmatter, visible in the PR** |
 
+Full write-up: [guide/comparison.md](guide/comparison.md).
+
 ## Commands
 
-### Explore
+Every command accepts `--json` except `ui`, `mcp`, and `completions`. Operations live in `src/ops/`; the CLI, MCP server, and UI are thin adapters over the same functions.
+
+<details>
+<summary>Explore</summary>
 
 | Command | What it does |
 | --- | --- |
@@ -95,10 +113,12 @@ pb brief TA<TAB>    # TASK-001  Transaction API
 | `pb clarify <ID>` | Bounded questions; `--answers` writes back |
 | `pb promote <ID> --to epic\|story` | Turn an idea into a work item |
 | `pb reject <ID> --reason "…"` | Record a kill verdict |
-| `pb similar <q>` | Rank items by token overlap |
-| `pb search <q> --type idea,epic,story` | Substring search, optional type filter |
+| `pb search <q>` | Substring search over ids, titles, and bodies |
 
-### Navigate
+</details>
+
+<details>
+<summary>Navigate</summary>
 
 | Command | What it does |
 | --- | --- |
@@ -107,85 +127,56 @@ pb brief TA<TAB>    # TASK-001  Transaction API
 | `pb next` | Unblocked work, phase then priority |
 | `pb status [ID]` | Ready/blocked with requires, missingDeps, unlocks |
 | `pb instructions [overview]` | List shipped skills (name + description) |
-| `pb skill <name>` | Print one skill body (`--json` includes commands, writes, done) |
+| `pb skill <name>` | Print one skill body |
 
-### Ship
+</details>
+
+<details>
+<summary>Ship</summary>
 
 | Command | What it does |
 | --- | --- |
 | `pb new <type> --title "…"` | Allocate the next ID |
-| `pb verify <ID>` | Run `checks.commands`, stamp `verified`, parse `checks.report` into `results` |
+| `pb verify <ID>` | Run `checks.commands`, stamp `verified` |
 | `pb lint` | Graph integrity (`--format github`) |
-| `pb board` | Regenerate `BOARD.md` (`--dry-run` reports `in_sync`, added, orphans) |
-| `pb converge <ID>` | Append tasks for uncovered criteria (`--dry-run` reports `converged` or a plan) |
+| `pb board` | Regenerate `BOARD.md` |
+| `pb converge <ID>` | Append tasks for uncovered criteria |
+| `pb analyze` | Coverage and proved `ID#N` criteria |
 
-### Graph
+</details>
+
+<details>
+<summary>Graph</summary>
 
 | Command | What it does |
 | --- | --- |
 | `pb init` | Config, directories, templates, agent skills |
-| `pb analyze` | Coverage table with Proved?/Test for `ID#N` criteria; JSON `proved`/`unproven`/`provedPercent`; exit 1 for uncovered active rules or done stories with open children |
-| `pb graph --dot` | Graphviz |
-| `pb ui` | Kanban + graph + brief preview (127.0.0.1). Reloads when markdown on disk changes. |
+| `pb ui` | Kanban + graph + brief preview (`127.0.0.1`) |
 | `pb mcp` | MCP server on stdio |
-| `pb seed --from brief.md` | Materialize epics/stories/tasks |
-| `pb sync --init --to notion --from notion` | Two-way Notion sync (`--dry-run` default) |
-| `pb export --to jira\|notion --dry-run` | One-way export (Notion uses the same upsert as `pb sync --to notion`) |
-| `pb manifest` | Write `.pb/graph.json` for `repo#ID` refs |
+| `pb graph --dot` | Graphviz |
+| `pb sync --catalog` / `pb sync --bind '{...}'` | Bind existing Notion databases; `--to notion --from notion` two-way sync (`--dry-run` default) |
 | `pb hook install` | Claude Code + Cursor session hooks |
 
-Every command accepts `--json`. Operations live in `src/ops/`; the CLI, MCP server, and UI are thin adapters over the same functions.
+</details>
 
-## Config
+Full reference: [guide/cli.md](guide/cli.md).
 
-```yaml
-# pilotbook.config.yml
-root: docs
-types:
-  epic:  { dir: backlog/epics,   prefix: EPIC-, pad: 3 }
-  story: { dir: backlog/stories, prefix: US-,   pad: 3, parent: epic }
-  task:  { dir: backlog/tasks,   prefix: TASK-, pad: 3, parent: story }
-  adr:   { dir: adr,             prefix: ADR-,  pad: 4 }
-  business-rule: { dir: business-rules, prefix: BR-, pad: 3 }
-edges:
-  depends_on:     { to: [epic, story, task], blocking: true, acyclic: true }
-  business_rules: { to: [business-rule] }
-  adrs:           { to: [adr] }
-code_map:
-  backend: [src]
-checks:
-  commands: [pnpm test, pnpm lint]
-  report: .pb/junit.xml
-hooks:
-  block_on_unverified: false
-  prime_budget: 6000
-# interop:
-#   notion:
-#     token_env: NOTION_TOKEN
-#     parent_page_id: "<page that will hold the six databases>"
-#     version: "2025-09-03"
-#     push_on_write: false
-```
+## Docs
 
-`checks.report` is an optional repo-relative JUnit XML path read after `checks.commands` run.
-`pb verify --json` then carries `results` (`{name, classname, status, time}` per test) plus
-`reportStale` when nothing rewrote the file. A missing or corrupt report is not an error — `results`
-is simply empty.
+- [Getting started](guide/getting-started.md)
+- [Concepts](guide/concepts.md)
+- [Agents, skills, and MCP](guide/agents.md)
+- [Config](guide/config.md)
+- [Set up Notion](guide/notion.md)
+- [Sync with Notion](guide/notion-sync.md)
+- [Lint](guide/lint.md)
+- [Verify, analyze, converge](guide/verify.md)
 
-`pb analyze --json` adds `proved` and `unproven` arrays of `{id, index, test?, status?}` plus
-`provedPercent` (share of acceptance-criteria rows with a passing bound `ID#N` test).
-`coveragePercent` still means "has a covering task" (US-015). Matching is the exact token `ID#N`
-in JUnit `classname + " " + name`. fail, error, and skipped count as unproven. Rule and ADR rows
-are not machine-ownable.
+## Contributing
 
-`hooks.prime_budget` is the token ceiling `pb hook session-start` compiles the in-progress brief
-under. Truncation is reported as a `brief_truncated` warning, never dropped silently.
+This repo dogfoods Pilotbook. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Discovery walks up from `cwd` for `pilotbook.config.yml`, then the git root.
-
-## Skills
-
-`pb init` installs skills into `.cursor/rules/`, `.cursor/skills/`, `.claude/skills/`, and `AGENTS.md` when those conventions exist: **discover**, **shape**, **implement**, **groom**, **prioritize**, **architect**. Cursor gets an always-apply rule (explore vs ship) plus each skill at `.cursor/skills/<name>/SKILL.md`.
+[Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [Code of conduct](CODE_OF_CONDUCT.md)
 
 ## License
 

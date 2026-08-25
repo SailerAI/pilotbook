@@ -13,6 +13,7 @@ import {
   updateItem,
   writeBoard,
 } from "./items.ts";
+import { bindNotion, notionCatalog } from "./notion.ts";
 import { briefOf, graphDot, lint, listReady, nextReady, searchGraph, statusOf } from "./query.ts";
 import { watchProject } from "./watch.ts";
 
@@ -168,6 +169,15 @@ async function handleApi(
     }
     if (req.method === "GET" && route === "/api/graph.dot") {
       send(res, 200, graphDot(ctx), "text/vnd.graphviz; charset=utf-8");
+      return;
+    }
+    if (req.method === "GET" && route === "/api/notion") {
+      send(res, 200, await notionCatalog(ctx));
+      return;
+    }
+    if (req.method === "PUT" && route === "/api/notion") {
+      const body = await readBody(req);
+      send(res, 200, await bindNotion(ctx, { databases: body.databases ?? body }));
       return;
     }
     if (req.method === "POST" && route === "/api/board") {

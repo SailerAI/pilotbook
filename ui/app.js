@@ -12,6 +12,11 @@ const SKIP_FIELDS = new Set(["id", "type", "title", "created", "updated", "body"
 const LAYOUT_KEY = "pilotbook.peekLayout";
 const BODY_KEY = "pilotbook.bodyMode";
 const UNPHASED = "Unphased";
+const NOTION_TYPES = ["epic", "story", "task", "idea", "adr", "business-rule"];
+
+function emptyNotionMap() {
+  return Object.fromEntries(NOTION_TYPES.map((type) => [type, ""]));
+}
 
 function parentField(schema, type) {
   return schema?.types?.[type]?.parent;
@@ -183,6 +188,14 @@ createApp({
     const bodyMode = ref(localStorage.getItem(BODY_KEY) || "preview");
     const creating = ref(false);
     const create = ref({ type: "story", title: "", epic: "", story: "", goal: "" });
+    const notionOpen = ref(false);
+    const notionStep = ref(1);
+    const notionBusy = ref(false);
+    const notionError = ref("");
+    const notionCatalog = ref({ tokenOk: false, tokenEnv: "NOTION_TOKEN", databases: [], bindings: {} });
+    const notionFilter = ref(emptyNotionMap());
+    const notionPicks = ref(emptyNotionMap());
+    const notionUrls = ref(emptyNotionMap());
     const demandTitle = ref("");
     const intake = ref(null);
     const clarifyAnswers = ref({});
@@ -660,6 +673,97 @@ createApp({
       creating.value = true;
     }
 
+    function notionValue(type) {
+      return (notionUrls.value[type] || "").trim() || notionPicks.value[type] || "";
+    }
+
+    function filteredNotionDbs(type) {
+      const q = (notionFilter.value[type] || "").trim().toLowerCase();
+      const dbs = notionCatalog.value.databases || [];
+      if (!q) return dbs;
+      return dbs.filter(
+        (db) =>
+          String(db.title || "").toLowerCase().includes(q) ||
+          String(db.id || "").toLowerCase().includes(q),
+      );
+    }
+
+    function notionBindingLabel(type) {
+      const value = notionValue(type);
+      if (!value) return "unbound";
+      const db = (notionCatalog.value.databases || []).find((d) => d.id === value || d.url === value);
+      return db ? `${db.title || db.id}` : value;
+    }
+
+    const notionWarnings = computed(() => {
+      const out = [];
+      for (const type of NOTION_TYPES) {
+        const value = notionValue(type);
+        if (!value) continue;
+        const db = (notionCatalog.value.databases || []).find(
+          (d) => d.id === value || d.url === value,
+        );
+        if (db && !db.hasPilotbookId) {
+          out.push(`${type}: bound database has no Pilotbook ID property`);
+        }
+      }
+      return out;
+    });
+
+    async function openNotion() {
+      notionOpen.value = true;
+      notionStep.value = 1;
+      notionError.value = "";
+      notionBusy.value = true;
+      notionFilter.value = emptyNotionMap();
+      notionUrls.value = emptyNotionMap();
+      try {
+        const data = await api("/api/notion");
+        notionCatalog.value = data;
+        const picks = emptyNotionMap();
+        for (const type of NOTION_TYPES) {
+          picks[type] = data.bindings?.[type]?.id ?? "";
+        }
+        notionPicks.value = picks;
+      } catch (err) {
+        notionError.value = err.message;
+      } finally {
+        notionBusy.value = false;
+      }
+    }
+
+    function closeNotion() {
+      notionOpen.value = false;
+      notionError.value = "";
+    }
+
+    async function saveNotion() {
+      const databases = {};
+      for (const type of NOTION_TYPES) {
+        const value = notionValue(type);
+        if (value) databases[type] = value;
+      }
+      if (!Object.keys(databases).length) {
+        notionError.value = "Bind at least one database";
+        return;
+      }
+      notionBusy.value = true;
+      notionError.value = "";
+      try {
+        const result = await api("/api/notion", {
+          method: "PUT",
+          body: JSON.stringify({ databases }),
+        });
+        const extra = result.warnings?.length ? ` (${result.warnings.length} warning)` : "";
+        flash(`Bound Notion databases${extra}`);
+        closeNotion();
+      } catch (err) {
+        notionError.value = err.message;
+      } finally {
+        notionBusy.value = false;
+      }
+    }
+
     async function submitCreate() {
       try {
         const payload = { ...create.value };
@@ -754,6 +858,7 @@ createApp({
       window.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
           creating.value = false;
+          closeNotion();
           closeEditor();
         }
         if ((e.metaKey || e.ctrlKey) && e.key === "s" && editing.value) {
@@ -793,6 +898,16 @@ createApp({
       childItems,
       creating,
       create,
+      notionOpen,
+      notionStep,
+      notionBusy,
+      notionError,
+      notionCatalog,
+      notionFilter,
+      notionPicks,
+      notionUrls,
+      notionTypes: NOTION_TYPES,
+      notionWarnings,
       demandTitle,
       intake,
       clarifyAnswers,
@@ -839,6 +954,11 @@ createApp({
       onDrop,
       openCreate,
       submitCreate,
+      openNotion,
+      closeNotion,
+      filteredNotionDbs,
+      notionBindingLabel,
+      saveNotion,
       submitDemand,
       clearIntake,
       saveClarify,

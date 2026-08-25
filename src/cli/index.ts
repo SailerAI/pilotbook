@@ -7,6 +7,7 @@ import { defineCommand, runMain } from "citty";
 import {
   analyzeGraph,
   applyClarifications,
+  bindNotion,
   board,
   boardPlan,
   briefOf,
@@ -27,6 +28,7 @@ import {
   listReady,
   listSkills,
   nextReady,
+  notionCatalog,
   PilotbookError,
   promoteIdea,
   rejectIdea,
@@ -500,11 +502,16 @@ const main = defineCommand({
       },
     }),
     sync: defineCommand({
-      meta: { description: "Two-way Notion sync (provision, push, pull, intake)" },
+      meta: { description: "Two-way Notion sync (bind, push, pull, intake)" },
       args: {
         ...cwdArg,
         json: jsonArg.json,
-        init: { type: "boolean", default: false, description: "Create Notion databases" },
+        init: { type: "boolean", default: false, description: "Refresh bound database ids" },
+        catalog: { type: "boolean", default: false, description: "List Notion databases as JSON" },
+        bind: {
+          type: "string",
+          description: 'JSON map of type to database id or URL, e.g. {"epic":"..."}',
+        },
         to: { type: "string", description: "notion — push markdown to Notion" },
         from: { type: "string", description: "notion — pull Notion into markdown" },
         "dry-run": { type: "boolean", default: true },
@@ -512,6 +519,22 @@ const main = defineCommand({
       async run({ args }) {
         try {
           const ctx = ctxFrom(args);
+          if (args.catalog) {
+            const result = await notionCatalog(ctx);
+            emit(true, result, `${JSON.stringify(result, null, 2)}\n`);
+            return;
+          }
+          if (args.bind) {
+            const result = await bindNotion(ctx, { databases: args.bind });
+            emit(
+              Boolean(args.json),
+              result,
+              `bound ${Object.keys(result.databases).join(", ")}${
+                result.warnings.length ? `\n${result.warnings.join("\n")}` : ""
+              }\n`,
+            );
+            return;
+          }
           const toNotion = args.to === "notion";
           const fromNotion = args.from === "notion";
           const result = await syncNotion(ctx, {

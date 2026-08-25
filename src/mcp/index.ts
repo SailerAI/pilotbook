@@ -2,6 +2,7 @@ import { stdin as input, stdout as output } from "node:process";
 import {
   analyzeGraph,
   applyClarifications,
+  bindNotion,
   briefOf,
   bumpItem,
   clarifyItem,
@@ -16,6 +17,7 @@ import {
   listReady,
   listSkills,
   nextReady,
+  notionCatalog,
   type OpContext,
   PilotbookError,
   promoteIdea,
@@ -236,11 +238,17 @@ const TOOLS = [
   },
   {
     name: "sync",
-    description: "Two-way Notion sync: provision databases, push, pull, and intake",
+    description: "Two-way Notion sync: catalog or bind databases, then push, pull, and intake",
     inputSchema: {
       type: "object",
       properties: {
-        init: { type: "boolean" },
+        catalog: { type: "boolean", description: "List searchable Notion databases" },
+        bind: {
+          type: "object",
+          description: "Map of Pilotbook type to database id or URL",
+          additionalProperties: { type: "string" },
+        },
+        init: { type: "boolean", description: "Refresh bound database ids" },
         to: { type: "boolean", description: "Push markdown to Notion" },
         from: { type: "boolean", description: "Pull Notion into markdown" },
         dryRun: { type: "boolean" },
@@ -345,6 +353,12 @@ function callTool(
     case "skill":
       return textResult(skillOf(String(params.name ?? "")));
     case "sync": {
+      if (params.catalog) {
+        return notionCatalog(ctx).then((result) => textResult(result));
+      }
+      if (params.bind != null && params.bind !== false) {
+        return bindNotion(ctx, { databases: params.bind }).then((result) => textResult(result));
+      }
       const explicit = params.to === true || params.from === true;
       return syncNotion(ctx, {
         init: Boolean(params.init),

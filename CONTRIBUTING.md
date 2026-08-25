@@ -13,6 +13,8 @@ pnpm pb lint
 
 `pnpm lint` is Biome (source style). `pnpm pb lint` is graph integrity over `docs/backlog`, `docs/adr`, and `docs/business-rules`. Both must stay green.
 
+User-facing docs live in `guide/` (GitHub-readable) and publish via VitePress (`pnpm docs:dev`, `pnpm docs:build`). Do not put product docs in `docs/` — that tree is the work-item graph.
+
 ## Setup
 
 ```bash

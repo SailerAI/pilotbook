@@ -999,10 +999,75 @@ table.list {
   z-index: 70;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
 }
-.modal h3 {
-  margin: 0 0 14px;
-  font-size: 14px;
-  font-weight: 600;
+.modal.wide {
+  width: min(640px, calc(100% - 32px));
+  top: 8%;
+  max-height: 84vh;
+  overflow: auto;
+}
+.step-label {
+  margin: -8px 0 12px;
+  font-size: 11px;
+  color: var(--ink-faint);
+}
+.wizard-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink-faint);
+  line-height: 1.45;
+}
+.token-ok {
+  margin: 0;
+  font-size: 13px;
+  color: #8fd19e;
+}
+.token-bad {
+  margin: 0;
+  font-size: 13px;
+  color: #f09898;
+}
+.wizard-warn {
+  margin: 0;
+  font-size: 12px;
+  color: #e6b450;
+}
+.bind-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 6px 12px;
+  align-items: start;
+}
+.bind-row > label {
+  font-size: 12px;
+  font-weight: 500;
+  padding-top: 8px;
+  color: var(--ink-faint);
+}
+.bind-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bind-fields input,
+.bind-fields select {
+  border: 1px solid var(--line);
+  background: var(--bg-sunken);
+  border-radius: 6px;
+  padding: 7px 9px;
+  font-size: 13px;
+  color: var(--ink);
+}
+.bind-summary {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.5;
 }
 .modal .actions {
   display: flex;

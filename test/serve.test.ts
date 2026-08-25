@@ -45,6 +45,8 @@ describe("startUi", () => {
     const html = await page.text();
     expect(html).toContain("Pilotbook");
     expect(html).toContain("./styles.css");
+    expect(html).toContain("Bind Notion databases");
+    expect(html).toContain('@click="openNotion"');
 
     const css = await fetch(`${base}/styles.css`);
     expect(css.status).toBe(200);
@@ -228,5 +230,94 @@ describe("startUi", () => {
     await once(server, "close").catch(() => undefined);
     server = undefined;
     fs.rmSync(dir, { recursive: true, force: true });
+  });
+
+  it("GET and PUT /api/notion catalog and bind existing databases", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pb-serve-"));
+    fs.cpSync(fixture, dir, { recursive: true });
+    fs.appendFileSync(
+      path.join(dir, "pilotbook.config.yml"),
+      `\ninterop:\n  notion:\n    token_env: NOTION_TOKEN\n`,
+    );
+    const hex = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+    const origFetch = globalThis.fetch;
+    const origToken = process.env.NOTION_TOKEN;
+    process.env.NOTION_TOKEN = "tok";
+    globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+      const u = String(input);
+      if (u.includes("api.notion.com")) {
+        if (u.endsWith("/search")) {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              results: [
+                {
+                  object: "database",
+                  id: hex,
+                  title: [{ plain_text: "Epics" }],
+                  url: `https://www.notion.so/${hex}`,
+                },
+              ],
+              has_more: false,
+            }),
+          };
+        }
+        if (u.includes("/databases/")) {
+          return {
+            ok: true,
+            status: 200,
+            json: async () => ({
+              id: hex,
+              title: [{ plain_text: "Epics" }],
+              data_sources: [{ id: "ds-epic" }],
+              properties: { "Pilotbook ID": { rich_text: {} } },
+              url: `https://www.notion.so/${hex}`,
+            }),
+          };
+        }
+        return { ok: true, status: 200, json: async () => ({}) };
+      }
+      return origFetch(input, init);
+    }) as typeof fetch;
+    try {
+      server = startUi({ port: 0, cwd: dir });
+      await once(server, "listening");
+      const addr = server.address();
+      if (!addr || typeof addr === "string") throw new Error("expected a TCP address");
+      const base = `http://127.0.0.1:${addr.port}`;
+
+      const catalogRes = await origFetch(`${base}/api/notion`);
+      expect(catalogRes.status).toBe(200);
+      const catalog = (await catalogRes.json()) as {
+        tokenOk: boolean;
+        databases: Array<{ title: string; dataSourceId: string }>;
+      };
+      expect(catalog.tokenOk).toBe(true);
+      expect(catalog.databases.some((d) => d.title === "Epics")).toBe(true);
+
+      const bindRes = await origFetch(`${base}/api/notion`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ databases: { epic: hex } }),
+      });
+      expect(bindRes.status).toBe(200);
+      const bound = (await bindRes.json()) as {
+        databases: { epic?: { id: string; dataSourceId: string } };
+        warnings: string[];
+      };
+      expect(bound.databases.epic?.dataSourceId).toBe("ds-epic");
+      expect(fs.readFileSync(path.join(dir, "pilotbook.config.yml"), "utf8")).toContain("ds-epic");
+    } finally {
+      globalThis.fetch = origFetch;
+      if (origToken === undefined) delete process.env.NOTION_TOKEN;
+      else process.env.NOTION_TOKEN = origToken;
+      if (server) {
+        server.close();
+        await once(server, "close").catch(() => undefined);
+        server = undefined;
+      }
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

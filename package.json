@@ -33,7 +33,7 @@
   "bugs": {
     "url": "https://github.com/SailerAI/pilotbook/issues"
   },
-  "homepage": "https://github.com/SailerAI/pilotbook#readme",
+  "homepage": "https://sailerai.github.io/pilotbook/",
   "keywords": [
     "backlog",
     "markdown",
@@ -53,7 +53,10 @@
     "lint:fix": "biome check --write .",
     "check:package": "publint && attw --pack . --profile esm-only",
     "prepublishOnly": "pnpm build && pnpm check:package && npm pack --dry-run",
-    "pb": "node dist/cli/index.js"
+    "pb": "node dist/cli/index.js",
+    "docs:dev": "vitepress dev website",
+    "docs:build": "vitepress build website",
+    "docs:preview": "vitepress preview website"
   },
   "dependencies": {
     "citty": "^0.1.6",
@@ -69,6 +72,7 @@
     "publint": "^0.3.12",
     "tsdown": "^0.15.1",
     "typescript": "^5.9.2",
+    "vitepress": "^1.6.4",
     "vitest": "^3.2.4"
   },
   "packageManager": "pnpm@10.28.1"

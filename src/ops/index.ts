@@ -29,8 +29,20 @@ export {
   updateItem,
   writeBoard,
 } from "./items.ts";
-export type { SyncAction, SyncResult } from "./notion.ts";
-export { syncNotion } from "./notion.ts";
+export type {
+  BindNotionResult,
+  NotionCatalogEntry,
+  NotionCatalogResult,
+  SyncAction,
+  SyncResult,
+} from "./notion.ts";
+export {
+  bindNotion,
+  notionCatalog,
+  parseBindMap,
+  parseNotionDatabaseId,
+  syncNotion,
+} from "./notion.ts";
 export { promoteIdea, rejectIdea } from "./promote.ts";
 export type { BoardPlan, Ladder, ReadyItem, SearchHit, StatusOf } from "./query.ts";
 export {
