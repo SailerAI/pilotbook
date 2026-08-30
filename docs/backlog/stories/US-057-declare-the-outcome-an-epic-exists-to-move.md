@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [outcomes, metrics, types]
 depends_on: []
-business_rules: [BR-001, BR-002]
+business_rules: [BR-001, BR-002, BR-005]
 adrs: [ADR-0001, ADR-0005]
 created: 2026-08-30
 updated: 2026-08-30
@@ -35,6 +35,8 @@ updated: 2026-08-30
       as the metric that must not degrade, distinct from the target.
 - [ ] Given `templates/epic.md`, when this ships, then `## Success metrics` points at the linked
       outcome rather than duplicating it in prose.
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 

@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [discovery, options, appetite, skills]
 depends_on: []
-business_rules: [BR-003]
+business_rules: [BR-003, BR-006]
 adrs: [ADR-0010, ADR-0011]
 created: 2026-08-30
 updated: 2026-08-30

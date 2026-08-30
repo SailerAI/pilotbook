@@ -9,7 +9,7 @@ phase: 4
 owner: unassigned
 tags: [execution, quality, standards, consistency, defects, agents]
 depends_on: []
-related: [EPIC-004, EPIC-005, EPIC-006, IDEA-005]
+related: [EPIC-004, EPIC-005, EPIC-006, EPIC-013, IDEA-005]
 goal: An agent arrives knowing this repo's conventions, is never handed an untestable criterion, never relitigates a dead end, and has somewhere to put a defect.
 created: 2026-08-30
 updated: 2026-08-30
@@ -47,3 +47,4 @@ A production defect has a type, a three-step protocol, and an edge to the rule i
   renders them as "already tried"
 - `pb new defect` allocates a `BUG-` item; assess and test never modify source; an unrun
   reproduction is reported `not-run`, never `verified`
+- Every capability in this epic ships an MCP tool, `--json` output, and a skill that names when to run it (BR-005) — a terminal-only capability is not done

@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [benchmarks, evidence, lint]
 depends_on: [US-051]
-business_rules: [BR-002]
+business_rules: [BR-002, BR-005]
 adrs: [ADR-0001]
 created: 2026-08-30
 updated: 2026-08-30
@@ -35,6 +35,8 @@ updated: 2026-08-30
       and the citing item IDs.
 - [ ] Given an accepted ADR whose cited benchmarks have all expired, when I run `pb stale`, then
       the ADR is listed as resting on expired evidence, without changing its status.
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 

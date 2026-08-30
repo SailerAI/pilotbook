@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [standards, grounding, types]
 depends_on: []
-business_rules: [BR-001, BR-002]
+business_rules: [BR-001, BR-002, BR-005]
 adrs: [ADR-0001, ADR-0002]
 created: 2026-08-30
 updated: 2026-08-30
@@ -38,6 +38,8 @@ updated: 2026-08-30
 - [ ] Given `--dry-run`, when I run discovery, then the proposals are printed and no file changes.
 - [ ] Given a second run over unchanged code, when it completes, then it creates no duplicate
       `STD-` item for a convention already recorded.
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 

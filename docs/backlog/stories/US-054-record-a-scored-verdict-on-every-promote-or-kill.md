@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [decisions, gate, evidence]
 depends_on: [US-051, US-053]
-business_rules: [BR-001, BR-002]
+business_rules: [BR-001, BR-002, BR-005]
 adrs: [ADR-0001]
 created: 2026-08-30
 updated: 2026-08-30
@@ -37,6 +37,8 @@ updated: 2026-08-30
       record is kept — the idea is never deleted.
 - [ ] Given a recorded verdict, when I run `pb explain IDEA-NNN`, then the verdict and its date are
       shown alongside the parent and child links.
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 

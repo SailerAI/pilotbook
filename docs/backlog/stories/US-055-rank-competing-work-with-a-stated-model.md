@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [prioritization, rank, skills]
 depends_on: []
-business_rules: [BR-002]
+business_rules: [BR-002, BR-005]
 adrs: [ADR-0001, ADR-0011]
 created: 2026-08-30
 updated: 2026-08-30
@@ -35,6 +35,8 @@ updated: 2026-08-30
       no network, no clock.
 - [ ] Given `pb rank`, when the `prioritize` skill runs, then it reads the rank and argues with it
       in writing; a proposed priority that contradicts the rank must carry a stated reason.
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 

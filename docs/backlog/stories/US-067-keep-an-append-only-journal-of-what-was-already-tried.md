@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [journal, brief, agents, continuity]
 depends_on: []
-business_rules: [BR-002, BR-003]
+business_rules: [BR-002, BR-003, BR-005]
 adrs: [ADR-0001]
 created: 2026-08-30
 updated: 2026-08-30
@@ -36,6 +36,8 @@ updated: 2026-08-30
       abandoned — a transcript dump is not an entry.
 - [ ] Given `pb hook` session priming (US-022), when a session starts on an in-progress item, then
       the journal is part of what is primed.
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 

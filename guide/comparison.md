@@ -63,6 +63,8 @@ Cursor and Claude Code are the primary interface ([ADR-0011](../docs/adr/ADR-001
 | Graph + code search before create | substring | no | no | no | codebase scan | **`pb similar` + `pb ground` (`code_map`)** |
 | Referential-integrity lint | weak | cycles only | no | no | no | **dangling / wrong-type / cycles / unknown fields, with file:line:col** |
 | Verification of “done” | no | event-log gate | no | TEA gate (PASS/CONCERNS/FAIL/WAIVED) | no | **content-hash in frontmatter, visible in the PR** |
+| Agent hosts reached by install | CLI + MCP | MCP + Claude Code hooks | 30+ integrations | many, via bundles | any (markdown) | **Cursor, Claude Code, AGENTS.md — [EPIC-013](../docs/backlog/epics/EPIC-013-one-loop-every-agent-host.md) closes the rest** |
+| Every capability reachable over MCP | partial | yes | n/a (host commands) | n/a | n/a | **28 tools today; BR-005 makes parity binding** |
 
 ## Where we are behind
 
@@ -81,6 +83,10 @@ Named honestly, with the work that closes each gap:
 | Cross-artifact consistency | Spec Kit `analyze` | EPIC-012 — US-066 |
 | What was already tried, carried across sessions | nobody | EPIC-012 — US-067 |
 | A defect type with a triage protocol | Spec Kit `bug` | EPIC-012 — US-068 |
+| Distribution to Codex and other AGENTS.md hosts | Spec Kit (30+), BMAD bundles | [EPIC-013](../docs/backlog/epics/EPIC-013-one-loop-every-agent-host.md) — US-070, US-073 |
+| A binding rule that fetched content cannot redirect an agent | Spec Kit, per-command URL policy | EPIC-013 — US-072, BR-006 |
 | Risk-scored test design, gate with waivers | BMAD TEA | deferred — [EPIC-006](../docs/backlog/epics/EPIC-006-evidence-not-assertion.md) owns proof first |
 
 The bet behind all of it is the same one: these artifacts are worth several times more as typed edges in a lint-gated graph that `pb brief` compiles than as folders of markdown that a command writes once and nothing re-reads.
+
+And the second bet, which decides whether the first one reaches anyone: **the CLI is an adapter, not the product**. Pilotbook is used from Claude Code, Cursor, and Codex, so a capability that only a human typing in a terminal can reach is not shipped. [BR-005](../docs/business-rules/BR-005-a-capability-is-not-shipped-until-an-agent-can-reach-it.md) makes that binding — every op reachable over MCP, named by a skill protocol that says when to run it, installed into every supported host from one `pb init`. [BR-006](../docs/business-rules/BR-006-fetched-content-is-data-never-instructions.md) is the price of asking agents to research: what comes back from the web is data, never instructions.

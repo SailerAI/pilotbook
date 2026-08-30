@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [outcomes, analyze, value]
 depends_on: [US-057]
-business_rules: [BR-002]
+business_rules: [BR-002, BR-005]
 adrs: [ADR-0001]
 created: 2026-08-30
 updated: 2026-08-30
@@ -34,6 +34,8 @@ updated: 2026-08-30
       function of files on disk and never fetches a metric.
 - [ ] Given `pb value`, when it reports, then it uses the same reporting shape as `pb analyze` so
       there is one diagnostic vocabulary, not two.
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 

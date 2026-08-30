@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [assumptions, risk, lint]
 depends_on: [US-053, US-054]
-business_rules: [BR-002]
+business_rules: [BR-002, BR-005]
 adrs: [ADR-0001]
 created: 2026-08-30
 updated: 2026-08-30
@@ -35,6 +35,8 @@ updated: 2026-08-30
       (probability × impact) so the riskiest is tested first.
 - [ ] Given a `go` verdict, when it is written, then any assumption it depends on that is still
       `untested` is named in the decision record.
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 

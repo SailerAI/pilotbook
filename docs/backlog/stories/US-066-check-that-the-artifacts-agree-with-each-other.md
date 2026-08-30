@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [analyze, consistency, ci]
 depends_on: []
-business_rules: [BR-002]
+business_rules: [BR-002, BR-005]
 adrs: [ADR-0003, ADR-0007]
 created: 2026-08-30
 updated: 2026-08-30
@@ -35,6 +35,8 @@ updated: 2026-08-30
       produces annotations in the same shape `pb lint` already emits.
 - [ ] Given a clean graph, when I run the check, then it exits 0 and prints a one-line summary.
 - [ ] Given the same files, when I run it twice, then the output is identical.
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 

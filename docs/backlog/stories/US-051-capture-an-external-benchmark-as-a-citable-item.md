@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [benchmarks, evidence, types]
 depends_on: []
-business_rules: [BR-001, BR-002]
+business_rules: [BR-001, BR-002, BR-006, BR-005]
 adrs: [ADR-0001, ADR-0005]
 created: 2026-08-30
 updated: 2026-08-30
@@ -38,6 +38,8 @@ updated: 2026-08-30
       written, then the URL is stored sanitized.
 - [ ] Given `pb new benchmark`, when the same title is used twice, then IDs are still allocated by
       `pb new` and never hand-written (BR-001).
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 

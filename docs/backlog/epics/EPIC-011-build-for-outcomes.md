@@ -9,7 +9,7 @@ phase: 4
 owner: unassigned
 tags: [outcomes, metrics, ux, value, retrospective]
 depends_on: []
-related: [EPIC-006, EPIC-010, IDEA-004]
+related: [EPIC-006, EPIC-010, EPIC-013, IDEA-004]
 goal: Every epic names the number it exists to move, the agent implementing it is told that number, and the result is measured and recorded after ship.
 created: 2026-08-30
 updated: 2026-08-30
@@ -45,3 +45,4 @@ so an unusable happy path is the same class of failure as a red test.
 - An unproven UX criterion is reported by `pb analyze` in the same shape as any other unproven
   criterion — no second reporting surface
 - `pb skill design` exists and reviews a change against the story's UX criteria without redesigning it
+- Every capability in this epic ships an MCP tool, `--json` output, and a skill that names when to run it (BR-005) — a terminal-only capability is not done

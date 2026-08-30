@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [defects, triage, types, verification]
 depends_on: []
-business_rules: [BR-001, BR-004]
+business_rules: [BR-001, BR-004, BR-005]
 adrs: [ADR-0004, ADR-0006]
 created: 2026-08-30
 updated: 2026-08-30
@@ -39,6 +39,8 @@ counted.
       (ADR-0004).
 - [ ] Given `pb next`, when a `P0` defect exists, then it is offered ahead of feature work in the
       same phase.
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 

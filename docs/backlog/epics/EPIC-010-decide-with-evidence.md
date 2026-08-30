@@ -9,7 +9,7 @@ phase: 4
 owner: unassigned
 tags: [discovery, decisions, evidence, benchmarks, prioritization]
 depends_on: []
-related: [EPIC-007, EPIC-011, IDEA-003]
+related: [EPIC-007, EPIC-011, EPIC-013, IDEA-003]
 goal: A demand is judged against cited external evidence and a scored verdict before it becomes work, and the evidence stays checkable after the call is made.
 created: 2026-08-30
 updated: 2026-08-30
@@ -44,3 +44,4 @@ assumptions a decision rests on are tracked until they are tested or broken.
 - `pb rank --model rice` prints the inputs, the formula, and the score for each ranked item, and is
   a pure function of files on disk
 - A `broken` assumption linked from a `backlog` or `in-progress` epic is a lint warning
+- Every capability in this epic ships an MCP tool, `--json` output, and a skill that names when to run it (BR-005) — a terminal-only capability is not done

@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [outcomes, retrospective, evidence]
 depends_on: [US-057, US-059]
-business_rules: [BR-002, BR-004]
+business_rules: [BR-002, BR-004, BR-005]
 adrs: [ADR-0001]
 created: 2026-08-30
 updated: 2026-08-30
@@ -34,6 +34,8 @@ updated: 2026-08-30
       outcome ID as evidence, and the citation resolves under `pb lint`.
 - [ ] Given a reading, when it is written, then its `source` is recorded so a reader can recompute
       it — Pilotbook stores the reading and never fetches it.
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 

@@ -10,7 +10,7 @@ phase: 4
 owner: unassigned
 tags: [ux, accessibility, criteria, lint]
 depends_on: []
-business_rules: [BR-002, BR-004]
+business_rules: [BR-002, BR-004, BR-005]
 adrs: [ADR-0003, ADR-0006]
 created: 2026-08-30
 updated: 2026-08-30
@@ -35,6 +35,8 @@ updated: 2026-08-30
       it is reported unproven in exactly the same shape as any other unproven criterion.
 - [ ] Given a story in a repo with no user-surface area configured, when I run `pb lint`, then no UX
       warning is emitted.
+
+- [ ] Given the capability, when the story closes, then it is reachable as an MCP tool, returns structured `--json` output, and is named by the skill that would run it (BR-005).
 
 ## Notes
 
