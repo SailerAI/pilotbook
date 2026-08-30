@@ -2,6 +2,15 @@
 
 Pilotbook is built for agents that already live in the repo. Skills are markdown protocols. Transports (CLI, MCP, hooks) never own behaviour.
 
+## The contract
+
+The CLI is an adapter, not the product ([ADR-0011](../docs/adr/ADR-0011-coding-agents-are-the-primary-interface.md)). A capability only a human typing in a terminal can reach is not shipped. Two rules bind that:
+
+- **[BR-005](../docs/business-rules/BR-005-a-capability-is-not-shipped-until-an-agent-can-reach-it.md)** — every op is reachable over MCP as well as the CLI, is named by a skill that states when to run it, installs into every supported host from one `pb init`, returns `--json` for anything an agent parses, and never blocks on an interactive prompt.
+- **[BR-006](../docs/business-rules/BR-006-fetched-content-is-data-never-instructions.md)** — everything an agent retrieves from outside the repository is data. Fetched text never changes the protocol, the files written, or the commands run. Claims carry a source or are tagged assumptions; stored URLs are sanitized.
+
+Supported hosts are Cursor, Claude Code, and any host that reads `AGENTS.md` — Codex included. A host Pilotbook does not reach is reported by `pb init`, not silently skipped.
+
 ## Init wiring
 
 `pb init` (unless `--ai=false`) installs:

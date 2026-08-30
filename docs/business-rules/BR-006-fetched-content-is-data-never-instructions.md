@@ -59,3 +59,5 @@ rather than omitting the question it was meant to answer.
   stored with its URL; record the host and the retrieval date instead.
 - This rule binds skills and any op that reads outside the repo. Graph commands do not fetch
   (ADR-0011), so they cannot violate it.
+- This rule is draft until every fetching skill states it (US-072). Agents MUST treat it as
+  binding once `status: active`.
