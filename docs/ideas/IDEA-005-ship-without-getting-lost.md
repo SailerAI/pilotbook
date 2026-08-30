@@ -7,6 +7,7 @@ impact: high
 effort: high
 promoted_to: [EPIC-012]
 related: [IDEA-003, IDEA-004, US-012, US-022, US-026, BR-002, BR-003, ADR-0003, ADR-0006]
+business_rules: [BR-006]
 tags: [execution, quality, standards, consistency, defects, agents]
 created: 2026-08-29
 updated: 2026-08-30

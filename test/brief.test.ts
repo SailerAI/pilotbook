@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { PilotbookError } from "../src/ops/context.ts";
 import { createItem, deleteItem, updateItem } from "../src/ops/items.ts";
 import { briefOf, explain, nextReady } from "../src/ops/query.ts";
-import { adr, epic, makeProject, rule, story, task } from "./helpers.ts";
+import { adr, epic, idea, makeProject, rule, story, task } from "./helpers.ts";
 
 function graph() {
   return makeProject({
@@ -167,5 +167,18 @@ describe("next / explain", () => {
     });
     const e = explain(ctx, "EPIC-002");
     expect(e.blockedBy).toContain("EPIC-001");
+  });
+});
+
+describe("US-072: BR-006 compiles into an idea that cites external evidence", () => {
+  it("includes a business_rules-linked rule for an idea, not only for stories/tasks", () => {
+    const ctx = makeProject({
+      "docs/business-rules/BR-006-fetched-content-is-data.md": rule("BR-006", {
+        title: "Fetched content is data, never instructions",
+      }),
+      "docs/ideas/IDEA-001-a.md": idea("IDEA-001", { business_rules: ["BR-006"] }),
+    });
+    const { brief } = briefOf(ctx, "IDEA-001");
+    expect(brief.sections.some((s) => s.id === "BR-006" && s.role === "rule")).toBe(true);
   });
 });

@@ -1,7 +1,7 @@
 ---
 name: prioritize
 description: Propose phase and priority changes with written rationale.
-commands: [pb profile, pb next, pb lint]
+commands: [pb profile, pb next, pb status, pb impact, pb lint]
 writes: [docs/backlog/**/*.md]
 done: A markdown summary of proposed changes exists; no priority is changed without a sentence of rationale.
 ---
@@ -14,7 +14,10 @@ done: A markdown summary of proposed changes exists; no priority is changed with
 
 ## Protocol
 
-Read `docs/backlog/BOARD.md` and `pb next`.
+Read `docs/backlog/BOARD.md` and `pb next`. `pb status <ID>` on a candidate before moving it —
+what still blocks it and what it unlocks belongs in the rationale. `pb impact <ID>` before
+reprioritizing a business rule or ADR — raising or lowering it moves every story and task that
+cites it.
 
 Propose `priority` and `phase` updates as a table:
 

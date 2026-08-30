@@ -3,6 +3,8 @@ import {
   analyzeGraph,
   applyClarifications,
   bindNotion,
+  board,
+  boardPlan,
   briefOf,
   bumpItem,
   clarifyItem,
@@ -10,10 +12,13 @@ import {
   createItem,
   deleteItem,
   explain,
+  exportItems,
   generateSkill,
   getItem,
+  graphDot,
   groundDemand,
   impactOf,
+  initProject,
   instructionsOverview,
   lint,
   listItems,
@@ -28,6 +33,7 @@ import {
   rejectIdea,
   schemaOf,
   searchGraph,
+  seedFromBrief,
   similarItems,
   skillOf,
   splitItem,
@@ -36,6 +42,7 @@ import {
   updateItem,
   verifyItem,
   withProject,
+  writeManifest,
 } from "../ops/index.ts";
 
 interface RpcReq {
@@ -49,8 +56,23 @@ function reply(id: number | string | null | undefined, result: unknown): void {
   output.write(`${JSON.stringify({ jsonrpc: "2.0", id: id ?? null, result })}\n`);
 }
 
-function replyErr(id: number | string | null | undefined, message: string, code = -32000): void {
-  output.write(`${JSON.stringify({ jsonrpc: "2.0", id: id ?? null, error: { code, message } })}\n`);
+/** Same error shape the CLI's `fail()` prints — the `fix` a PilotbookError carries survives
+ * the transport (US-069 AC4) instead of collapsing to a bare message. */
+export function errorPayload(err: unknown): { code: number; message: string; fix?: string } {
+  const message = err instanceof Error ? err.message : String(err);
+  const fix = err instanceof PilotbookError ? err.fix : undefined;
+  return fix ? { code: -32000, message, fix } : { code: -32000, message };
+}
+
+function replyErr(
+  id: number | string | null | undefined,
+  message: string,
+  code = -32000,
+  fix?: string,
+): void {
+  const error: { code: number; message: string; fix?: string } = { code, message };
+  if (fix) error.fix = fix;
+  output.write(`${JSON.stringify({ jsonrpc: "2.0", id: id ?? null, error })}\n`);
 }
 
 const TOOLS = [
@@ -302,6 +324,67 @@ const TOOLS = [
       },
     },
   },
+  {
+    name: "board",
+    description: "Regenerate BOARD.md, or report a dry-run plan of added/orphan ids",
+    inputSchema: {
+      type: "object",
+      properties: { dryRun: { type: "boolean", description: "Report without writing" } },
+    },
+  },
+  {
+    name: "graph",
+    description: "Render the graph as Graphviz DOT",
+    inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "seed",
+    description: "Materialize a brief's markdown into epics, stories, and tasks",
+    inputSchema: {
+      type: "object",
+      properties: {
+        markdown: { type: "string", description: "Brief markdown ('# Epic: …', '## Story: …')" },
+        dryRun: { type: "boolean" },
+      },
+      required: ["markdown"],
+    },
+  },
+  {
+    name: "export",
+    description: "One-way export to Jira or Notion",
+    inputSchema: {
+      type: "object",
+      properties: {
+        to: { type: "string", description: "jira | notion" },
+        dryRun: { type: "boolean" },
+      },
+      required: ["to"],
+    },
+  },
+  {
+    name: "manifest",
+    description: "Write .pb/graph.json for cross-repo refs",
+    inputSchema: { type: "object", properties: {} },
+  },
+  {
+    name: "init",
+    description: "Scaffold config, directories, templates, and agent wiring",
+    inputSchema: {
+      type: "object",
+      properties: {
+        ai: { type: "boolean", description: "Install agent skills/rules", default: true },
+        refreshSkills: {
+          type: "boolean",
+          description: "Overwrite shipped skills that were not locally edited",
+        },
+        hosts: {
+          type: "array",
+          items: { type: "string" },
+          description: "Hosts to install (cursor, claude, agents, codex). Omit to auto-detect.",
+        },
+      },
+    },
+  },
 ];
 
 export const MCP_TOOLS: ReadonlyArray<{ name: string; description: string; inputSchema: object }> =
@@ -313,7 +396,7 @@ function textResult(obj: unknown): { content: Array<{ type: "text"; text: string
   };
 }
 
-function callTool(
+export function callTool(
   ctx: OpContext,
   name: string,
   params: Record<string, unknown>,
@@ -436,6 +519,34 @@ function callTool(
         dryRun: params.dryRun !== false,
       }).then((result) => textResult(result));
     }
+    case "board":
+      return textResult(params.dryRun ? boardPlan(ctx) : board(ctx));
+    case "graph":
+      return textResult({ dot: graphDot(ctx) });
+    case "seed":
+      return textResult(
+        seedFromBrief(ctx, String(params.markdown ?? ""), { dryRun: Boolean(params.dryRun) }),
+      );
+    case "export": {
+      const to = params.to === "notion" ? "notion" : "jira";
+      return exportItems(ctx, to, { dryRun: params.dryRun !== false }).then((result) =>
+        textResult(result),
+      );
+    }
+    case "manifest":
+      return textResult(writeManifest(ctx));
+    case "init":
+      return textResult(
+        initProject(
+          ctx.project.projectRoot,
+          {
+            ai: params.ai !== false,
+            refreshSkills: Boolean(params.refreshSkills),
+            hosts: Array.isArray(params.hosts) ? params.hosts.map(String) : undefined,
+          },
+          ctx.fs,
+        ),
+      );
     default:
       throw new Error(`unknown tool: ${name}`);
   }
@@ -481,9 +592,8 @@ export async function runMcp(cwd?: string): Promise<void> {
             replyErr(id, `unknown method ${req.method}`, -32601);
           }
         } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          const fix = err instanceof PilotbookError && err.fix ? `; fix: ${err.fix}` : "";
-          replyErr(id, `${msg}${fix}`);
+          const payload = errorPayload(err);
+          replyErr(id, payload.message, payload.code, payload.fix);
         }
       });
     }

@@ -1,7 +1,17 @@
+export type { SanitizedSource } from "../core/sources.ts";
+export { sanitizeSourceUrl } from "../core/sources.ts";
 export type { AnalyzeReport, CoverageRow, CriterionProof } from "./analyze.ts";
 export { analyzeGraph } from "./analyze.ts";
 export type { BumpResult } from "./bump.ts";
 export { bumpItem } from "./bump.ts";
+export type {
+  CoverageGaps,
+  ExemptReason,
+  ParityGaps,
+  PhantomCommand,
+  SkillCommands,
+} from "./capabilities.ts";
+export { ALIASES, coverageGaps, EXEMPT, isExempt, parityGaps } from "./capabilities.ts";
 export {
   applyClarifications,
   clarifyItem,
@@ -18,7 +28,8 @@ export { groundDemand } from "./ground.ts";
 export { hookStop, installHooks, sessionStart } from "./hooks.ts";
 export type { ImpactReport } from "./impact.ts";
 export { impactOf } from "./impact.ts";
-export { initProject, SHIPPED_SKILLS } from "./init.ts";
+export type { HostId, HostReport, InitResult } from "./init.ts";
+export { initProject, renderSlashCommand, SHIPPED_SKILLS, SUPPORTED_HOSTS } from "./init.ts";
 export type { InstructionsOverview, SkillDoc, SkillSummary } from "./instructions.ts";
 export { AGENT_ROUTER, instructionsOverview, listSkills, skillOf } from "./instructions.ts";
 export { buildManifest, exportItems, writeManifest } from "./interop.ts";

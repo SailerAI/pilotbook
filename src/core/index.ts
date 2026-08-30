@@ -23,6 +23,8 @@ export { formatDiagnostic, formatGithub, lintGraph } from "./lint.ts";
 export { extractSection, upsertSection } from "./markdown.ts";
 export { MemoryFileSystem } from "./memory-fs.ts";
 export { NodeFileSystem } from "./node-fs.ts";
+export type { SanitizedSource } from "./sources.ts";
+export { sanitizeSourceUrl } from "./sources.ts";
 export type {
   Diagnostic,
   GraphIndex,

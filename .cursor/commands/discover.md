@@ -1,12 +1,5 @@
 ---
-name: discover
-description: >-
-  Research a raw idea into a filled idea doc with evidence links.
-  Use when the user says they want a feature, idea, epic, dashboard, or
-  "explore…". Not for implementing an existing TASK- ID.
-commands: [pb profile, pb similar, pb ground, pb search, pb new, pb clarify, pb promote, pb reject, pb lint]
-writes: [docs/ideas/*.md]
-done: The idea has Why, JTBD, Personas, Sketch, Prior art, Evidence, Open questions, Why not now, and at least one evidence link. Promotion and rejection go through pb promote / pb reject.
+description: Research a raw idea into a filled idea doc with evidence links. Use when the user says they want a feature, idea, epic, dashboard, or "explore…". Not for implementing an existing TASK- ID.
 ---
 
 # discover

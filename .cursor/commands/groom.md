@@ -1,9 +1,5 @@
 ---
-name: groom
 description: Find incomplete items and propose patches that make the graph agent-ready.
-commands: [pb profile, pb lint, pb explain, pb analyze, pb converge, pb impact, pb bump, pb list, pb schema, pb delete]
-writes: [docs/**/*.md]
-done: Every in-scope item has acceptance criteria or a rule statement, and lint warnings for missing links are addressed or explicitly deferred.
 ---
 
 # groom

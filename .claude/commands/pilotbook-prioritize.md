@@ -1,9 +1,5 @@
 ---
-name: prioritize
 description: Propose phase and priority changes with written rationale.
-commands: [pb profile, pb next, pb status, pb impact, pb lint]
-writes: [docs/backlog/**/*.md]
-done: A markdown summary of proposed changes exists; no priority is changed without a sentence of rationale.
 ---
 
 # prioritize

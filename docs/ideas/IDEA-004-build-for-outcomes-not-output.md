@@ -7,6 +7,7 @@ impact: high
 effort: medium
 promoted_to: [EPIC-011]
 related: [IDEA-003, US-021, US-028, BR-003]
+business_rules: [BR-006]
 tags: [outcomes, metrics, ux, value, retrospective]
 created: 2026-08-29
 updated: 2026-08-30
