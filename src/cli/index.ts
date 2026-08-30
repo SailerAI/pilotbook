@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import { once } from "node:events";
-import { readFileSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { defineCommand, runMain } from "citty";
+import { type CommandDef, defineCommand, runMain } from "citty";
 import {
   analyzeGraph,
   applyClarifications,
@@ -17,9 +17,11 @@ import {
   completionScript,
   convergeItem,
   createItem,
+  deleteItem,
   explain,
   exportItems,
   generateSkill,
+  getItem,
   graphDot,
   groundDemand,
   hookStop,
@@ -28,6 +30,7 @@ import {
   installHooks,
   instructionsOverview,
   lintText,
+  listItems,
   listReady,
   nextReady,
   notionCatalog,
@@ -36,6 +39,7 @@ import {
   profileOf,
   promoteIdea,
   rejectIdea,
+  schemaOf,
   searchGraph,
   seedFromBrief,
   sessionStart,
@@ -45,6 +49,7 @@ import {
   startUi,
   statusOf,
   syncNotion,
+  updateItem,
   verifyItem,
   withProject,
   writeManifest,
@@ -92,7 +97,8 @@ function ctxFrom(args: object): ReturnType<typeof withProject> {
 const jsonArg = { json: { type: "boolean" as const, description: "JSON output", default: false } };
 const cwdArg = { cwd: { type: "string" as const, description: "Working directory" } };
 
-const main = defineCommand({
+// biome-ignore lint/suspicious/noExplicitAny: matches citty's own SubCommandsDef = Record<string, Resolvable<CommandDef<any>>>
+export const main: CommandDef<any> = defineCommand({
   meta: {
     name: "pilotbook",
     version: pkgVersion(),
@@ -112,16 +118,33 @@ const main = defineCommand({
           description: "Overwrite shipped skills that were not locally edited",
           default: false,
         },
+        host: {
+          type: "string",
+          description:
+            "Comma-separated hosts to install (cursor,claude,agents,codex). Omit to auto-detect.",
+        },
       },
       run({ args }) {
+        const hosts =
+          typeof args.host === "string"
+            ? args.host
+                .split(",")
+                .map((h) => h.trim())
+                .filter(Boolean)
+            : undefined;
         const result = initProject(
           path.resolve(typeof args.cwd === "string" ? args.cwd : process.cwd()),
-          { ai: args.ai !== false, refreshSkills: Boolean(args["refresh-skills"]) },
+          { ai: args.ai !== false, refreshSkills: Boolean(args["refresh-skills"]), hosts },
         );
+        const hostLines = result.hosts
+          .map(
+            (h) => `  ${h.id}: ${h.status}${h.wrote.length ? ` (${h.wrote.length} file(s))` : ""}`,
+          )
+          .join("\n");
         emit(
           Boolean(args.json),
           result,
-          `initialized ${result.root}\nwrote: ${result.wrote.join(", ") || "(none)"}\n`,
+          `initialized ${result.root}\nwrote: ${result.wrote.join(", ") || "(none)"}\nhosts:\n${hostLines}\n`,
         );
       },
     }),
@@ -156,6 +179,127 @@ const main = defineCommand({
         } catch (err) {
           fail(err);
         }
+      },
+    }),
+    get: defineCommand({
+      meta: { description: "Get one item as structured data" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        id: { type: "positional", required: true, description: "Item ID" },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          const item = getItem(ctx, String(args.id));
+          emit(
+            Boolean(args.json),
+            item,
+            `${item.id} (${item.type}) ${String(item.data.title)}\nstatus: ${String(item.data.status ?? "")}\n`,
+          );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    list: defineCommand({
+      meta: { description: "List all items" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        type: { type: "string", description: "Comma-separated types" },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          const type = parseTypeFilter(
+            typeof args.type === "string" ? args.type : undefined,
+            Object.keys(ctx.project.config.types),
+          );
+          const result = listItems(ctx);
+          const items = type ? result.items.filter((i) => type.includes(i.type)) : result.items;
+          emit(
+            Boolean(args.json),
+            { items, errors: result.errors },
+            items.length
+              ? printTable(
+                  ["ID", "Type", "Status", "Title"],
+                  items.map((i) => [
+                    i.id,
+                    i.type,
+                    String(i.data.status ?? ""),
+                    String(i.data.title),
+                  ]),
+                )
+              : "No items.\n",
+          );
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    update: defineCommand({
+      meta: { description: "Patch an item's frontmatter or body" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        id: { type: "positional", required: true, description: "Item ID" },
+        data: { type: "string", description: "JSON object of fields to set" },
+        body: { type: "string", description: "Replace the body" },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          let data: Record<string, unknown> = {};
+          if (args.data) {
+            try {
+              data = JSON.parse(String(args.data));
+            } catch {
+              fail(new PilotbookError("data must be valid JSON"));
+            }
+          }
+          const item = updateItem(ctx, String(args.id), {
+            data,
+            body: typeof args.body === "string" ? args.body : undefined,
+          });
+          emit(Boolean(args.json), item, `updated ${item.id}\n`);
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    delete: defineCommand({
+      meta: { description: "Delete an item (refused while it is referenced)" },
+      args: {
+        ...cwdArg,
+        json: jsonArg.json,
+        id: { type: "positional", required: true, description: "Item ID" },
+      },
+      run({ args }) {
+        try {
+          const ctx = ctxFrom(args);
+          const result = deleteItem(ctx, String(args.id));
+          emit(Boolean(args.json), result, `deleted ${result.deleted} (${result.rel})\n`);
+        } catch (err) {
+          fail(err);
+        }
+      },
+    }),
+    schema: defineCommand({
+      meta: { description: "Print the type schema: required/optional fields, enums" },
+      args: { ...cwdArg, json: jsonArg.json },
+      run({ args }) {
+        const ctx = ctxFrom(args);
+        const result = schemaOf(ctx);
+        emit(
+          Boolean(args.json),
+          result,
+          `${Object.entries(result.types)
+            .map(
+              ([t, s]) => `${t}: required=${s.required.join(",")} optional=${s.optional.join(",")}`,
+            )
+            .join("\n")}\n`,
+        );
       },
     }),
     next: defineCommand({
@@ -425,6 +569,7 @@ const main = defineCommand({
             `${[
               `Explore: ${overview.router.explore[0]}`,
               `Ship: ${overview.router.ship[0]}`,
+              `Interop: ${overview.router.interop[0]}`,
               "",
               printTable(
                 ["Name", "Description"],
@@ -1025,4 +1170,20 @@ const main = defineCommand({
   },
 });
 
-runMain(main);
+// Guard so importing this module (tests, the parity check) never launches the CLI —
+// only running it directly (the shebang, the `pb`/`pilotbook` bin) does.
+function isEntryPoint(): boolean {
+  // The installed bin (`pb`, `pilotbook`) is a symlink into node_modules/.bin; realpath both
+  // sides before comparing, or a symlinked invocation never matches and the CLI never runs.
+  try {
+    const invoked = process.argv[1];
+    if (!invoked) return false;
+    return realpathSync(fileURLToPath(import.meta.url)) === realpathSync(path.resolve(invoked));
+  } catch {
+    return false;
+  }
+}
+
+if (isEntryPoint()) {
+  runMain(main);
+}

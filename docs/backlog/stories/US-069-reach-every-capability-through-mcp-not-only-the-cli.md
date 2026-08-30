@@ -3,10 +3,10 @@ id: US-069
 title: Reach every capability through MCP, not only the CLI
 type: story
 epic: EPIC-013
-status: backlog
+status: done
 priority: P0
 estimate: 3
-phase: 4
+phase: 3
 owner: unassigned
 tags: [mcp, parity, ci]
 depends_on: []
@@ -25,15 +25,15 @@ tool.
 
 ## Acceptance criteria
 
-- [ ] Given the ops exported from `src/ops/index.ts`, when the parity test runs, then every
+- [x] Given the ops exported from `src/ops/index.ts`, when the parity test runs, then every
       user-facing op has a corresponding MCP tool, and a missing one fails the test by name.
-- [ ] Given a new op added without an MCP tool, when CI runs, then it fails with the op name and the
+- [x] Given a new op added without an MCP tool, when CI runs, then it fails with the op name and the
       file to edit — the gap is never discovered by an agent at runtime.
-- [ ] Given every CLI command except `ui`, `mcp`, and `completions`, when invoked with `--json`, then
+- [x] Given every CLI command except `ui`, `mcp`, and `completions`, when invoked with `--json`, then
       it returns structured output an agent can parse (BR-005).
-- [ ] Given an MCP tool, when it fails, then the error carries the same `fix` string the CLI would
+- [x] Given an MCP tool, when it fails, then the error carries the same `fix` string the CLI would
       print, so an agent gets a next action rather than a stack trace.
-- [ ] Given `pb mcp` and the CLI, when the same op runs through both, then the returned data is
+- [x] Given `pb mcp` and the CLI, when the same op runs through both, then the returned data is
       identical — the transport renders, it never decides (ADR-0002).
 
 ## Notes

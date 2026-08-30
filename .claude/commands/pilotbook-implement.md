@@ -1,9 +1,5 @@
 ---
-name: implement
 description: Pick unblocked work, load the brief, implement, verify, and lint.
-commands: [pb profile, pb next, pb status, pb brief, pb get, pb update, pb verify, pb lint, pb board]
-writes: [docs/**/*.md]
-done: pb lint exits 0 and the target item is status done with a fresh verified block when checks are configured.
 ---
 
 # implement

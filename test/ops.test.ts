@@ -144,6 +144,65 @@ describe("init", () => {
     expect(agents).not.toContain("skills/implement.md");
     expect(agents).not.toContain(".cursor/skills/groom");
   });
+
+  it("US-070: reports every host's status, even one it did not touch", () => {
+    const fs = seedInitFs();
+    const result = initProject("/app", { ai: true }, fs);
+    const byId = new Map(result.hosts.map((h) => [h.id, h]));
+    expect(byId.get("cursor")?.status).toBe("installed");
+    expect(byId.get("claude")?.status).toBe("installed");
+    expect(byId.get("agents")?.status).toBe("router-only");
+    expect(byId.get("agents")?.wrote).toContain("AGENTS.md");
+  });
+
+  it("US-073: Cursor and Claude also get a generated command per skill", () => {
+    const fs = seedInitFs();
+    const result = initProject("/app", { ai: true }, fs);
+    expect(fs.exists("/app/.cursor/commands/implement.md")).toBe(true);
+    expect(fs.exists("/app/.claude/commands/pilotbook-implement.md")).toBe(true);
+    expect(result.wrote).toContain(".cursor/commands/discover.md");
+    expect(result.wrote).toContain(".claude/commands/pilotbook-discover.md");
+    const command = fs.readFile("/app/.claude/commands/pilotbook-discover.md");
+    expect(command).toContain("description:");
+    expect(command).toContain("# discover");
+  });
+
+  it("US-070: --host agents installs only the AGENTS.md router, no Cursor or Claude wiring", () => {
+    const fs = seedInitFs();
+    const result = initProject("/app", { hosts: ["agents"] }, fs);
+    const byId = new Map(result.hosts.map((h) => [h.id, h]));
+    expect(byId.get("agents")?.status).toBe("router-only");
+    expect(byId.get("cursor")?.status).toBe("skipped");
+    expect(byId.get("claude")?.status).toBe("skipped");
+    expect(fs.exists("/app/AGENTS.md")).toBe(true);
+    expect(fs.exists("/app/.cursor/rules/pilotbook.mdc")).toBe(false);
+    expect(fs.exists("/app/.claude/skills/pilotbook-implement.md")).toBe(false);
+  });
+
+  it("US-070: --host codex is an alias for the agents host", () => {
+    const fs = seedInitFs();
+    const result = initProject("/app", { hosts: ["codex"] }, fs);
+    const byId = new Map(result.hosts.map((h) => [h.id, h]));
+    expect(byId.get("agents")?.status).toBe("router-only");
+    expect(byId.has("codex")).toBe(false);
+  });
+
+  it("US-070: an unsupported --host is reported by name, never silently dropped", () => {
+    const fs = seedInitFs();
+    const result = initProject("/app", { hosts: ["windsurf"] }, fs);
+    const windsurf = result.hosts.find((h) => h.id === "windsurf");
+    expect(windsurf?.status).toBe("unsupported");
+  });
+
+  it("US-070: an edited skill copy is reported separately from a merely-existing one", () => {
+    const fs = seedInitFs();
+    initProject("/app", { ai: true }, fs);
+    fs.writeFile("/app/.claude/skills/pilotbook-implement.md", "user rewrote this skill\n");
+    const second = initProject("/app", { ai: true, refreshSkills: true }, fs);
+    const claude = second.hosts.find((h) => h.id === "claude");
+    expect(claude?.editedSkipped).toContain(".claude/skills/pilotbook-implement.md");
+    expect(second.skipped).toContain(".claude/skills/pilotbook-implement.md");
+  });
 });
 
 describe("manifest / export", () => {

@@ -3,10 +3,10 @@ id: US-073
 title: Ship the loop as slash commands where a host has them
 type: story
 epic: EPIC-013
-status: backlog
+status: done
 priority: P2
 estimate: 5
-phase: 4
+phase: 3
 owner: unassigned
 tags: [hosts, skills, distribution]
 depends_on: [US-070]
@@ -24,16 +24,16 @@ updated: 2026-08-30
 
 ## Acceptance criteria
 
-- [ ] Given the shipped skills, when `pb init` runs in a host that supports commands, then a command
+- [x] Given the shipped skills, when `pb init` runs in a host that supports commands, then a command
       per skill is generated from `skills/<name>.md` — one source, never a hand-maintained copy per
       host.
-- [ ] Given a generated command, when it is invoked, then it loads the same protocol body
+- [x] Given a generated command, when it is invoked, then it loads the same protocol body
       `pb skill <name>` returns, so a host command and the CLI never drift.
-- [ ] Given a change to a shipped skill, when `pnpm sync:skills` runs, then the generated commands
+- [x] Given a change to a shipped skill, when `pnpm sync:skills` runs, then the generated commands
       update and the drift test covers them.
-- [ ] Given a host without command support, when `pb init` runs, then the router alone is installed
+- [x] Given a host without command support, when `pb init` runs, then the router alone is installed
       and the host is reported as router-only, not as failed.
-- [ ] Given the generated commands, when they are listed, then their descriptions come from each
+- [x] Given the generated commands, when they are listed, then their descriptions come from each
       skill's `description` field — one place to edit.
 
 ## Notes

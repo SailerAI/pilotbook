@@ -51,6 +51,7 @@ export function listSkills(): SkillSummary[] {
 export interface AgentRouter {
   explore: string[];
   ship: string[];
+  interop: string[];
 }
 
 /** Single explore/ship router. Init files must point here instead of inlining a third copy. */
@@ -62,6 +63,10 @@ export const AGENT_ROUTER: AgentRouter = {
   ship: [
     "Existing work or `pb next` → follow **implement**: next → brief → verify → lint.",
     "Load `pb skill implement`.",
+  ],
+  interop: [
+    "Notion/Jira sync, seeding a graph from a written brief, or a cross-repo manifest → follow **interop**.",
+    "Load `pb skill interop`.",
   ],
 };
 
@@ -81,3 +86,5 @@ export function skillOf(name: string): SkillDoc {
   }
   return readSkill(normalized);
 }
+
+export { renderSlashCommand } from "./init.ts";

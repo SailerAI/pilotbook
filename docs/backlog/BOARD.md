@@ -6,7 +6,7 @@ _Last generated: 2026-08-30_
 
 ## By status
 
-### backlog (38)
+### backlog (32)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -16,7 +16,6 @@ _Last generated: 2026-08-30_
 | [EPIC-010](backlog/epics/EPIC-010-decide-with-evidence.md) | Decide with evidence | epic | P1 |
 | [EPIC-011](backlog/epics/EPIC-011-build-for-outcomes.md) | Build for outcomes | epic | P1 |
 | [EPIC-012](backlog/epics/EPIC-012-ship-without-getting-lost.md) | Ship without getting lost | epic | P1 |
-| [EPIC-013](backlog/epics/EPIC-013-one-loop-every-agent-host.md) | One loop, every agent host | epic | P0 |
 | [US-018](backlog/stories/US-018-publish-the-agent-contract.md) | Publish the agent contract | story | P2 |
 | [US-019](backlog/stories/US-019-refuse-to-tick-reviewer-owned-criteria.md) | Refuse to tick reviewer-owned criteria | story | P2 |
 | [US-021](backlog/stories/US-021-run-an-evidence-backed-epic-retrospective.md) | Run an evidence-backed epic retrospective | story | P3 |
@@ -43,13 +42,16 @@ _Last generated: 2026-08-30_
 | [US-066](backlog/stories/US-066-check-that-the-artifacts-agree-with-each-other.md) | Check that the artifacts agree with each other | story | P1 |
 | [US-067](backlog/stories/US-067-keep-an-append-only-journal-of-what-was-already-tried.md) | Keep an append-only journal of what was already tried | story | P1 |
 | [US-068](backlog/stories/US-068-triage-a-defect-without-inventing-an-epic.md) | Triage a defect without inventing an epic | story | P2 |
-| [US-069](backlog/stories/US-069-reach-every-capability-through-mcp-not-only-the-cli.md) | Reach every capability through MCP, not only the CLI | story | P0 |
+
+### review (3)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [EPIC-013](backlog/epics/EPIC-013-one-loop-every-agent-host.md) | One loop, every agent host | epic | P0 |
 | [US-070](backlog/stories/US-070-install-the-loop-into-codex-and-other-agentsmd-hosts.md) | Install the loop into Codex and other AGENTS.md hosts | story | P0 |
 | [US-071](backlog/stories/US-071-name-every-capability-in-a-skill-protocol.md) | Name every capability in a skill protocol | story | P0 |
-| [US-072](backlog/stories/US-072-treat-fetched-content-as-data-not-instructions.md) | Treat fetched content as data, not instructions | story | P1 |
-| [US-073](backlog/stories/US-073-ship-the-loop-as-slash-commands-where-a-host-has-them.md) | Ship the loop as slash commands where a host has them | story | P2 |
 
-### done (146)
+### done (149)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
@@ -199,6 +201,9 @@ _Last generated: 2026-08-30_
 | [US-048](backlog/stories/US-048-route-explore-and-ship-from-one-instruction-source.md) | Route explore and ship from one instruction source | story | P1 |
 | [US-049](backlog/stories/US-049-upgrade-shipped-skills-on-existing-installs.md) | Upgrade shipped skills on existing installs | story | P1 |
 | [US-050](backlog/stories/US-050-run-selected-operations-with-an-exported-llm-token.md) | Run selected operations with an exported LLM token | story | P1 |
+| [US-069](backlog/stories/US-069-reach-every-capability-through-mcp-not-only-the-cli.md) | Reach every capability through MCP, not only the CLI | story | P0 |
+| [US-072](backlog/stories/US-072-treat-fetched-content-as-data-not-instructions.md) | Treat fetched content as data, not instructions | story | P1 |
+| [US-073](backlog/stories/US-073-ship-the-loop-as-slash-commands-where-a-host-has-them.md) | Ship the loop as slash commands where a host has them | story | P2 |
 
 ### cancelled (7)
 
@@ -346,12 +351,13 @@ _Last generated: 2026-08-30_
 | [US-049](backlog/stories/US-049-upgrade-shipped-skills-on-existing-installs.md) | Upgrade shipped skills on existing installs | story | P1 |
 | [US-050](backlog/stories/US-050-run-selected-operations-with-an-exported-llm-token.md) | Run selected operations with an exported LLM token | story | P1 |
 
-### 3 (42)
+### 3 (48)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
 | [EPIC-006](backlog/epics/EPIC-006-evidence-not-assertion.md) | Evidence, not assertion | epic | P1 |
 | [EPIC-008](backlog/epics/EPIC-008-two-way-notion-sync.md) | Two-way Notion sync | epic | P1 |
+| [EPIC-013](backlog/epics/EPIC-013-one-loop-every-agent-host.md) | One loop, every agent host | epic | P0 |
 | [TASK-053](backlog/tasks/TASK-053-provision-notion-databases-from-pilotbook-14.md) | Add interop.notion to the config schema | task | P1 |
 | [TASK-054](backlog/tasks/TASK-054-provision-notion-databases-from-pilotbook-24.md) | Create six Notion databases via the API | task | P1 |
 | [TASK-055](backlog/tasks/TASK-055-provision-notion-databases-from-pilotbook-34.md) | Persist database ids and skip duplicate init | task | P1 |
@@ -392,15 +398,19 @@ _Last generated: 2026-08-30_
 | [US-041](backlog/stories/US-041-pull-notion-property-edits-into-markdown.md) | Pull Notion property edits into markdown | story | P1 |
 | [US-042](backlog/stories/US-042-turn-a-notion-only-row-into-a-pilotbook-item.md) | Turn a Notion-only row into a Pilotbook item | story | P1 |
 | [US-043](backlog/stories/US-043-bind-existing-notion-databases-from-the-board.md) | Bind existing Notion databases from the board | story | P1 |
+| [US-069](backlog/stories/US-069-reach-every-capability-through-mcp-not-only-the-cli.md) | Reach every capability through MCP, not only the CLI | story | P0 |
+| [US-070](backlog/stories/US-070-install-the-loop-into-codex-and-other-agentsmd-hosts.md) | Install the loop into Codex and other AGENTS.md hosts | story | P0 |
+| [US-071](backlog/stories/US-071-name-every-capability-in-a-skill-protocol.md) | Name every capability in a skill protocol | story | P0 |
+| [US-072](backlog/stories/US-072-treat-fetched-content-as-data-not-instructions.md) | Treat fetched content as data, not instructions | story | P1 |
+| [US-073](backlog/stories/US-073-ship-the-loop-as-slash-commands-where-a-host-has-them.md) | Ship the loop as slash commands where a host has them | story | P2 |
 
-### 4 (27)
+### 4 (21)
 
 | ID | Title | Type | Pri |
 | --- | --- | --- | --- |
 | [EPIC-010](backlog/epics/EPIC-010-decide-with-evidence.md) | Decide with evidence | epic | P1 |
 | [EPIC-011](backlog/epics/EPIC-011-build-for-outcomes.md) | Build for outcomes | epic | P1 |
 | [EPIC-012](backlog/epics/EPIC-012-ship-without-getting-lost.md) | Ship without getting lost | epic | P1 |
-| [EPIC-013](backlog/epics/EPIC-013-one-loop-every-agent-host.md) | One loop, every agent host | epic | P0 |
 | [US-051](backlog/stories/US-051-capture-an-external-benchmark-as-a-citable-item.md) | Capture an external benchmark as a citable item | story | P1 |
 | [US-052](backlog/stories/US-052-warn-when-a-decision-rests-on-stale-evidence.md) | Warn when a decision rests on stale evidence | story | P2 |
 | [US-053](backlog/stories/US-053-shape-options-with-an-appetite-before-promoting.md) | Shape options with an appetite before promoting | story | P1 |
@@ -419,11 +429,6 @@ _Last generated: 2026-08-30_
 | [US-066](backlog/stories/US-066-check-that-the-artifacts-agree-with-each-other.md) | Check that the artifacts agree with each other | story | P1 |
 | [US-067](backlog/stories/US-067-keep-an-append-only-journal-of-what-was-already-tried.md) | Keep an append-only journal of what was already tried | story | P1 |
 | [US-068](backlog/stories/US-068-triage-a-defect-without-inventing-an-epic.md) | Triage a defect without inventing an epic | story | P2 |
-| [US-069](backlog/stories/US-069-reach-every-capability-through-mcp-not-only-the-cli.md) | Reach every capability through MCP, not only the CLI | story | P0 |
-| [US-070](backlog/stories/US-070-install-the-loop-into-codex-and-other-agentsmd-hosts.md) | Install the loop into Codex and other AGENTS.md hosts | story | P0 |
-| [US-071](backlog/stories/US-071-name-every-capability-in-a-skill-protocol.md) | Name every capability in a skill protocol | story | P0 |
-| [US-072](backlog/stories/US-072-treat-fetched-content-as-data-not-instructions.md) | Treat fetched content as data, not instructions | story | P1 |
-| [US-073](backlog/stories/US-073-ship-the-loop-as-slash-commands-where-a-host-has-them.md) | Ship the loop as slash commands where a host has them | story | P2 |
 
 ### Unphased (0)
 
