@@ -1,5 +1,11 @@
 # pilotbook
 
+## 0.2.1
+
+### Patch Changes
+
+- b064e96: Rewrite the README and ship first-class user docs (guide + VitePress site) so npm and GitHub visitors can start in minutes.
+
 ## 0.2.0
 
 ### Minor Changes
