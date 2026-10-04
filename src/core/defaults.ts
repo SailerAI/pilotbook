@@ -217,7 +217,11 @@ export function builtinTypes(): Record<string, TypeConfig> {
           impact: [...SIZE],
           effort: [...SIZE],
         },
-        arrays: ["promoted_to", "related", "tags"],
+        // business_rules is optional (not every idea researches the open web), but discover's
+        // template pre-links BR-006 (US-072) since discover always MAY: an idea with no
+        // external evidence just carries an unused link.
+        optional: ["business_rules"],
+        arrays: ["promoted_to", "related", "tags", "business_rules"],
         template: "idea.md",
       },
     ),

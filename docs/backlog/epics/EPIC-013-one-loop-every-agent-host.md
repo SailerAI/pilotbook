@@ -2,10 +2,10 @@
 id: EPIC-013
 title: One loop, every agent host
 type: epic
-status: backlog
+status: review
 priority: P0
 estimate: 21
-phase: 4
+phase: 3
 owner: unassigned
 tags: [agents, mcp, skills, hosts, safety]
 depends_on: []
@@ -34,6 +34,14 @@ they bind every story in EPIC-010, EPIC-011 and EPIC-012.
 - US-071 — Name every capability in a skill protocol
 - US-072 — Treat fetched content as data, not instructions
 - US-073 — Ship the loop as slash commands where a host has them
+
+## Status
+
+`review`: US-069, US-072, US-073 are `done`. US-070 and US-071 are `review` — their concrete
+mechanisms (host reporting, MCP/skill coverage checks) are built and tested, but each carries one
+acceptance criterion that describes a not-yet-existing future capability (a Codex-specific skill
+directory; the `assess`/`design`/`triage` protocols EPIC-010/011/012 ship). See each story's Notes.
+BR-005 and BR-006 are both `status: active` as of this epic (`pb bump`, version 2).
 
 ## Success metrics
 

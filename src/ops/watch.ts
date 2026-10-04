@@ -41,8 +41,19 @@ export function watchProject(
 
   const watchPath = (target: string, recursive: boolean): void => {
     if (!fs.existsSync(target)) return;
+    // Windows CI runners often expose TEMP through an 8.3 short path (e.g. `RUNNER~1`), while
+    // libuv's recursive watcher reports change events using the long form. fs.watch stores
+    // whatever path we hand it and asserts new events share its prefix — a short/long mismatch
+    // trips that assertion natively and crashes the process, not just this watcher. Resolve to
+    // the canonical form first so both sides agree.
+    let resolved = target;
     try {
-      watchers.push(fs.watch(target, { recursive }, (_event, filename) => kick(filename)));
+      resolved = fs.realpathSync.native(target);
+    } catch {
+      // Fall back to the given path if realpath fails for any reason.
+    }
+    try {
+      watchers.push(fs.watch(resolved, { recursive }, (_event, filename) => kick(filename)));
     } catch {
       // Watching is best-effort (some hosts reject recursive watches).
     }

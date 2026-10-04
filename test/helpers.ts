@@ -143,6 +143,7 @@ export function idea(id: string, extra: Record<string, unknown> = {}, body?: str
       effort: extra.effort ?? "medium",
       promoted_to: extra.promoted_to ?? [],
       related: extra.related ?? [],
+      business_rules: extra.business_rules ?? [],
       tags: extra.tags ?? [],
       ...DATES,
     },

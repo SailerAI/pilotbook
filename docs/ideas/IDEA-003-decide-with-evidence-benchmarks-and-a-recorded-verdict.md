@@ -7,6 +7,7 @@ impact: high
 effort: high
 promoted_to: [EPIC-010]
 related: [IDEA-002, EPIC-002, EPIC-007, BR-003]
+business_rules: [BR-006]
 tags: [discovery, decisions, evidence, benchmarks, prioritization]
 created: 2026-08-29
 updated: 2026-08-30

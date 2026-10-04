@@ -2,14 +2,15 @@
 id: BR-005
 title: A capability is not shipped until an agent can reach it
 type: business-rule
-status: draft
+status: active
 domain: agents
-version: 1
-content_hash: pending
+version: 2
+content_hash: 6baa6604312d
 related: []
 tags: [agents, mcp, skills, hosts]
 created: 2026-08-30
 updated: 2026-08-30
+amended: 2026-08-30
 ---
 ## Rule
 
@@ -58,5 +59,3 @@ router the other hosts get.
 - `ui`, `mcp`, and `completions` are transports themselves and are exempt from the `--json` clause.
 - A capability may ship behind a flag for one host first, but the story MUST name the hosts left
   behind; silent single-host support is a violation.
-- This rule is draft until a parity check exists. Implementers of new ops MUST treat it as binding
-  once `status: active`.

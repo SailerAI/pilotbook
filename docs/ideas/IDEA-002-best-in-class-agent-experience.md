@@ -7,6 +7,7 @@ impact: high
 effort: high
 promoted_to: [EPIC-009]
 related: [EPIC-007, US-032, US-033, US-034, US-035, BR-003]
+business_rules: [BR-006]
 tags: [agents, skills, discover]
 created: 2026-08-25
 updated: 2026-08-25
