@@ -100,13 +100,15 @@ describe("convergeItem", () => {
     expect(created.data.covers).toEqual(["US-001#1"]);
     expect(created.data.business_rules).toEqual(["BR-001"]);
     expect(created.data.adrs).toEqual(["ADR-0001"]);
-    expect(created.rel).toMatch(/^docs\/backlog\/tasks\/TASK-\d+-close-the-gap\.md$/);
+    expect(created.rel).toMatch(
+      /^docs\/backlog\/tasks\/TASK-(?:\d+|[0-9A-HJKMNP-TV-Z]{6})-close-the-gap\.md$/,
+    );
 
     const after = dumpFiles(ctx);
     const added = Object.keys(after).filter((p) => !(p in before));
     expect(added.length).toBe(1);
     expect(added[0]).toContain("/backlog/tasks/");
-    expect(added[0]).toMatch(/TASK-\d+-close-the-gap\.md$/);
+    expect(added[0]).toMatch(/TASK-(?:\d+|[0-9A-HJKMNP-TV-Z]{6})-close-the-gap\.md$/);
     for (const [path, content] of Object.entries(before)) {
       expect(after[path]).toBe(content);
     }
@@ -166,10 +168,8 @@ describe("convergeItem", () => {
 
   it("refuses when the planned task path already exists", () => {
     const ctx = fixture();
-    ctx.fs.writeFile(
-      hostJoin(ctx.project.projectRoot, "docs/backlog/tasks/TASK-001-works.md"),
-      "not a valid item\n",
-    );
+    const original = ctx.fs.exists.bind(ctx.fs);
+    ctx.fs.exists = (p: string) => original(p) || p.endsWith("-works.md");
     try {
       convergeItem(ctx, "US-001");
       expect.unreachable("expected unsafe-write");

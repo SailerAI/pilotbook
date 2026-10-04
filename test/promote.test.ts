@@ -35,11 +35,11 @@ describe("promoteIdea", () => {
     expect(result.dryRun).toBe(false);
     expect(result.type).toBe("epic");
     expect(result.title).toBe("What to build");
-    expect(result.created?.id).toBe("EPIC-001");
+    expect(result.created?.id).toMatch(/^EPIC-[0-9A-HJKMNP-TV-Z]{6}$/);
     expect(result.idea?.data.status).toBe("promoted");
-    expect(result.idea?.data.promoted_to).toEqual(["EPIC-001"]);
+    expect(result.idea?.data.promoted_to).toEqual([result.created?.id]);
     expect(getItem(ctx, "IDEA-001").data.status).toBe("promoted");
-    expect(getItem(ctx, "EPIC-001").data.title).toBe("What to build");
+    expect(getItem(ctx, result.created!.id).data.title).toBe("What to build");
   });
 
   it("promotes a raw idea when Why, impact, and effort are filled", () => {
@@ -51,7 +51,7 @@ describe("promoteIdea", () => {
       ),
     });
     const result = promoteIdea(ctx, "IDEA-001", { to: "epic", title: "What to build" });
-    expect(result.created?.id).toBe("EPIC-001");
+    expect(result.created?.id).toMatch(/^EPIC-[0-9A-HJKMNP-TV-Z]{6}$/);
     expect(getItem(ctx, "IDEA-001").data.status).toBe("promoted");
   });
 
@@ -65,9 +65,9 @@ describe("promoteIdea", () => {
       title: "Clarify items",
       epic: "EPIC-001",
     });
-    expect(result.created?.id).toBe("US-001");
+    expect(result.created?.id).toMatch(/^US-[0-9A-HJKMNP-TV-Z]{6}$/);
     expect(result.created?.data.epic).toBe("EPIC-001");
-    expect(getItem(ctx, "IDEA-001").data.promoted_to).toEqual(["US-001"]);
+    expect(getItem(ctx, "IDEA-001").data.promoted_to).toEqual([result.created?.id]);
   });
 
   it("dry-run names type and title and writes nothing", () => {

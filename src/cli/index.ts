@@ -144,7 +144,9 @@ export const main: CommandDef<any> = defineCommand({
         emit(
           Boolean(args.json),
           result,
-          `initialized ${result.root}\nwrote: ${result.wrote.join(", ") || "(none)"}\nhosts:\n${hostLines}\n`,
+          `initialized ${result.root}\nwrote: ${result.wrote.join(", ") || "(none)"}\nhosts:\n${hostLines}\n${
+            result.notes.length ? `${result.notes.join("\n")}\n` : ""
+          }`,
         );
       },
     }),

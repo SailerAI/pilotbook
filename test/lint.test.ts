@@ -181,6 +181,29 @@ status: todo
     expect(d?.column).toBeGreaterThan(0);
     expect(d?.suggestion).toBeTruthy();
   });
+
+  it("accepts a collision-resistant id and still rejects a short number", () => {
+    const ok = makeProject({
+      "docs/backlog/epics/EPIC-K7M2QP-a.md": epic("EPIC-K7M2QP"),
+    });
+    expect(lint(ok).errors.filter((e) => e.code === "bad-id")).toEqual([]);
+    const bad = makeProject({
+      "docs/backlog/stories/US-12-s.md": story("US-12", "EPIC-001"),
+    });
+    expect(lint(bad).errors.some((e) => e.code === "bad-id")).toBe(true);
+  });
+
+  it("warns when the board path is missing from .gitignore", () => {
+    const ctx = makeProject({
+      "docs/backlog/epics/EPIC-001-a.md": epic("EPIC-001"),
+    });
+    expect(lint(ctx).warnings.some((w) => w.code === "board-not-ignored")).toBe(true);
+    const ignored = makeProject({
+      ".gitignore": ".pb\ndocs/backlog/BOARD.md\n",
+      "docs/backlog/epics/EPIC-001-a.md": epic("EPIC-001"),
+    });
+    expect(lint(ignored).warnings.some((w) => w.code === "board-not-ignored")).toBe(false);
+  });
 });
 
 describe("frontmatter round-trip", () => {

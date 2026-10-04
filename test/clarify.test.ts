@@ -118,7 +118,7 @@ describe("applyClarifications", () => {
     ]);
     expect(result.applied[0]?.kind).toBe("business-rule");
     const brId = result.applied[0]?.detail;
-    expect(brId).toMatch(/^BR-\d+$/);
+    expect(brId).toMatch(/^BR-[0-9A-HJKMNP-TV-Z]{6}$/);
     expect(getItem(ctx, "IDEA-001").data.related).toContain(brId);
     expect(getItem(ctx, brId!).data.title).toBe("IDs come from pb new");
   });

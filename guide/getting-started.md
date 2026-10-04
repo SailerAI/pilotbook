@@ -52,7 +52,7 @@ docs/backlog/tasks/
 docs/adr/
 docs/business-rules/
 docs/ideas/
-.gitignore                    # appends .pb
+.gitignore                    # appends .pb and the board path
 .cursor/rules/pilotbook.mdc
 .cursor/skills/<name>/SKILL.md   # discover, shape, architect, implement, groom, prioritize
 .claude/skills/pilotbook-<name>.md

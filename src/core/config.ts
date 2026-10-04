@@ -3,6 +3,7 @@ import { parseDocument, parse as parseYaml } from "yaml";
 import { z } from "zod";
 import { builtinEdges, builtinTypes, defaultConfig } from "./defaults.ts";
 import type { FileSystem } from "./fs.ts";
+import { idPatternFor } from "./ids.ts";
 import type { EdgeKind, NotionDatabaseRef, PilotbookConfig, TypeConfig } from "./types.ts";
 
 const typeOverlaySchema = z
@@ -158,7 +159,6 @@ function overlayType(
 ): TypeConfig {
   const prefix = raw.prefix ?? base?.prefix ?? `${name.toUpperCase()}-`;
   const pad = raw.pad ?? base?.pad ?? 3;
-  const escaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return {
     dir: raw.dir ?? base?.dir ?? name,
     prefix,
@@ -174,7 +174,7 @@ function overlayType(
     optional: raw.optional ?? base?.optional ?? [],
     parent: raw.parent ?? base?.parent,
     template: raw.template ?? base?.template ?? `${name}.md`,
-    idPattern: new RegExp(`^${escaped}\\d{${pad}}$`),
+    idPattern: idPatternFor(prefix, pad),
   };
 }
 

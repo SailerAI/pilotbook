@@ -81,7 +81,7 @@ pb lint && pb board
 2. `pb brief TASK-NNN` — parent story, epic, linked rules and ADRs. Those files are binding.
 3. Implement against the brief.
 4. `pb verify TASK-NNN` then set `status: done`.
-5. `pb lint` must exit 0. `pb board` refreshes `BOARD.md`.
+5. `pb lint` must exit 0. `pb board` refreshes a local `BOARD.md`. Do not commit it.
 
 Step-by-step: [guide/ship.md](guide/ship.md). Tab-complete real IDs:
 
@@ -143,10 +143,10 @@ Every command accepts `--json` except `ui`, `mcp`, and `completions`. Operations
 
 | Command | What it does |
 | --- | --- |
-| `pb new <type> --title "…"` | Allocate the next ID |
+| `pb new <type> --title "…"` | Allocate an id |
 | `pb verify <ID>` | Run `checks.commands`, stamp `verified` |
 | `pb lint` | Graph integrity (`--format github`) |
-| `pb board` | Regenerate `BOARD.md` |
+| `pb board` | Regenerate local `BOARD.md` (do not commit) |
 | `pb converge <ID>` | Append tasks for uncovered criteria |
 | `pb analyze` | Coverage and proved `ID#N` criteria |
 

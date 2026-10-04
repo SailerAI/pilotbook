@@ -14,10 +14,7 @@ done: A markdown summary of proposed changes exists; no priority is changed with
 
 ## Protocol
 
-Read `docs/backlog/BOARD.md` and `pb next`. `pb status <ID>` on a candidate before moving it —
-what still blocks it and what it unlocks belongs in the rationale. `pb impact <ID>` before
-reprioritizing a business rule or ADR — raising or lowering it moves every story and task that
-cites it.
+Run `pb board`, then read `docs/backlog/BOARD.md` and `pb next`. A fresh clone has no board until `pb board`. `pb status <ID>` on a candidate before moving it — what still blocks it and what it unlocks belongs in the rationale. `pb impact <ID>` before reprioritizing a business rule or ADR — raising or lowering it moves every story and task that cites it.
 
 Propose `priority` and `phase` updates as a table:
 

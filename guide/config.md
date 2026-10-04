@@ -48,7 +48,7 @@ hooks:
 
 ## Type overlays
 
-You can change prefixes, directories, or required fields. Keep `idPattern` consistent with `prefix` + `pad` or lint will `bad-id`. Optional keys are allowed by `unknown-field`. Object keys (like `verified` on tasks) are declared in `objects`.
+You can change prefixes, directories, or required fields. `pad` still validates existing numeric ids (`US-001`). New ids from `pb new` are 6 Crockford characters and do not use `pad`. A mismatch is `bad-id`. Optional keys are allowed by `unknown-field`. Object keys (like `verified` on tasks) are declared in `objects`.
 
 ## code_map
 

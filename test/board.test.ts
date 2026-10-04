@@ -117,6 +117,26 @@ describe("boardPlan", () => {
       status: "review",
     });
   });
+
+  it("parses a collision-resistant id already on the board", () => {
+    const ctx = sample();
+    const rel = `${ctx.project.config.root}/${ctx.project.config.board}`;
+    const abs = hostJoin(ctx.project.projectRoot, rel);
+    const stale = `# Backlog board
+
+## By status
+
+### done (1)
+
+| ID | Title | Type | Pri |
+| --- | --- | --- | --- |
+| [US-K7M2QP](backlog/stories/US-K7M2QP-gone.md) | Gone | story | P1 |
+
+`;
+    ctx.fs.mkdirp(hostJoin(abs, ".."));
+    ctx.fs.writeFile(abs, stale);
+    expect(boardPlan(ctx).orphans).toEqual([{ id: "US-K7M2QP", status: "done" }]);
+  });
 });
 
 describe("NodeFileSystem.writeFileAtomic", () => {

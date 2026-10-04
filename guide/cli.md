@@ -19,7 +19,7 @@ pb init --ai=false
 pb init --refresh-skills
 ```
 
-Scaffold config, type directories, templates, `.gitignore` (`.pb`), and agent wiring. Skips files that already exist. `--ai` defaults to true. `--refresh-skills` overwrites shipped skills whose content still matches a previously shipped body; locally edited skills are skipped.
+Scaffold config, type directories, templates, `.gitignore` (`.pb` and the board path), and agent wiring. Skips files that already exist. `--ai` defaults to true. `--refresh-skills` overwrites shipped skills whose content still matches a previously shipped body; locally edited skills are skipped. If `BOARD.md` is already tracked, `pb init` prints `git rm --cached` for that path.
 
 ## new
 
@@ -30,7 +30,7 @@ pb new task --story US-001 --title "…" --area db
 pb new epic --title "…" --goal "…"
 ```
 
-`type`: `epic` | `story` | `task` | `adr` | `business-rule` | `idea`. Allocates the next ID.
+`type`: `epic` | `story` | `task` | `adr` | `business-rule` | `idea`. Allocates a collision-resistant id (`US-K7M2QP`). Existing padded ids stay valid.
 
 ## next
 
@@ -126,7 +126,7 @@ pb board
 pb board --dry-run
 ```
 
-Regenerate `BOARD.md`. Dry-run: `in_sync`, `added`, `orphans`.
+Regenerate local `BOARD.md`. The file is gitignored. Dry-run: `in_sync`, `added`, `orphans`.
 
 ## explain
 

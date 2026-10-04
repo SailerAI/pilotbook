@@ -87,7 +87,7 @@ pb board
 
 `pb lint` must exit 0. If checks are configured, a `done` task without a fresh `verified` block is `unverified-done`. Changing the task after verify is `stale-verified`.
 
-`pb board` regenerates `docs/backlog/BOARD.md`. Commit the item file together with the board.
+`pb board` regenerates `docs/backlog/BOARD.md` for local reading. Do not commit it. Commit the item file.
 
 ```bash
 pb board --dry-run

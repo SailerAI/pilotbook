@@ -15,6 +15,6 @@
 
 ## Checklist
 
-- [ ] Backlog item status is `review` or `done`; `BOARD.md` regenerated if docs changed
+- [ ] Backlog item status is `review` or `done`; do not commit `BOARD.md`
 - [ ] Money stays a string in JSON and `NUMERIC` in Postgres (no floats, no raw Drizzle rows on the wire)
 - [ ] UI changes verified in the browser (and mobile if layout changed)
