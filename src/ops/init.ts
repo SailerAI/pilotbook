@@ -1,6 +1,6 @@
 import nodeFs from "node:fs";
 import path from "node:path";
-import { dumpDefaultConfig, hostJoin } from "../core/config.ts";
+import { dumpDefaultConfig, hostJoin, parseConfigFile, toPosix } from "../core/config.ts";
 import { defaultConfig } from "../core/defaults.ts";
 import type { FileSystem } from "../core/fs.ts";
 import { NodeFileSystem } from "../core/node-fs.ts";
@@ -21,6 +21,34 @@ export interface InitResult {
   root: string;
   wrote: string[];
   skipped: string[];
+  notes: string[];
+}
+
+function ensureGitignoreLine(fs: FileSystem, root: string, line: string, wrote: string[]): boolean {
+  const rel = ".gitignore";
+  const abs = hostJoin(root, rel);
+  if (!fs.exists(abs)) {
+    fs.writeFile(abs, `${line}\n`);
+    wrote.push(rel);
+    return true;
+  }
+  const cur = fs.readFile(abs);
+  if (cur.split(/\r?\n/).some((entry) => entry.trim() === line)) return false;
+  fs.writeFile(abs, cur.endsWith("\n") ? `${cur}${line}\n` : `${cur}\n${line}\n`);
+  if (!wrote.includes(rel)) wrote.push(rel);
+  return true;
+}
+
+function configuredBoardRel(fs: FileSystem, root: string): string {
+  const fallback = toPosix(`${defaultConfig().root}/${defaultConfig().board}`);
+  const abs = hostJoin(root, "pilotbook.config.yml");
+  if (!fs.exists(abs)) return fallback;
+  try {
+    const cfg = parseConfigFile(fs.readFile(abs));
+    return toPosix(`${cfg.root}/${cfg.board}`);
+  } catch {
+    return fallback;
+  }
 }
 
 function detectAgents(
@@ -106,6 +134,7 @@ export function initProject(
   const root = cwd;
   const wrote: string[] = [];
   const skipped: string[] = [];
+  const notes: string[] = [];
   const write = (rel: string, content: string): void => {
     const abs = hostJoin(root, rel);
     if (fs.exists(abs)) {
@@ -130,19 +159,11 @@ export function initProject(
     if (fs.exists(src)) write(`templates/${name}`, fs.readFile(src));
   }
 
-  const gitignoreAbs = hostJoin(root, ".gitignore");
-  const ignoreLine = ".pb";
-  if (fs.exists(gitignoreAbs)) {
-    const cur = fs.readFile(gitignoreAbs);
-    if (!cur.split(/\r?\n/).includes(ignoreLine)) {
-      fs.writeFile(
-        gitignoreAbs,
-        cur.endsWith("\n") ? `${cur}${ignoreLine}\n` : `${cur}\n${ignoreLine}\n`,
-      );
-      wrote.push(".gitignore");
-    }
-  } else {
-    write(".gitignore", `${ignoreLine}\n`);
+  ensureGitignoreLine(fs, root, ".pb", wrote);
+  const boardRel = configuredBoardRel(fs, root);
+  const addedBoard = ensureGitignoreLine(fs, root, boardRel, wrote);
+  if (addedBoard && fs.exists(hostJoin(root, boardRel))) {
+    notes.push(`${boardRel} is generated. If it is tracked, run: git rm --cached ${boardRel}`);
   }
 
   if (opts.ai !== false) {
@@ -181,5 +202,5 @@ export function initProject(
     }
   }
 
-  return { root, wrote, skipped };
+  return { root, wrote, skipped, notes };
 }

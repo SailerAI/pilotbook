@@ -26,7 +26,7 @@ Every diagnostic has `file:line:col` (and often `suggestion` / `fix`).
 | `missing-field` | Required frontmatter key empty |
 | `unknown-field` | Key not in the type schema |
 | `type-mismatch` | `type:` does not match the folder type |
-| `bad-id` | Id fails the prefix/pad pattern |
+| `bad-id` | Id is neither `{prefix}` + `pad` digits nor `{prefix}` + 6 Crockford characters |
 | `filename-mismatch` | File is not `{id}-<slug>.md` |
 | `invalid-enum` | Status, priority, area, … not in the allow-list |
 | `not-array` | Field must be an inline YAML array |
@@ -51,6 +51,7 @@ Every diagnostic has `file:line:col` (and often `suggestion` / `fix`).
 | `parentless-task` | Task has no story and is P0 or estimate ≥ 3 |
 | `unbound-criterion` | `covers` is not `ID#N` or `N` is out of range |
 | `missing-evidence` | Idea is `promoted` but has no URL or internal ID under `## Evidence` |
+| `board-not-ignored` | The configured `BOARD.md` path is missing from `.gitignore` |
 
 Fix IDs and edges; do not delete diagnostics by moving files. After a body edit on an accepted ADR or active rule:
 

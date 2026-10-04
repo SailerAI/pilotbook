@@ -29,6 +29,7 @@ export interface ConvergeResult {
 }
 
 interface PlannedTask extends ConvergePlanTask {
+  id: string;
   rel: string;
   abs: string;
 }
@@ -103,6 +104,7 @@ function planTasks(ctx: OpContext, id: string): PlannedTask[] {
       covers: [row.key],
       business_rules: asStringList(story.data.business_rules),
       adrs: asStringList(story.data.adrs),
+      id: next,
       rel,
       abs,
     });
@@ -187,7 +189,7 @@ export function convergeItem(
             ...(step.adrs.length ? { adrs: step.adrs } : {}),
             body: `## Scope\n\nCover ${step.covers[0]} on ${step.story}.\n\n${step.title}\n\n## Steps\n\n- [ ] Close this gap\n\n## Verification\n\nA covering task exists for ${step.covers[0]}.\n`,
           },
-          { skipBoard: true },
+          { skipBoard: true, id: step.id },
         ),
       );
     }

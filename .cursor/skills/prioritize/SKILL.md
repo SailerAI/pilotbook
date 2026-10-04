@@ -14,7 +14,7 @@ done: A markdown summary of proposed changes exists; no priority is changed with
 
 ## Protocol
 
-Read `docs/backlog/BOARD.md` and `pb next`.
+Run `pb board`, then read `docs/backlog/BOARD.md` and `pb next`. A fresh clone has no board until `pb board`.
 
 Propose `priority` and `phase` updates as a table:
 

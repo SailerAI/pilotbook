@@ -574,7 +574,7 @@ describe("Notion intake", () => {
     const created = ctx.project.index.items.find(
       (i) => String(i.data.title) === "Captured in Notion",
     );
-    expect(created?.data.id).toMatch(/^IDEA-\d{3}$/);
+    expect(created?.data.id).toMatch(/^IDEA-[0-9A-HJKMNP-TV-Z]{6}$/);
     expect(created?.data.id).not.toBe("n-new");
     const page = mock.pages.find((p) => p.id === "n-new");
     const written = (

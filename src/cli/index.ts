@@ -121,7 +121,9 @@ const main = defineCommand({
         emit(
           Boolean(args.json),
           result,
-          `initialized ${result.root}\nwrote: ${result.wrote.join(", ") || "(none)"}\n`,
+          `initialized ${result.root}\nwrote: ${result.wrote.join(", ") || "(none)"}\n${
+            result.notes.length ? `${result.notes.join("\n")}\n` : ""
+          }`,
         );
       },
     }),

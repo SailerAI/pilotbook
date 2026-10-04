@@ -1,3 +1,4 @@
+import { idPatternFor } from "./ids.ts";
 import type { EdgeKind, PilotbookConfig, TypeConfig } from "./types.ts";
 import {
   ADR_STATUS,
@@ -17,7 +18,6 @@ function typeCfg(
   required: string[],
   extra: Partial<TypeConfig>,
 ): TypeConfig {
-  const escaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return {
     dir,
     prefix,
@@ -32,7 +32,7 @@ function typeCfg(
     objects: extra.objects ?? [],
     parent: extra.parent,
     template: extra.template ?? `${extra.parent ? "" : ""}${dir.split("/").pop()}.md`,
-    idPattern: extra.idPattern ?? new RegExp(`^${escaped}\\d{${pad}}$`),
+    idPattern: extra.idPattern ?? idPatternFor(prefix, pad),
   };
 }
 

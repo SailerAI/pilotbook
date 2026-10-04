@@ -1,5 +1,6 @@
 import path from "node:path";
 import { parseChecklist } from "./checklist.ts";
+import { toPosix } from "./config.ts";
 import { findCycle } from "./cycles.ts";
 import { bodyHash, contentHash } from "./hash.ts";
 import { splitRemoteId } from "./ids.ts";
@@ -193,7 +194,7 @@ export function lintGraph(
             "bad-id",
             `id "${data.id}" does not match ${cfg.idPattern}`,
             "id",
-            `Use ${cfg.prefix}${"0".repeat(cfg.pad)}.`,
+            `Run pb new. Existing numeric ids look like ${cfg.prefix}${"0".repeat(cfg.pad)}.`,
           ),
         );
       }
@@ -583,6 +584,38 @@ export function lintGraph(
   }
 
   return { errors, warnings, count: items.length };
+}
+
+export function boardRel(config: PilotbookConfig): string {
+  return toPosix(`${config.root}/${config.board}`);
+}
+
+/** True when a non-comment `.gitignore` line is exactly the board path. */
+export function gitignoreLists(text: string, rel: string): boolean {
+  const wanted = toPosix(rel);
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || line.startsWith("#") || line.startsWith("!")) continue;
+    if (toPosix(line.replace(/^\//, "")) === wanted) return true;
+  }
+  return false;
+}
+
+export function boardNotIgnoredWarning(
+  config: PilotbookConfig,
+  gitignore: string | null,
+): Diagnostic | null {
+  const rel = boardRel(config);
+  if (gitignore !== null && gitignoreLists(gitignore, rel)) return null;
+  return {
+    code: "board-not-ignored",
+    severity: "warning",
+    message: `${rel} is generated and is not listed in .gitignore`,
+    file: ".gitignore",
+    line: 1,
+    column: 1,
+    suggestion: `Add ${rel} to .gitignore. If it is already tracked, run git rm --cached ${rel}.`,
+  };
 }
 
 export function formatGithub(diagnostics: Diagnostic[]): string {

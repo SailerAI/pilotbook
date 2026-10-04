@@ -1,13 +1,25 @@
 import { type BriefResult, compileBrief, renderBriefMarkdown } from "../core/brief.ts";
+import { hostJoin } from "../core/config.ts";
 import { splitRemoteId } from "../core/ids.ts";
-import { formatDiagnostic, formatGithub, type LintResult, lintGraph } from "../core/lint.ts";
+import {
+  boardNotIgnoredWarning,
+  formatDiagnostic,
+  formatGithub,
+  type LintResult,
+  lintGraph,
+} from "../core/lint.ts";
 import { type ParsedItem, type PeerItem, PRIORITIES, WORK_TYPES } from "../core/types.ts";
 import { type OpContext, PilotbookError } from "./context.ts";
 import { writeBoard } from "./items.ts";
 import { tokenize, tokenOverlap } from "./tokens.ts";
 
 export function lint(ctx: OpContext): LintResult {
-  return lintGraph(ctx.project.index, ctx.project.config, ctx.project.peers);
+  const result = lintGraph(ctx.project.index, ctx.project.config, ctx.project.peers);
+  const gitignoreAbs = hostJoin(ctx.project.projectRoot, ".gitignore");
+  const gitignore = ctx.fs.exists(gitignoreAbs) ? ctx.fs.readFile(gitignoreAbs) : null;
+  const warning = boardNotIgnoredWarning(ctx.project.config, gitignore);
+  if (warning) result.warnings.push(warning);
+  return result;
 }
 
 export function lintText(

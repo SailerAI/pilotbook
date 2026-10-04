@@ -29,7 +29,11 @@ describe("seed", () => {
       ctx,
       `# Epic: Workspaces\n\n## Story: Create workspace\n\n### Task: Schema\narea: db\n`,
     );
-    expect(result.created.map((c) => c.id)).toEqual(["EPIC-001", "US-001", "TASK-001"]);
+    expect(result.created.map((c) => c.id)).toEqual([
+      expect.stringMatching(/^EPIC-[0-9A-HJKMNP-TV-Z]{6}$/),
+      expect.stringMatching(/^US-[0-9A-HJKMNP-TV-Z]{6}$/),
+      expect.stringMatching(/^TASK-[0-9A-HJKMNP-TV-Z]{6}$/),
+    ]);
   });
 });
 
@@ -133,6 +137,28 @@ describe("init", () => {
     expect(fs.readFile("/app/.claude/skills/pilotbook-implement.md")).toBe(
       "user rewrote this skill\n",
     );
+  });
+
+  it("gitignores the board and says how to untrack an existing one", () => {
+    const fs = seedInitFs();
+    const fresh = initProject("/app", { ai: false }, fs);
+    expect(fs.readFile("/app/.gitignore")).toBe(".pb\ndocs/backlog/BOARD.md\n");
+    expect(fresh.notes).toEqual([]);
+    const again = initProject("/app", { ai: false }, fs);
+    expect(again.wrote).not.toContain(".gitignore");
+    expect(fs.readFile("/app/.gitignore")).toBe(".pb\ndocs/backlog/BOARD.md\n");
+
+    const custom = new MemoryFileSystem("/app");
+    custom.seed({
+      "pilotbook.config.yml": "root: notes\nboard: index/BOARD.md\n",
+      ".gitignore": ".pb\n",
+      "notes/index/BOARD.md": "# board\n",
+    });
+    const migrated = initProject("/app", { ai: false }, custom);
+    expect(custom.readFile("/app/.gitignore")).toBe(".pb\nnotes/index/BOARD.md\n");
+    expect(migrated.notes).toEqual([
+      "notes/index/BOARD.md is generated. If it is tracked, run: git rm --cached notes/index/BOARD.md",
+    ]);
   });
 
   it("points a fresh AGENTS.md at pb instructions overview", () => {

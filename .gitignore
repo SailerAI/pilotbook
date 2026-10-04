@@ -2,6 +2,7 @@ node_modules
 dist
 coverage
 .pb
+docs/backlog/BOARD.md
 *.tgz
 .DS_Store
 .env

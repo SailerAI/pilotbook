@@ -51,7 +51,7 @@ Writes `docs/backlog/BOARD.md` (path is `root` + `board` in config). Dry-run rep
 - `added` — items on disk that are not on the board
 - `orphans` — board rows whose files are gone
 
-Commit `BOARD.md` with the item files that changed it.
+`BOARD.md` is a local projection. `pb init` lists it in `.gitignore`. Commit the item files and leave the board untracked. If a clone already tracks it, run `git rm --cached docs/backlog/BOARD.md` once.
 
 ## Graphviz
 

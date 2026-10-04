@@ -25,7 +25,7 @@ Ask at most **1** question if the brief is truncated (`fetch[]`). Stop once you 
 5. `pb verify <ID>` (or `--force` only with a written reason).
 6. Set `status: done` (or `review`).
 7. `pb lint` must exit 0. `pb board`.
-8. Commit the item file together with `BOARD.md`.
+8. Commit the item file. Leave `BOARD.md` untracked.
 
 ## Handoff
 

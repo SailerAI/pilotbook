@@ -7,7 +7,7 @@ import { extraKeys } from "../core/defaults.ts";
 import { parseFrontmatter, serializeItem, today } from "../core/frontmatter.ts";
 import { inboundOf, toPublic } from "../core/graph.ts";
 import { bodyHash } from "../core/hash.ts";
-import { nextId, slugify, splitRemoteId } from "../core/ids.ts";
+import { CROCKFORD, nextId, RANDOM_ID_LENGTH, slugify, splitRemoteId } from "../core/ids.ts";
 import { type ItemData, type ParsedItem, type PublicItem, WORK_TYPES } from "../core/types.ts";
 import { type OpContext, PilotbookError, reload } from "./context.ts";
 
@@ -169,7 +169,7 @@ export function createItem(
     body?: string;
     [key: string]: unknown;
   },
-  opts?: { skipBoard?: boolean },
+  opts?: { skipBoard?: boolean; id?: string },
 ): PublicItem {
   const type = String(input.type);
   const cfg = ctx.project.config.types[type];
@@ -177,7 +177,11 @@ export function createItem(
   const title = String(input.title ?? "").trim();
   if (!title) throw new PilotbookError("title is required");
 
-  const id = nextId(type, cfg, ctx.project.index.items);
+  const id = opts?.id ?? nextId(type, cfg, ctx.project.index.items);
+  if (opts?.id) {
+    if (!cfg.idPattern.test(id)) throw new PilotbookError(`invalid id: ${id}`);
+    if (ctx.project.index.byId.has(id)) throw new PilotbookError(`id already used: ${id}`);
+  }
   const slug = slugify(title) || "untitled";
   const rel = toPosix(`${ctx.project.config.root}/${cfg.dir}/${id}-${slug}.md`);
   const abs = hostJoin(ctx.project.projectRoot, rel);
@@ -379,7 +383,9 @@ function appendBoardTable(lines: string[], bucket: ParsedItem[], config: { root:
   lines.push("");
 }
 
-const BOARD_ROW_ID = /^\| \[([A-Z]+-\d+)\]\(/;
+const BOARD_ROW_ID = new RegExp(
+  `^\\| \\[([A-Z]+-(?:\\d+|[${CROCKFORD}]{${RANDOM_ID_LENGTH}}))\\]\\(`,
+);
 const BOARD_STATUS_HEADING = /^### (.+) \((\d+)\)\s*$/;
 
 export interface BoardPlan {

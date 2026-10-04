@@ -122,8 +122,9 @@ describe("crud + write-time", () => {
   it("creates a story under an epic", () => {
     const ctx = graph();
     const created = createItem(ctx, { type: "story", title: "Invite members", epic: "EPIC-001" });
-    expect(created.id).toBe("US-002");
-    expect(created.rel).toContain("US-002-invite-members.md");
+    expect(created.id).toMatch(/^US-[0-9A-HJKMNP-TV-Z]{6}$/);
+    expect(created.id).not.toBe("US-001");
+    expect(created.rel).toContain(`${created.id}-invite-members.md`);
   });
 
   it("rejects dangling parent at write time", () => {
