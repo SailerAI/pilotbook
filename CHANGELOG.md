@@ -1,5 +1,11 @@
 # pilotbook
 
+## 0.3.1
+
+### Patch Changes
+
+- Stop committing `BOARD.md` and allocate new ids as a prefix plus 6 Crockford characters so two branches no longer collide on the board or on the next `US-`, `TASK-`, or `EPIC-` number. Existing padded ids stay valid.
+
 ## 0.3.0
 
 ### Minor Changes
